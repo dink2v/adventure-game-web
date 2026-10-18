@@ -1,30 +1,36 @@
 # Warung Kita — Cooking & Restaurant Simulator
 
-Game simulasi warung berbasis HTML, CSS, dan JavaScript, dirancang untuk browser HP maupun laptop.
+Game simulasi memasak dan manajemen warung berbasis HTML, CSS, dan JavaScript. Dibuat responsif untuk browser HP maupun laptop.
 
-## Gameplay demo
-- Terima pesanan makanan dan minuman khas Indonesia.
-- Siapkan bahan, masak hidangan, lalu sajikan untuk menerima pembayaran.
-- Kelola uang kas, reputasi, pelanggan, dan stok bahan.
-- Upgrade kompor dan meja, serta belanja bahan baku.
-- Pelanggan memiliki tingkat kesabaran yang memengaruhi tip dan reputasi.
-- Progres single-player tersimpan di browser dengan LocalStorage.
-- Tampilan responsif dengan ilustrasi warung yang digambar menggunakan Canvas.
+## Fitur single-player saat ini
+- Alur memasak tiga tahap: siapkan bahan, masak, lalu sajikan.
+- Tujuh menu yang dapat berkembang: nasi goreng spesial, mi goreng Jawa, bakso kuah, es teh manis, ayam geprek, soto ayam, dan sate ayam.
+- Menu baru terbuka berdasarkan total pelanggan yang berhasil dilayani.
+- Pengelolaan uang kas, modal bahan, stok, omzet, tip, reputasi, dan jumlah pelanggan.
+- Pelanggan memiliki kesabaran; pelayanan lambat dapat mengurangi reputasi dan tip.
+- Upgrade kompor, tambah meja, belanja stok, rekrut asisten dapur, dan promosi.
+- Misi harian dengan hadiah uang dan reputasi.
+- Peringkat usaha berdasarkan jumlah pelanggan, dari warung pemula menuju calon juragan restoran.
+- Hari operasional, bonus pergantian hari, ringkasan omzet dan pelanggan.
+- Progres disimpan di browser dengan LocalStorage.
+- UI responsif dan ilustrasi warung digambar dengan Canvas.
 
 ## Menjalankan
-Buka `index.html` lewat browser atau gunakan GitHub Pages:
+Buka `index.html` lewat browser atau kunjungi GitHub Pages:
 https://dink2v.github.io/adventure-game-web/
 
 ## GitHub Pages
-Pengaturan publikasi yang ada tidak perlu diubah: Settings → Pages → Deploy from a branch → `main` → `/(root)`.
+Pengaturan publikasi tetap: Settings → Pages → Deploy from a branch → `main` → `/(root)`.
 
-## Rencana berikutnya
-- Animasi memasak dan interaksi bahan yang lebih kaya.
-- Menu, resep, pelanggan, dan level restoran yang lebih banyak.
-- Multiplayer online setelah versi single-player stabil; perlu backend realtime dan identitas pemain.
+## Batasan versi saat ini
+- Penyimpanan lokal per browser/perangkat; belum sinkron antarperangkat.
+- Belum ada backend akun, cloud save, multiplayer, atau leaderboard online.
+- Ilustrasi warung masih berbasis Canvas; belum menggunakan aset 3D realistis.
+- Efek suara dan musik belum aktif.
+- Gameplay dan tampilan perlu pengujian langsung di browser HP setelah deployment.
+
+## Pengembangan berikutnya
+- Animasi memasak dan indikator waktu/progres yang lebih interaktif.
+- Sistem pelanggan/antrean yang lebih hidup serta laporan keuangan terperinci.
 - Efek suara dan musik.
-
-## Catatan
-- Progres tersimpan pada browser/perangkat yang digunakan, belum sinkron antarperangkat.
-- Multiplayer online belum tersedia pada versi demo ini.
-- Efek suara belum aktif.
+- Akun, cloud save, dan multiplayer realtime setelah fondasi single-player stabil.
