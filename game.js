@@ -69,9 +69,11 @@
     if(view==='more'){more.classList.remove('app-view-hidden');footer.classList.remove('app-view-hidden');}
     if(view==='home')window.scrollTo({top:0,behavior:'smooth'});else window.scrollTo({top:0,behavior:'smooth'});
   }
-  document.querySelectorAll('.app-bottom-nav [data-view]').forEach(btn=>btn.addEventListener('click',()=>setView(btn.dataset.view)));\n  document.querySelectorAll('.dashboard-nav [data-view-link]').forEach(link=>link.addEventListener('click',e=>{e.preventDefault();setView(link.dataset.viewLink);document.querySelectorAll('.dashboard-nav a').forEach(a=>a.classList.toggle('active',a===link));}));
+  document.querySelectorAll('.app-bottom-nav [data-view]').forEach(btn=>btn.addEventListener('click',()=>setView(btn.dataset.view)));
+  document.querySelectorAll('.dashboard-nav [data-view-link]').forEach(link=>link.addEventListener('click',e=>{e.preventDefault();setView(link.dataset.viewLink);document.querySelectorAll('.dashboard-nav a').forEach(a=>a.classList.toggle('active',a===link));}));
 
-\n  function current(){return recipes[state.menu];}
+
+  function current(){return recipes[state.menu];}
   function formatClock(){return state.todayServed>5?'SORE':state.todayServed>2?'SIANG':'PAGI';}
   function unlocked(id){return !recipes[id].unlock || state.served>=recipes[id].unlock;}
   function rankName(){return state.served>=25?'Calon Juragan Restoran':state.served>=15?'Pemilik Rumah Makan':state.served>=8?'Juragan Warung Berkembang':'Pemilik Warung Pemula';}
