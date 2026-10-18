@@ -67,7 +67,14 @@
       </aside>
     </section>
 
-    <section class="management" id="business-panel">
+
+    <section class="market-panel" id="market-panel" aria-label="Pasar bahan baku">
+      <div class="management-heading"><div><p class="eyebrow">PASAR BAHAN BAKU</p><h2>Belanja untuk dapur</h2><p class="market-intro">Harga dan ketersediaan berubah berkala. Pilih bahan sebelum stok pasar habis.</p></div><span class="market-refresh" id="market-refresh">Pasar buka</span></div>
+      <div class="market-wallet"><span>Uang kas</span><strong id="market-cash">Rp 150.000</strong><span class="market-stock-total">Stok dapur: <b id="market-stock-total">12</b> porsi</span></div>
+      <div class="market-grid" id="market-grid" aria-live="polite"></div>
+      <p class="market-note" id="market-note">Harga pasar dapat berubah saat waktu berjalan. Belanja dengan bijak, bro!</p>
+    </section>
+\n    <section class="management" id="business-panel">
       <div class="management-heading"><div><p class="eyebrow">KEMBANGKAN USAHAMU</p><h2>Kelola warung</h2></div><span class="muted small-text">Investasikan keuntungan dengan bijak</span></div>
       <div class="upgrade-grid">
         <article class="upgrade-card"><div class="upgrade-icon stove">♨</div><div class="upgrade-copy"><strong>Kompor profesional</strong><p>Masak lebih cepat dan tambah kapasitas.</p><span class="upgrade-meta">LEVEL <b id="stove-level">1</b> · + bonus reputasi</span></div><button class="upgrade-btn" id="stove-btn">Rp 80.000 <span>↗</span></button></article>
@@ -111,7 +118,7 @@
     <nav class="app-bottom-nav" id="app-bottom-nav" aria-label="Navigasi utama">
       <button type="button" data-view="home" class="active"><span>⌂</span><small>Beranda</small></button>
       <button type="button" data-view="kitchen"><span>♨</span><small>Dapur</small></button>
-      <button type="button" data-view="menu"><span>☷</span><small>Menu</small></button>
+      <button type="button" data-view="market"><span>🧺</span><small>Pasar</small></button>
       <button type="button" data-view="business"><span>⌂</span><small>Usaha</small></button>
       <button type="button" data-view="report"><span>▤</span><small>Laporan</small></button>
       <button type="button" data-view="more"><span>•••</span><small>Lainnya</small></button>
