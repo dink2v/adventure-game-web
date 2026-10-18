@@ -1,24 +1,30 @@
-# Wildbound — Adventure Web Game
+# Warung Kita — Cooking & Restaurant Simulator
 
-Demo game petualangan 2D berbasis HTML, CSS, dan JavaScript. Dirancang untuk browser HP maupun laptop.
+Game simulasi warung berbasis HTML, CSS, dan JavaScript, dirancang untuk browser HP maupun laptop.
 
-## Fitur demo
-- Eksplorasi dunia hutan dengan kamera mengikuti pemain
-- Kontrol keyboard (WASD/tombol arah) dan sentuhan di area permainan
-- Koin, kristal kuno, musuh, HP, XP, dan misi sederhana
-- Progres tersimpan di browser dengan LocalStorage
-- Tampilan responsif untuk HP dan desktop
+## Gameplay demo
+- Terima pesanan makanan dan minuman khas Indonesia.
+- Siapkan bahan, masak hidangan, lalu sajikan untuk menerima pembayaran.
+- Kelola uang kas, reputasi, pelanggan, dan stok bahan.
+- Upgrade kompor dan meja, serta belanja bahan baku.
+- Pelanggan memiliki tingkat kesabaran yang memengaruhi tip dan reputasi.
+- Progres single-player tersimpan di browser dengan LocalStorage.
+- Tampilan responsif dengan ilustrasi warung yang digambar menggunakan Canvas.
 
 ## Menjalankan
-Buka `index.html` lewat browser atau gunakan GitHub Pages.
+Buka `index.html` lewat browser atau gunakan GitHub Pages:
+https://dink2v.github.io/adventure-game-web/
 
-## Mengaktifkan GitHub Pages
-1. Buka **Settings → Pages** pada repository.
-2. Di **Build and deployment**, pilih **Deploy from a branch**.
-3. Pilih branch `main` dan folder `/(root)`, lalu tekan **Save**.
-4. Tunggu deployment selesai. Alamat game: `https://dink2v.github.io/adventure-game-web/`.
+## GitHub Pages
+Pengaturan publikasi yang ada tidak perlu diubah: Settings → Pages → Deploy from a branch → `main` → `/(root)`.
+
+## Rencana berikutnya
+- Animasi memasak dan interaksi bahan yang lebih kaya.
+- Menu, resep, pelanggan, dan level restoran yang lebih banyak.
+- Multiplayer online setelah versi single-player stabil; perlu backend realtime dan identitas pemain.
+- Efek suara dan musik.
 
 ## Catatan
-- Progres disimpan di browser/perangkat yang digunakan dan belum tersinkron antarperangkat.
-- Multiplayer online belum tersedia pada demo awal. Fitur itu memerlukan backend realtime/server dan sistem identitas pemain.
-- Efek suara belum diimplementasikan.
+- Progres tersimpan pada browser/perangkat yang digunakan, belum sinkron antarperangkat.
+- Multiplayer online belum tersedia pada versi demo ini.
+- Efek suara belum aktif.
