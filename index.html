@@ -16,14 +16,25 @@
       <button class="icon-btn" id="sound-btn" aria-label="Suara" title="Suara">♫</button>
     </header>
 
-    <section class="stats-bar" aria-label="Status warung">
-      <div class="stat"><span class="stat-icon money-icon">Rp</span><div><small>UANG KAS</small><strong id="cash">Rp 150.000</strong></div></div>
-      <div class="stat"><span class="stat-icon">★</span><div><small>REPUTASI</small><strong><span id="rep">1.0</span><span class="muted"> / 5</span></strong></div></div>
-      <div class="stat"><span class="stat-icon">🍽</span><div><small>PELANGGAN</small><strong id="served">0</strong></div></div>
-      <div class="stat"><span class="stat-icon">📦</span><div><small>BAHAN</small><strong id="stock">12</strong></div></div>
+    <section class="dashboard-compact" id="dashboard" aria-label="Dashboard warung">
+      <div class="dashboard-top">
+        <div class="dashboard-identity">
+          <p class="eyebrow">DASHBOARD WARUNG</p>
+          <h1>Warung Bu Rasa</h1>
+          <span class="dashboard-subtitle"><span class="live-dot"></span> <span id="dashboard-day">Hari 1</span> · Usaha sedang buka</span>
+        </div>
+        <button class="dashboard-action" id="enter-kitchen-btn">🍳 Masuk Dapur <span>→</span></button>
+      </div>
+      <div class="dashboard-metrics">
+        <div class="dashboard-metric"><span class="dashboard-metric-icon">Rp</span><div><small>UANG KAS</small><strong id="cash">Rp 150.000</strong></div></div>
+        <div class="dashboard-metric"><span class="dashboard-metric-icon">↗</span><div><small>OMZET HARI INI</small><strong id="dashboard-revenue">Rp 0</strong></div></div>
+        <div class="dashboard-metric"><span class="dashboard-metric-icon">🍽</span><div><small>PELANGGAN HARI INI</small><strong id="dashboard-served">0</strong></div></div>
+        <div class="dashboard-metric"><span class="dashboard-metric-icon">★</span><div><small>REPUTASI</small><strong><span id="rep">1.0</span><span class="muted"> / 5</span></strong></div></div>
+      </div>
+      <nav class="dashboard-nav" aria-label="Navigasi utama">
+        <a class="active" href="#dashboard">Beranda</a><a href="#kitchen-panel">Dapur</a><a href="#menu-panel">Menu</a><a href="#business-panel">Usaha</a><a href="#report-panel">Laporan</a><a href="#more-panel">Lainnya</a>
+      </nav>
     </section>
-
-    <div class="section-heading"><div><p class="eyebrow">USAHA HARI INI</p><h1>Dari warung kecil,<br><em>jadi favorit semua.</em></h1></div><div class="open-badge"><span></span> WARUNG BUKA</div></div>
 
     <section class="main-grid">
       <div class="left-column">
@@ -39,9 +50,9 @@
         </article>
       </div>
 
-      <aside class="kitchen-card">
-        <div class="card-heading"><div><p class="eyebrow">DAPUR AKTIF</p><h2>Area memasak</h2></div><span class="kitchen-status" id="kitchen-status">SIAP</span></div>
-        <div class="dish-selector"><label for="menu-select">Pilih menu yang sesuai dengan pesanan pelanggan</label><select id="menu-select"><option value="nasi">Nasi goreng spesial · Rp18.000</option><option value="mie">Mi goreng Jawa · Rp15.000</option><option value="bakso">Bakso kuah · Rp17.000</option><option value="es">Es teh manis · Rp5.000</option><option value="ayam" disabled>🔒 Ayam geprek · buka setelah 8 pelanggan</option><option value="soto" disabled>🔒 Soto ayam · buka setelah 15 pelanggan</option><option value="sate" disabled>🔒 Sate ayam · buka setelah 25 pelanggan</option></select></div>
+      <aside class="kitchen-card" id="kitchen-panel">
+        <div class="card-heading"><div><p class="eyebrow">DAPUR AKTIF</p><h2>Area memasak</h2></div><div class="kitchen-badges"><span class="kitchen-status" id="kitchen-status">SIAP</span><span class="stock-chip">📦 <strong id="stock">12</strong> stok</span></div></div>
+        <div class="dish-selector" id="menu-panel"><label for="menu-select">Pilih menu yang sesuai dengan pesanan pelanggan</label><select id="menu-select"><option value="nasi">Nasi goreng spesial · Rp18.000</option><option value="mie">Mi goreng Jawa · Rp15.000</option><option value="bakso">Bakso kuah · Rp17.000</option><option value="es">Es teh manis · Rp5.000</option><option value="ayam" disabled>🔒 Ayam geprek · buka setelah 8 pelanggan</option><option value="soto" disabled>🔒 Soto ayam · buka setelah 15 pelanggan</option><option value="sate" disabled>🔒 Sate ayam · buka setelah 25 pelanggan</option></select></div>
         <div class="recipe-box"><div class="recipe-title"><span>BAHAN YANG DIBUTUHKAN</span><span id="recipe-cost">Modal Rp 7.000</span></div><div class="ingredients" id="ingredients"><span>🍚 Nasi</span><span>🥚 Telur</span><span>🥬 Sayur</span><span>🌶️ Bumbu</span></div></div>
         <div class="cook-steps">
           <div class="cook-step active" id="step-1"><span class="step-num">1</span><div><strong>Siapkan bahan</strong><small>Pastikan bahan tersedia</small></div><span class="step-check">●</span></div>
@@ -56,7 +67,7 @@
       </aside>
     </section>
 
-    <section class="management">
+    <section class="management" id="business-panel">
       <div class="management-heading"><div><p class="eyebrow">KEMBANGKAN USAHAMU</p><h2>Kelola warung</h2></div><span class="muted small-text">Investasikan keuntungan dengan bijak</span></div>
       <div class="upgrade-grid">
         <article class="upgrade-card"><div class="upgrade-icon stove">♨</div><div class="upgrade-copy"><strong>Kompor profesional</strong><p>Masak lebih cepat dan tambah kapasitas.</p><span class="upgrade-meta">LEVEL <b id="stove-level">1</b> · + bonus reputasi</span></div><button class="upgrade-btn" id="stove-btn">Rp 80.000 <span>↗</span></button></article>
@@ -65,7 +76,7 @@
       </div>
     </section>
 
-    <section class="progression-panel">
+    <section class="progression-panel" id="more-panel">
       <div class="management-heading"><div><p class="eyebrow">TARGET & PERKEMBANGAN</p><h2>Perjalanan usahamu</h2></div><span class="muted small-text" id="rank-label">Pemilik Warung Pemula</span></div>
       <div class="progression-grid">
         <article class="progress-card">
@@ -91,7 +102,7 @@
         <article class="upgrade-card"><div class="upgrade-icon promo-icon">📣</div><div class="upgrade-copy"><strong>Promosi lingkungan</strong><p>Promosi sekali pakai menaikkan reputasi dan kesabaran pelanggan berikutnya.</p><span class="upgrade-meta" id="promo-status">BELUM AKTIF HARI INI</span></div><button class="upgrade-btn" id="promo-btn">Rp 12.000 <span>↗</span></button></article>
       </div>
     </section>
-    <section class="ledger-panel">
+    <section class="ledger-panel" id="report-panel">
       <div class="management-heading"><div><p class="eyebrow">CATATAN USAHA</p><h2>Ringkasan operasional</h2></div></div>
       <div class="ledger-grid"><div><small>OMZET HARI INI</small><strong id="today-revenue">Rp 0</strong></div><div><small>PELANGGAN HARI INI</small><strong id="today-served">0</strong></div><div><small>HARI BERJALAN</small><strong id="ledger-day">1</strong></div><div><small>ASISTEN</small><strong id="ledger-staff">Belum ada</strong></div></div>
       <p class="ledger-note" id="business-tip">Tips bisnis: layani pesanan sebelum kesabaran pelanggan habis untuk memperoleh tip lebih besar.</p>
