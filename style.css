@@ -207,7 +207,7 @@ body{background:radial-gradient(ellipse at 12% 0%,#e9eee2 0,transparent 34%),var
 }
 
 /* Warung Kita: single-screen navigation and dynamic market */
-.app-bottom-nav{display:none}
+.app-bottom-nav{position:fixed;z-index:100;left:50%;transform:translateX(-50%);bottom:12px;display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:3px;width:min(620px,calc(100vw - 32px));padding:7px;background:#fffefaed;border:1px solid var(--line);border-radius:15px;box-shadow:0 8px 28px #20362d18;backdrop-filter:blur(12px)}
 .app-view-hidden{display:none!important}
 .market-panel{background:var(--paper);border:1px solid var(--line);border-radius:17px;padding:20px;margin-top:0}
 .market-intro{margin:7px 0 0;color:var(--muted);font-size:12px;line-height:1.5}
@@ -227,11 +227,11 @@ body{background:radial-gradient(ellipse at 12% 0%,#e9eee2 0,transparent 34%),var
 .market-item button{width:100%;min-height:38px;border:0;border-radius:9px;background:var(--green);color:white;font:700 11px 'DM Sans',sans-serif;cursor:pointer}
 .market-item button:disabled{opacity:.42;cursor:not-allowed}
 .market-note{margin:14px 0 0;color:var(--muted);font-size:11px;line-height:1.5}
-.app-bottom-nav button{font-family:'DM Sans',sans-serif}
+.app-bottom-nav button{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;min-width:0;min-height:46px;padding:4px 1px;border:0;border-radius:9px;background:transparent;color:#778579;font-family:'DM Sans',sans-serif;cursor:pointer}.app-bottom-nav button span{font-size:17px;line-height:1.1}.app-bottom-nav button small{font-size:9px;font-weight:700;white-space:nowrap}.app-bottom-nav button.active{background:#e6f0e4;color:var(--green)}
 @media(max-width:650px){
  body{padding:0 10px}
  .app{padding-bottom:calc(78px + env(safe-area-inset-bottom))}
- .app-bottom-nav{position:fixed;z-index:100;left:0;right:0;bottom:0;display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:2px;padding:7px 5px calc(7px + env(safe-area-inset-bottom));background:#fffefaed;border-top:1px solid var(--line);box-shadow:0 -5px 20px #20362d0b;backdrop-filter:blur(12px)}
+ .app-bottom-nav{left:0;right:0;bottom:0;transform:none;width:auto;grid-template-columns:repeat(6,minmax(0,1fr));gap:2px;padding:7px 5px calc(7px + env(safe-area-inset-bottom));border:0;border-top:1px solid var(--line);border-radius:0;box-shadow:0 -5px 20px #20362d0b}
  .app-bottom-nav button{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;min-width:0;min-height:47px;padding:4px 1px;border:0;border-radius:9px;background:transparent;color:#778579}
  .app-bottom-nav button span{font-size:17px;line-height:1.1}
  .app-bottom-nav button small{font-size:9px;font-weight:700;white-space:nowrap}
