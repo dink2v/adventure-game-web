@@ -4,3 +4,62 @@
 @media(max-width:850px){body{padding:0 12px}.app{padding-top:12px}.stats-bar{gap:8px}.stat{padding:11px 10px;gap:8px}.stat-icon{width:32px;height:32px}.stat strong{font-size:15px}.main-grid{grid-template-columns:minmax(0,1.1fr) minmax(290px,.9fr);gap:11px}.scene-top{padding:13px}.scene-footer{padding:10px 13px}.card-heading{padding:14px 13px 11px}.order-body{padding:0 13px 14px;gap:11px}.dish-art{width:88px;height:95px;font-size:48px}.order-customer{margin-bottom:12px}.recipe-box{margin-left:13px;margin-right:13px}.dish-selector{padding-left:13px;padding-right:13px}.cook-steps{padding:0 14px}.cook-feedback{margin-left:13px;margin-right:13px}.primary-btn,.secondary-btn{width:calc(100% - 26px);margin-left:13px;margin-right:13px}.upgrade-card{padding:12px}.upgrade-grid{gap:8px}}
 @media(max-width:650px){body{padding:0 9px}.app{padding:9px 0 17px}.topbar{margin-bottom:12px}.brand-mark{width:37px;height:37px}.brand>span:last-child{font-size:12px}.day-chip{padding:9px 10px;gap:6px;font-size:9px}.icon-btn{width:36px;height:36px}.stats-bar{grid-template-columns:repeat(2,minmax(0,1fr));gap:7px;margin-bottom:22px}.stat{padding:10px;border-radius:12px}.stat-icon{width:31px;height:31px;border-radius:10px;font-size:16px}.stat small{font-size:8px;letter-spacing:.8px}.stat strong{font-size:15px}.section-heading{align-items:flex-end;margin-bottom:13px}.section-heading h1{font-size:29px;letter-spacing:-1.2px}.eyebrow{font-size:8px}.open-badge{font-size:8px;padding:8px 9px;gap:6px}.main-grid{grid-template-columns:1fr;gap:12px}.left-column{gap:12px}.scene-card,.order-card,.kitchen-card,.upgrade-card{border-radius:14px}.scene-top{padding:13px 13px 11px}.scene-top strong{font-size:13px}.scene-weather{font-size:9px}.scene-wrap canvas{aspect-ratio:900/510}.scene-caption{left:8px;bottom:8px;padding:7px 9px;font-size:9px}.scene-footer{padding:10px 12px;font-size:9px}.card-heading{padding:14px 13px 10px}.card-heading h2,.management-heading h2{font-size:16px}.order-body{padding:0 13px 14px;gap:12px}.dish-art{width:100px;height:105px;font-size:53px}.order-customer{margin:1px 0 12px}.order-customer strong{font-size:10px}.order-customer small{font-size:8px}.patience-label,.order-reward{font-size:8px}.order-reward strong{font-size:14px}.kitchen-card{padding-bottom:14px}.dish-selector{padding:0 13px 13px}.recipe-box{margin:0 13px 13px;padding:11px}.recipe-title{font-size:7px}.ingredients span{font-size:9px}.cook-steps{padding:0 14px}.cook-step{min-height:41px}.cook-feedback{margin:12px 13px 9px;font-size:10px}.primary-btn,.secondary-btn{width:calc(100% - 26px);margin-left:13px;margin-right:13px}.management{margin-top:23px}.management-heading{align-items:flex-start;flex-direction:column;gap:5px}.upgrade-grid{grid-template-columns:1fr;gap:8px}.upgrade-card{display:grid;grid-template-columns:40px minmax(0,1fr) auto;align-items:center;gap:10px;padding:12px}.upgrade-icon{width:36px;height:36px}.upgrade-copy strong{font-size:11px}.upgrade-copy p{min-height:0;margin:4px 0;font-size:9px}.upgrade-meta{font-size:7px}.upgrade-btn{width:auto;min-width:92px;max-width:112px;padding:10px 8px;font-size:9px;gap:3px}footer{font-size:8px;line-height:1.5;margin-top:16px;align-items:flex-start}footer>span:last-child{text-align:right;max-width:45%}.small-text{font-size:9px}}
 @media(max-width:360px){.day-chip{font-size:8px;padding:8px}.section-heading h1{font-size:26px}.open-badge{font-size:7px}.upgrade-card{grid-template-columns:34px minmax(0,1fr) auto;gap:7px}.upgrade-icon{width:32px;height:32px}.upgrade-btn{min-width:80px;font-size:8px}}
+
+
+/* UI/UX refinement: clearer hierarchy, touch-friendly controls, and mobile safe areas */
+html{scroll-behavior:smooth;scroll-padding-top:16px}
+body{background:radial-gradient(ellipse at 12% 0%,#e9eee2 0,transparent 34%),var(--bg)}
+.app{padding-bottom:max(24px,env(safe-area-inset-bottom))}
+.topbar{min-height:44px}
+.brand,.day-chip,.icon-btn,.stat,.scene-card,.order-card,.kitchen-card,.upgrade-card{transition:border-color .18s ease,box-shadow .18s ease,transform .18s ease}
+.stat{box-shadow:0 2px 8px #263a2b05}
+.stat:hover,.scene-card:hover,.order-card:hover,.kitchen-card:hover,.upgrade-card:hover{border-color:#d8dfd1;box-shadow:0 8px 24px #253b2c0a}
+.scene-wrap{overflow:hidden}
+.scene-wrap canvas{max-width:100%;object-fit:cover}
+.kitchen-card{box-shadow:0 5px 20px #243c2d08}
+.kitchen-status{min-width:66px;text-align:center}
+.dish-selector select{min-height:44px;cursor:pointer}
+.ingredients span{line-height:1.2}
+.cook-step{min-height:47px}
+.primary-btn,.secondary-btn,.upgrade-btn,.icon-btn{min-height:44px}
+.primary-btn{font-size:12px;letter-spacing:.1px}
+.secondary-btn{font-size:10px}
+.primary-btn:active,.secondary-btn:active,.upgrade-btn:active,.icon-btn:active{transform:scale(.985)}
+.upgrade-btn:disabled{filter:grayscale(.25)}
+.toast{bottom:max(18px,env(safe-area-inset-bottom));z-index:20}
+@media(min-width:851px){
+  .kitchen-card{position:sticky;top:14px}
+  .main-grid{gap:20px}
+  .scene-card,.order-card,.kitchen-card,.upgrade-card{box-shadow:0 3px 15px #243c2d05}
+}
+@media(max-width:650px){
+  body{background:radial-gradient(ellipse at 50% 0%,#e8eee2 0,transparent 27%),var(--bg)}
+  .topbar{gap:7px}
+  .brand{gap:8px;min-width:0}
+  .day-chip{flex-shrink:0}
+  .stats-bar{margin-bottom:20px}
+  .stat{min-height:64px;box-shadow:0 2px 8px #263a2b05}
+  .section-heading h1{line-height:1.1}
+  .scene-card,.order-card,.kitchen-card{box-shadow:0 3px 13px #263a2b07}
+  .order-body{align-items:stretch}
+  .dish-art{align-self:center}
+  .cook-step{min-height:46px}
+  .primary-btn{min-height:48px}
+  .upgrade-card{box-shadow:0 2px 9px #263a2b04}
+  footer{padding-bottom:max(10px,env(safe-area-inset-bottom))}
+}
+@media(max-width:380px){
+  .brand small{letter-spacing:1.4px}
+  .day-chip{gap:5px;padding:8px}
+  .stat{gap:7px;padding:9px}
+  .stat strong{font-size:14px}
+  .scene-weather{font-size:8px}
+  .dish-art{width:84px;height:92px;font-size:44px}
+  .order-body{gap:9px}
+}
+@media(hover:none){
+  .stat:hover,.scene-card:hover,.order-card:hover,.kitchen-card:hover,.upgrade-card:hover{box-shadow:none}
+}
+@media(prefers-reduced-motion:reduce){
+  *,*::before,*::after{scroll-behavior:auto!important;transition:none!important;animation:none!important}
+}
