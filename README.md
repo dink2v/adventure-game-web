@@ -4,6 +4,10 @@ Game simulasi memasak dan manajemen warung berbasis HTML, CSS, dan JavaScript. D
 
 ## Fitur single-player saat ini
 - Alur memasak tiga tahap: siapkan bahan, masak, lalu sajikan.
+- Pesanan pelanggan menjadi acuan; menu yang tidak cocok tidak dapat dimasak untuk pesanan tersebut.
+- Memasak memakai timer per resep dan mini-game aksi tepat waktu untuk meningkatkan kualitas.
+- Stok dikurangi saat proses memasak dimulai, bukan saat melihat atau menyiapkan menu.
+- Timer memasak dan status pesanan aktif dipulihkan dari penyimpanan lokal setelah halaman dimuat ulang.
 - Tujuh menu yang dapat berkembang: nasi goreng spesial, mi goreng Jawa, bakso kuah, es teh manis, ayam geprek, soto ayam, dan sate ayam.
 - Menu baru terbuka berdasarkan total pelanggan yang berhasil dilayani.
 - Pengelolaan uang kas, modal bahan, stok, omzet, tip, reputasi, dan jumlah pelanggan.
