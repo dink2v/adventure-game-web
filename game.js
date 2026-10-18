@@ -61,8 +61,8 @@
     const scene=document.querySelector('.scene-card'), order=document.querySelector('.order-card'), kitchen=$('kitchen-panel');
     const dashboard=$('dashboard'), market=$('market-panel'), business=$('business-panel'), extras=document.querySelector('.extra-management'), more=$('more-panel'), report=$('report-panel'), footer=document.querySelector('footer');
     [dashboard,scene,order,kitchen,market,business,extras,more,report,footer].forEach(el=>el&&el.classList.add('app-view-hidden'));
-    if(view==='home'){dashboard.classList.remove('app-view-hidden');scene.classList.remove('app-view-hidden');}
-    if(view==='kitchen'){order.classList.remove('app-view-hidden');kitchen.classList.remove('app-view-hidden');}
+    if(view==='home'){dashboard.classList.remove('app-view-hidden');}
+    if(view==='kitchen'){scene.classList.remove('app-view-hidden');order.classList.remove('app-view-hidden');kitchen.classList.remove('app-view-hidden');}
     if(view==='market'){market.classList.remove('app-view-hidden');renderMarket();}
     if(view==='business'){business.classList.remove('app-view-hidden');extras.classList.remove('app-view-hidden');}
     if(view==='report'){report.classList.remove('app-view-hidden');}
