@@ -43,7 +43,7 @@
     for(const option of $('menu-select').options){if(recipes[option.value]?.unlock){const open=unlocked(option.value);option.disabled=!open;option.textContent=(open?'':'🔒 ')+recipes[option.value].name+' · '+money(recipes[option.value].price)+(open?'':' · buka '+recipes[option.value].unlock+' pelanggan');}}
   }
   function updateStats(){
-    $('cash').textContent=money(state.cash);$('rep').textContent=state.rep.toFixed(1);$('served').textContent=state.served;
+    $('cash').textContent=money(state.cash);$('rep').textContent=state.rep.toFixed(1);$('dashboard-revenue').textContent=money(state.todayRevenue);$('dashboard-served').textContent=state.todayServed;$('dashboard-day').textContent='Hari '+state.day;
     $('stock').textContent=state.stock;$('day-label').textContent='HARI '+state.day;$('time-label').textContent=formatClock();
     $('stove-level').textContent=state.stove;$('table-level').textContent=state.tables;$('upgrade-level').textContent='Warung Level '+Math.max(1,Math.floor((state.stove+state.tables)/3));
     $('stove-btn').innerHTML=money(80000*state.stove)+' <span>↗</span>';$('table-btn').innerHTML=money(60000*state.tables)+' <span>↗</span>';
@@ -172,6 +172,7 @@
     if(Math.floor(state.tick*2)%2===0)drawScene();
     requestAnimationFrame(frame);
   }
+  $('enter-kitchen-btn').addEventListener('click',()=>{$('kitchen-panel').scrollIntoView({behavior:'smooth',block:'start'});$('cook-btn').focus({preventScroll:true});});
   $('menu-select').addEventListener('change',e=>{if(state.step!==0){toast('Selesaikan atau lewati pesanan dulu sebelum ganti menu.');$('menu-select').value=state.menu;return;}if(!unlocked(e.target.value)){toast('Menu ini belum terbuka. Layani lebih banyak pelanggan dulu.');$('menu-select').value=state.menu;return;}state.menu=e.target.value;updateOrder();persist();});
   $('cook-btn').addEventListener('click',cookAction);
   $('new-order-btn').addEventListener('click',()=>nextOrder(true));
