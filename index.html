@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#101a2b">
+  <meta name="description" content="Petualangan kecil di dunia hutan ajaib. Kumpulkan koin, selesaikan misi, dan jelajahi dunia.">
+  <title>Wildbound — Adventure</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <main class="app">
+    <header class="topbar">
+      <a class="brand" href="./" aria-label="Wildbound home"><span class="brand-mark">✦</span><span>WILDBOUND</span></a>
+      <div class="top-actions"><span class="pill" id="save-status">● Progres lokal</span><button class="icon-btn" id="sound-btn" aria-label="Toggle sound" title="Suara">♫</button></div>
+    </header>
+    <section class="game-shell" aria-label="Permainan petualangan">
+      <div class="hud">
+        <div class="player-card"><div class="avatar">🧙</div><div class="player-info"><strong>Penjelajah</strong><div class="level-line"><span>LVL 1</span><div class="xp-track"><span id="xp-bar"></span></div></div></div></div>
+        <div class="hud-stats"><div class="stat"><span>❤️</span><strong id="health">100</strong></div><div class="stat coin-stat"><span>🪙</span><strong id="coins">0</strong></div></div>
+      </div>
+      <div class="canvas-wrap">
+        <canvas id="game" width="960" height="600" aria-label="Arena game. Gunakan tombol arah atau WASD untuk bergerak."></canvas>
+        <div class="toast" id="toast" role="status">Selamat datang, penjelajah!</div>
+        <div class="start-overlay" id="start-overlay"><div class="portal">✦</div><p class="eyebrow">DUNIA BARU MENUNGGU</p><h1>Petualangan<br><em>dimulai di sini.</em></h1><p class="intro">Jelajahi hutan, kumpulkan koin, dan temukan kristal kuno.</p><button class="primary-btn" id="start-btn">Mulai petualangan <span>→</span></button><small>WASD / tombol arah · sentuh layar untuk bergerak</small></div>
+        <div class="pause-overlay hidden" id="pause-overlay"><div class="pause-card"><div class="portal small">Ⅱ</div><h2>Petualangan dijeda</h2><p>Tarik napas, penjelajah.</p><button class="primary-btn" id="resume-btn">Lanjut bermain →</button><button class="quiet-btn" id="reset-btn">Mulai ulang progres</button></div></div>
+      </div>
+      <div class="bottom-panel">
+        <div class="quest"><div class="quest-icon">✧</div><div class="quest-copy"><span class="eyebrow">MISI AKTIF</span><strong id="quest-title">Koin pertama</strong><span id="quest-desc">Kumpulkan 5 koin yang tersebar di hutan.</span><div class="quest-progress"><span id="quest-bar"></span></div></div><span class="quest-count" id="quest-count">0/5</span></div>
+        <div class="controls"><div class="control-hint"><span class="key">W A S D</span><span>atau tombol arah untuk bergerak</span></div><div class="control-buttons"><button class="action-btn" id="interact-btn" aria-label="Interaksi">✧<small>AKSI</small></button><button class="action-btn pause-btn" id="pause-btn" aria-label="Jeda permainan">Ⅱ<small>JEDA</small></button></div></div>
+      </div>
+    </section>
+    <footer><span>WILDBOUND <span class="muted">· DEMO AWAL</span></span><span>Jelajahi dengan caramu <span class="spark">✦</span></span></footer>
+  </main>
+  <script src="game.js"></script>
+</body>
+</html>
