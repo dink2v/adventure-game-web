@@ -1,55 +1,145 @@
 (() => {
   'use strict';
-  const canvas = document.getElementById('game');
-  const ctx = canvas.getContext('2d');
   const $ = id => document.getElementById(id);
-  const W = canvas.width, H = canvas.height;
-  const world = { w: 1800, h: 1200 };
-  const saved = (() => { try { return JSON.parse(localStorage.getItem('wildbound-save') || '{}'); } catch { return {}; } })();
-  const player = { x: saved.x || 470, y: saved.y || 330, r: 17, speed: 210, health: saved.health ?? 100, coins: saved.coins || 0, xp: saved.xp || 0, dir: 1, moving: false, hit: 0 };
-  const keys = new Set();
-  let running = false, paused = false, last = 0, camera = {x:0,y:0}, toastTimer = 0, soundOn = false;
-  let questDone = player.coins >= 5;
-  const coinSpots = Array.from({length:18},(_,i)=>({x:180+(i*197)%1450,y:130+(i*137)%930,taken:(saved.taken||[]).includes(i),phase:i*1.7}));
-  const crystals = [{x:1530,y:880,got:!!saved.crystal}];
-  const trees = [];
-  let seed=34567;
-  const rand=()=>{seed=(seed*16807)%2147483647;return (seed-1)/2147483646;};
-  for(let i=0;i<180;i++){const x=35+rand()*(world.w-70),y=35+rand()*(world.h-70);if(Math.hypot(x-player.x,y-player.y)>100)trees.push({x,y,r:15+rand()*18,t:rand()});}
-  const paths=[{x:0,y:250,w:world.w,h:90},{x:410,y:0,w:100,h:world.h},{x:450,y:600,w:800,h:75},{x:1200,y:600,w:85,h:360},{x:1000,y:920,w:420,h:70}];
-  const enemy={x:1090,y:430,r:19,phase:0,alive:true};
-  function save(){try{localStorage.setItem('wildbound-save',JSON.stringify({x:player.x,y:player.y,health:player.health,coins:player.coins,xp:player.xp,taken:coinSpots.map((c,i)=>c.taken?i:-1).filter(i=>i>=0),crystal:crystals[0].got}));$('save-status').textContent='● Tersimpan';}catch{$('save-status').textContent='● Sesi ini';}}
-  function notify(msg){const el=$('toast');el.textContent=msg;el.classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>el.classList.remove('show'),1800);}
-  function resize(){const rect=canvas.getBoundingClientRect();if(rect.width){/* CSS scales the fixed-resolution canvas for crisp, consistent coordinates. */}}
+  const canvas = $('scene'), ctx = canvas.getContext('2d');
+  const money = n => 'Rp ' + Math.round(n).toLocaleString('id-ID');
+  const recipes = {
+    nasi:{name:'Nasi goreng spesial',emoji:'🍳',price:18000,cost:7000,ingredients:['🍚 Nasi','🥚 Telur','🥬 Sayur','🌶️ Bumbu'],stock:2,customer:['Mas Andi','👨🏻','Lapar berat · suka pedas']},
+    mie:{name:'Mi goreng Jawa',emoji:'🍜',price:15000,cost:6000,ingredients:['🍜 Mi','🥚 Telur','🥬 Sayur','🧂 Kecap'],stock:2,customer:['Mbak Rani','👩🏻','Lagi istirahat kerja']},
+    bakso:{name:'Bakso kuah',emoji:'🍲',price:17000,cost:6500,ingredients:['🍖 Bakso','🍜 Mi','🥬 Seledri','🥣 Kaldu'],stock:2,customer:['Pak Darto','👨🏽','Mau yang hangat']},
+    es:{name:'Es teh manis',emoji:'🧋',price:5000,cost:1500,ingredients:['🫖 Teh','🧊 Es batu','🍯 Gula'],stock:1,customer:['Dina','👧🏻','Haus setelah jalan']},
+  };
+  const saved = (() => { try { return JSON.parse(localStorage.getItem('warung-kita-save') || '{}'); } catch { return {}; } })();
+  const state = {
+    cash:saved.cash ?? 150000, rep:saved.rep ?? 1, served:saved.served ?? 0,
+    stock:saved.stock ?? 12, day:saved.day ?? 1, stove:saved.stove ?? 1,
+    tables:saved.tables ?? 2, orderNo:saved.orderNo ?? 1,
+    menu:saved.menu || 'nasi', step:0, patience:100, tick:0, sound:false,
+    guests:[{x:.2,y:.53,color:'#e2a875',shirt:'#477a62',emoji:'👨🏻'},{x:.77,y:.55,color:'#d6a17b',shirt:'#bd7652',emoji:'👩🏻'}],
+    cashEarned:0
+  };
+  let lastTime=0, toastTimer=0;
+  function persist(){try{localStorage.setItem('warung-kita-save',JSON.stringify({cash:state.cash,rep:state.rep,served:state.served,stock:state.stock,day:state.day,stove:state.stove,tables:state.tables,orderNo:state.orderNo,menu:state.menu}));}catch{}}
+  function toast(message){const el=$('toast');el.textContent=message;el.classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>el.classList.remove('show'),2200);}
+  function current(){return recipes[state.menu];}
+  function formatClock(){return state.served>7?'SORE':state.served>3?'SIANG':'PAGI';}
+  function updateStats(){
+    $('cash').textContent=money(state.cash);$('rep').textContent=state.rep.toFixed(1);$('served').textContent=state.served;
+    $('stock').textContent=state.stock;$('day-label').textContent='HARI '+state.day;$('time-label').textContent=formatClock();
+    $('stove-level').textContent=state.stove;$('table-level').textContent=state.tables;$('upgrade-level').textContent='Warung Level '+Math.max(1,Math.floor((state.stove+state.tables)/3));
+    $('stove-btn').innerHTML=money(80000*state.stove)+' <span>↗</span>';$('table-btn').innerHTML=money(60000*state.tables)+' <span>↗</span>';
+    $('stove-btn').disabled=state.cash<80000*state.stove;$('table-btn').disabled=state.cash<60000*state.tables;$('stock-btn').disabled=state.cash<25000;
+  }
+  function updateOrder(){
+    const r=current();$('order-title').textContent=r.name;$('dish-art').textContent=r.emoji;$('order-price').textContent=money(r.price);
+    $('customer-name').textContent=r.customer[0];$('customer-avatar').textContent=r.customer[1];$('customer-mood').textContent=r.customer[2];
+    $('order-tag').textContent='PESANAN #'+String(state.orderNo).padStart(3,'0');
+    $('recipe-cost').textContent='Modal '+money(r.cost);$('ingredients').innerHTML=r.ingredients.map(x=>'<span>'+x+'</span>').join('');
+    $('patience-label').textContent=Math.round(state.patience)+'%';$('patience-bar').style.width=state.patience+'%';
+    $('patience-bar').style.background=state.patience<30?'#c66a54':state.patience<60?'#d7a64e':'#70a879';
+    $('menu-select').value=state.menu;
+    const labels=['Siapkan bahan','Masak hidangan','Sajikan pesanan'];
+    $('cook-btn').innerHTML=['♧ Siapkan bahan','♨ Mulai memasak','✓ Sajikan & terima uang'][state.step] || labels[0];
+    $('kitchen-status').textContent=['SIAP','MEMASAK','SIAP SAJI'][state.step];
+    for(let i=1;i<=3;i++){const el=$('step-'+i);el.classList.toggle('active',state.step===i-1);el.classList.toggle('done',state.step>=i);el.querySelector('.step-check').textContent=state.step>=i?'✓':state.step===i-1?'●':'○';}
+    $('cook-feedback').textContent=[
+      'Siapkan bahan segar. Pastikan stok bahan cukup sebelum mulai memasak.',
+      'Bahan siap! Racik bumbu dan masak hidangan sampai matang sempurna.',
+      'Hidangan siap disajikan. Berikan pesanan ke pelanggan untuk menerima pembayaran.'
+    ][state.step];
+  }
   function rounded(x,y,w,h,r,color){ctx.fillStyle=color;ctx.beginPath();ctx.roundRect(x,y,w,h,r);ctx.fill();}
-  function drawTree(t){const x=t.x-camera.x,y=t.y-camera.y;if(x<-60||x>W+60||y<-80||y>H+80)return;ctx.fillStyle='#183b30';ctx.beginPath();ctx.ellipse(x,y+12,t.r*.7,t.r*.35,0,0,Math.PI*2);ctx.fill();ctx.fillStyle='#604c3d';ctx.fillRect(x-4,y-3,8,20);ctx.fillStyle=t.t>.5?'#2b7550':'#246448';ctx.beginPath();ctx.arc(x,y-t.r*.15,t.r,0,Math.PI*2);ctx.fill();ctx.fillStyle='#3b8a5d';ctx.beginPath();ctx.arc(x-t.r*.25,y-t.r*.35,t.r*.55,0,Math.PI*2);ctx.fill();ctx.fillStyle='#72b779';ctx.globalAlpha=.22;ctx.beginPath();ctx.arc(x-t.r*.3,y-t.r*.45,t.r*.24,0,Math.PI*2);ctx.fill();ctx.globalAlpha=1;}
-  function drawWorld(){ctx.fillStyle='#244e3c';ctx.fillRect(0,0,W,H);for(let y=0;y<world.h;y+=54)for(let x=0;x<world.w;x+=54){const sx=x-camera.x,sy=y-camera.y;if(sx<-54||sx>W||sy<-54||sy>H)continue;const n=(Math.sin(x*0.11)+Math.cos(y*.13)+Math.sin((x+y)*.07));ctx.fillStyle=n>1.2?'#2a5841':n<-.8?'#214936':'#26513b';ctx.fillRect(sx,sy,52,52);if((x*7+y*3)%5===0){ctx.fillStyle='#54865a';ctx.globalAlpha=.42;ctx.fillRect(sx+12,sy+16,3,3);ctx.fillRect(sx+36,sy+38,2,2);ctx.globalAlpha=1;}}
-    for(const p of paths){ctx.fillStyle='#6c7653';ctx.fillRect(p.x-camera.x,p.y-camera.y,p.w,p.h);ctx.fillStyle='#7d855e';ctx.globalAlpha=.5;ctx.fillRect(p.x-camera.x,p.y-camera.y+8,p.w,p.h>100?3:4);ctx.globalAlpha=1;}
-    for(const t of trees)drawTree(t);
-    for(const c of coinSpots){if(c.taken)continue;const x=c.x-camera.x,y=c.y-camera.y+Math.sin(performance.now()/380+c.phase)*4;if(x<-20||x>W+20||y<-20||y>H+20)continue;ctx.fillStyle='#ffcc69';ctx.globalAlpha=.2;ctx.beginPath();ctx.arc(x,y,15,0,Math.PI*2);ctx.fill();ctx.globalAlpha=1;ctx.fillStyle='#f7c65f';ctx.beginPath();ctx.arc(x,y,8,0,Math.PI*2);ctx.fill();ctx.strokeStyle='#fff0ad';ctx.lineWidth=2;ctx.beginPath();ctx.arc(x,y,5,0,Math.PI*2);ctx.stroke();}
-    const crystal=crystals[0];if(!crystal.got){const x=crystal.x-camera.x,y=crystal.y-camera.y;if(x>-40&&x<W+40&&y>-40&&y<H+40){ctx.fillStyle='#8edff5';ctx.globalAlpha=.18;ctx.beginPath();ctx.arc(x,y,27,0,Math.PI*2);ctx.fill();ctx.globalAlpha=1;ctx.fillStyle='#9ee9f6';ctx.beginPath();ctx.moveTo(x,y-18);ctx.lineTo(x+12,y);ctx.lineTo(x,y+18);ctx.lineTo(x-12,y);ctx.closePath();ctx.fill();ctx.strokeStyle='#e0fcff';ctx.stroke();}}
-    if(enemy.alive){const x=enemy.x-camera.x,y=enemy.y-camera.y;ctx.fillStyle='#152d2c';ctx.beginPath();ctx.ellipse(x,y+13,20,9,0,0,Math.PI*2);ctx.fill();ctx.fillStyle='#8b7ac7';ctx.beginPath();ctx.arc(x,y,18,0,Math.PI*2);ctx.fill();ctx.fillStyle='#b8a8f2';ctx.beginPath();ctx.arc(x-5,y-6,7,0,Math.PI*2);ctx.fill();ctx.fillStyle='#f9e8a4';ctx.fillRect(x-9,y-2,4,4);ctx.fillRect(x+5,y-2,4,4);}
-    drawPlayer();
-    // Soft vignette
-    const g=ctx.createRadialGradient(W/2,H/2,130,W/2,H/2,530);g.addColorStop(0,'#07120d00');g.addColorStop(1,'#07120d55');ctx.fillStyle=g;ctx.fillRect(0,0,W,H);
+  function line(x1,y1,x2,y2,color,width=1){ctx.strokeStyle=color;ctx.lineWidth=width;ctx.beginPath();ctx.moveTo(x1,y1);ctx.lineTo(x2,y2);ctx.stroke();}
+  function drawScene(){
+    const w=canvas.width,h=canvas.height;
+    // Warm daylight and back wall
+    const wall=ctx.createLinearGradient(0,0,0,h);wall.addColorStop(0,'#d6e3ce');wall.addColorStop(.56,'#eee5d0');wall.addColorStop(1,'#c6c4a5');ctx.fillStyle=wall;ctx.fillRect(0,0,w,h);
+    // Back window / street view
+    rounded(42,36,305,170,10,'#b6d1bb');ctx.fillStyle='#8eb28f';ctx.fillRect(52,46,285,150);
+    for(let i=0;i<8;i++){ctx.fillStyle=['#719a76','#83a980','#a7bd8d'][i%3];ctx.beginPath();ctx.arc(70+i*37,88+(i%3)*16,35+(i%2)*10,0,Math.PI*2);ctx.fill();}
+    ctx.fillStyle='#c6d6ad';ctx.fillRect(52,144,285,52);line(193,46,193,196,'#f4eedc',9);line(52,142,337,142,'#f4eedc',8);
+    // wall shelf
+    rounded(394,47,266,20,5,'#8b6546');rounded(405,67,244,9,3,'#b98c60');
+    const jars=[['#d49d59',419],['#9cbd8c',457],['#d7c6a0',495],['#c77e5b',533],['#a3bdc3',571],['#dfc27b',609]];
+    jars.forEach(([color,x])=>{rounded(x,40,23,29,5,color);rounded(x+5,34,13,7,2,'#76543d');});
+    // wall tiles
+    for(let x=370;x<880;x+=56){line(x,220,x,344,'#cfcdbb',1)}for(let y=220;y<345;y+=41)line(370,y,880,y,'#cfcdbb',1);
+    // Floor
+    ctx.fillStyle='#b8a98b';ctx.fillRect(0,352,w,168);
+    for(let y=352;y<h;y+=42){line(0,y,w,y,'#d2c4a6',2);for(let x=(Math.floor(y/42)%2)*45;x<w;x+=90)line(x,y,x,y+42,'#d2c4a6',1);}
+    // Serving counter
+    ctx.fillStyle='#76513b';ctx.beginPath();ctx.moveTo(22,300);ctx.lineTo(660,300);ctx.lineTo(690,414);ctx.lineTo(0,414);ctx.closePath();ctx.fill();
+    ctx.fillStyle='#bd8a5c';ctx.beginPath();ctx.moveTo(20,286);ctx.lineTo(660,286);ctx.lineTo(677,312);ctx.lineTo(8,312);ctx.closePath();ctx.fill();
+    ctx.fillStyle='#936443';ctx.fillRect(18,315,644,10);ctx.fillStyle='#684632';ctx.fillRect(18,327,644,82);
+    for(let x=55;x<630;x+=120){rounded(x,341,94,53,5,'#80573c');line(x+8,351,x+86,351,'#a97a53',2);}
+    // Stove and wok
+    rounded(420,230,150,55,10,'#4a5550');rounded(433,222,124,24,8,'#6e7c71');ctx.fillStyle='#303a35';ctx.beginPath();ctx.ellipse(495,224,53,18,0,0,Math.PI*2);ctx.fill();ctx.fillStyle='#1f2925';ctx.beginPath();ctx.ellipse(495,220,46,13,0,0,Math.PI*2);ctx.fill();
+    ctx.strokeStyle='#d7d5c5';ctx.lineWidth=4;ctx.beginPath();ctx.moveTo(535,221);ctx.lineTo(572,210);ctx.stroke();
+    // steam wisps
+    for(let i=0;i<3;i++){ctx.strokeStyle='#fff9e5aa';ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(470+i*20,207);ctx.bezierCurveTo(451+i*20,194,488+i*20,187,470+i*20,171);ctx.stroke();}
+    // Rice cooker, bottles
+    rounded(588,235,48,48,8,'#e5e5d8');rounded(593,228,38,14,6,'#f8f7e9');ctx.fillStyle='#7f4930';ctx.fillRect(596,251,31,5);
+    ['#b66a37','#d6b34f','#60845c'].forEach((c,i)=>{rounded(365+i*20,244,14,36,4,c);rounded(368+i*20,238,8,9,2,'#e4d7bb');});
+    // Plates and serving tray
+    ctx.fillStyle='#f8f3df';ctx.beginPath();ctx.ellipse(285,291,45,11,0,0,Math.PI*2);ctx.fill();ctx.fillStyle='#d0b86c';ctx.beginPath();ctx.ellipse(285,288,32,7,0,0,Math.PI*2);ctx.fill();
+    // Hanging menu board
+    rounded(690,40,173,132,8,'#4d3d2d');rounded(698,48,157,116,4,'#334b3a');
+    ctx.fillStyle='#f2e6c7';ctx.font='bold 15px Manrope, sans-serif';ctx.fillText('MENU HARI INI',710,72);
+    ctx.font='12px DM Sans, sans-serif';['Nasi goreng  18k','Mi goreng     15k','Bakso kuah   17k','Es teh             5k'].forEach((t,i)=>ctx.fillText(t,710,95+i*17));
+    // Customer tables in the dining area
+    const positions=state.tables>2?[[760,355],[835,420],[755,455],[835,290]]:[[770,374],[830,450]];
+    positions.forEach((p,i)=>{
+      const [x,y]=p;ctx.fillStyle='#5c4634';ctx.beginPath();ctx.ellipse(x,y+19,39,12,0,0,Math.PI*2);ctx.fill();ctx.fillStyle='#9d7652';ctx.fillRect(x-36,y-12,72,29);ctx.fillStyle='#c69b6c';ctx.fillRect(x-40,y-17,80,8);
+      if(i<state.tables){const guest=state.guests[i%state.guests.length];ctx.fillStyle=guest.shirt;ctx.beginPath();ctx.ellipse(x,y-29,20,24,0,0,Math.PI*2);ctx.fill();ctx.fillStyle=guest.color;ctx.beginPath();ctx.arc(x,y-56,17,0,Math.PI*2);ctx.fill();ctx.fillStyle='#473a30';ctx.beginPath();ctx.arc(x-2,y-62,17,Math.PI,Math.PI*2);ctx.fill();ctx.fillStyle='#f9f3df';ctx.fillRect(x-8,y-54,4,3);ctx.fillRect(x+5,y-54,4,3);ctx.strokeStyle='#a45648';ctx.lineWidth=2;ctx.beginPath();ctx.arc(x,y-47,5,0,.9);ctx.stroke();ctx.fillStyle='#fffefa';ctx.beginPath();ctx.ellipse(x-23,y-5,12,5,0,0,Math.PI*2);ctx.fill();ctx.fillStyle='#db8e50';ctx.beginPath();ctx.ellipse(x-23,y-6,7,3,0,0,Math.PI*2);ctx.fill();}
+    });
+    // Warm light, subtle depth
+    const light=ctx.createRadialGradient(250,100,30,250,100,600);light.addColorStop(0,'#fff8dc22');light.addColorStop(1,'#493a1e12');ctx.fillStyle=light;ctx.fillRect(0,0,w,h);
+    // Decorative hanging lamp
+    line(700,0,700,30,'#6b654f',3);ctx.fillStyle='#e5bd69';ctx.beginPath();ctx.moveTo(678,30);ctx.quadraticCurveTo(700,57,722,30);ctx.closePath();ctx.fill();
   }
-  function drawPlayer(){const x=player.x-camera.x,y=player.y-camera.y;ctx.fillStyle='#142e2b88';ctx.beginPath();ctx.ellipse(x,y+14,18,9,0,0,Math.PI*2);ctx.fill();ctx.fillStyle='#4f91a4';ctx.beginPath();ctx.ellipse(x,y+5,13,16,0,0,Math.PI*2);ctx.fill();ctx.fillStyle='#8fd6d0';ctx.beginPath();ctx.arc(x,y-11,12,0,Math.PI*2);ctx.fill();ctx.fillStyle='#263c51';ctx.beginPath();ctx.arc(x+player.dir*3,y-12,7,-.5,Math.PI+.5);ctx.fill();ctx.fillStyle='#f6d4a0';ctx.beginPath();ctx.arc(x+player.dir*5,y-8,2,0,Math.PI*2);ctx.fill();ctx.fillStyle='#d7f6d6';ctx.beginPath();ctx.arc(x-4,y-17,3,0,Math.PI*2);ctx.fill();if(player.hit>0){ctx.strokeStyle='#ff8c86';ctx.lineWidth=3;ctx.beginPath();ctx.arc(x,y,25,0,Math.PI*2);ctx.stroke();}}
-  function update(dt){let dx=0,dy=0;if(keys.has('ArrowLeft')||keys.has('a')||keys.has('A'))dx--;if(keys.has('ArrowRight')||keys.has('d')||keys.has('D'))dx++;if(keys.has('ArrowUp')||keys.has('w')||keys.has('W'))dy--;if(keys.has('ArrowDown')||keys.has('s')||keys.has('S'))dy++;if(dx&&dy){dx*=.7071;dy*=.7071;}player.moving=!!(dx||dy);player.x=Math.max(20,Math.min(world.w-20,player.x+dx*player.speed*dt));player.y=Math.max(20,Math.min(world.h-20,player.y+dy*player.speed*dt));if(dx)player.dir=Math.sign(dx);if(player.hit>0)player.hit-=dt;
-    camera.x=Math.max(0,Math.min(world.w-W,player.x-W/2));camera.y=Math.max(0,Math.min(world.h-H,player.y-H/2));
-    for(const c of coinSpots){if(!c.taken&&Math.hypot(player.x-c.x,player.y-c.y)<27){c.taken=true;player.coins++;player.xp+=10;notify('Koin ditemukan! +1 🪙');save();updateHud();if(player.coins>=5&&!questDone){questDone=true;player.xp+=40;notify('Misi selesai! +40 XP ✨');updateHud();}}}
-    if(enemy.alive&&Math.hypot(player.x-enemy.x,player.y-enemy.y)<player.r+enemy.r){player.health=Math.max(0,player.health-18*dt);player.hit=.15;if(player.health<=0){player.health=100;player.x=470;player.y=330;notify('Kamu pulih di titik awal.');}}
-    if(!crystals[0].got&&Math.hypot(player.x-crystals[0].x,player.y-crystals[0].y)<32){crystals[0].got=true;player.xp+=100;notify('Kristal kuno ditemukan! +100 XP');save();updateHud();}
-    updateHud();
+  function nextOrder(skipped=false){
+    if(skipped&&state.step===2){toast('Pesanan siap disajikan dulu, bro!');return;}
+    state.orderNo++;state.menu=['nasi','mie','bakso','es'][Math.floor(Math.random()*4)];state.step=0;state.patience=100;
+    updateOrder();updateStats();drawScene();persist();if(skipped)toast('Pesanan dilewati. Pelanggan baru datang.');
   }
-  function updateHud(){$('health').textContent=Math.ceil(player.health);$('coins').textContent=player.coins;$('xp-bar').style.width=(player.xp%100)+'%';$('quest-bar').style.width=(Math.min(5,player.coins)/5*100)+'%';$('quest-count').textContent=Math.min(5,player.coins)+'/5';$('quest-title').textContent=questDone?'Misi selesai!':'Koin pertama';$('quest-desc').textContent=questDone?'Bagus! Jelajahi hutan dan cari kristal kuno.':'Kumpulkan 5 koin yang tersebar di hutan.';}
-  function frame(t){if(!running)return;const dt=Math.min((t-last)/1000||0,.04);last=t;if(!paused)update(dt);drawWorld();requestAnimationFrame(frame);}
-  function start(){if(running&&!paused)return;running=true;paused=false;$('start-overlay').classList.add('hidden');$('pause-overlay').classList.add('hidden');last=performance.now();requestAnimationFrame(frame);notify('Jelajahi hutan dan kumpulkan koin!');}
-  function pause(){if(!running)return;paused=!paused;$('pause-overlay').classList.toggle('hidden',!paused);if(!paused){last=performance.now();requestAnimationFrame(frame);}else save();}
-  function reset(){if(!confirm('Mulai ulang? Koin dan progres tersimpan akan dihapus.'))return;localStorage.removeItem('wildbound-save');location.reload();}
-  function interact(){if(!running){start();return;}if(paused)return;const c=crystals[0];if(!c.got&&Math.hypot(player.x-c.x,player.y-c.y)<95){c.got=true;player.xp+=100;notify('Kristal kuno ditemukan! +100 XP');save();}else if(enemy.alive&&Math.hypot(player.x-enemy.x,player.y-enemy.y)<100){enemy.alive=false;player.xp+=50;notify('Musuh dikalahkan! +50 XP');}else notify('Jelajahi area untuk menemukan koin dan kristal.');updateHud();}
-  $('start-btn').addEventListener('click',start);$('resume-btn').addEventListener('click',pause);$('pause-btn').addEventListener('click',()=>{if(!running){start();return;}pause();});$('reset-btn').addEventListener('click',reset);$('interact-btn').addEventListener('click',interact);$('sound-btn').addEventListener('click',()=>{soundOn=!soundOn;$('sound-btn').textContent=soundOn?'♫':'♪';notify(soundOn?'Efek suara akan ditambahkan pada versi berikutnya.':'Suara nonaktif.');});
-  window.addEventListener('keydown',e=>{if(['ArrowUp','ArrowDown','ArrowLeft','ArrowRight',' '].includes(e.key))e.preventDefault();keys.add(e.key);if(e.key==='Escape'&&running)pause();if(e.key===' '&&running&&!paused)interact();});window.addEventListener('keyup',e=>keys.delete(e.key));window.addEventListener('blur',()=>keys.clear());document.addEventListener('visibilitychange',()=>{if(document.hidden&&running&&!paused)pause();});
-  // Touch controls: swipe or hold a direction on the play field.
-  let touchStart=null;canvas.addEventListener('pointerdown',e=>{if(e.pointerType==='mouse')return;touchStart={x:e.clientX,y:e.clientY};canvas.setPointerCapture?.(e.pointerId);});canvas.addEventListener('pointermove',e=>{if(!touchStart||e.pointerType==='mouse')return;keys.delete('ArrowLeft');keys.delete('ArrowRight');keys.delete('ArrowUp');keys.delete('ArrowDown');const dx=e.clientX-touchStart.x,dy=e.clientY-touchStart.y;if(Math.abs(dx)>8)keys.add(dx>0?'ArrowRight':'ArrowLeft');if(Math.abs(dy)>8)keys.add(dy>0?'ArrowDown':'ArrowUp');});function endTouch(){touchStart=null;['ArrowLeft','ArrowRight','ArrowUp','ArrowDown'].forEach(k=>keys.delete(k));}canvas.addEventListener('pointerup',endTouch);canvas.addEventListener('pointercancel',endTouch);
-  updateHud();drawWorld();resize();window.addEventListener('resize',resize);
+  function cookAction(){
+    const r=current();
+    if(state.step===0){
+      if(state.stock<r.stock){toast('Stok bahan kurang. Belanja bahan baku dulu!');return;}
+      state.stock-=r.stock;state.step=1;$('scene-status').textContent='Koki sedang meracik bahan';toast('Bahan siap! Sekarang masak hidangannya.');
+    } else if(state.step===1){
+      state.step=2;state.rep=Math.min(5,state.rep+.05);$('scene-status').textContent='Hidangan hangat siap disajikan';toast('Wangi masakan bikin pelanggan makin lapar!');
+    } else {
+      const tip=state.patience>65?1500:state.patience>30?500:0;
+      const reward=r.price+tip;state.cash+=reward-r.cost;state.cashEarned+=reward-r.cost;state.served++;
+      state.rep=Math.min(5,Math.max(.5,state.rep+(state.patience>45?.12:-.12)));
+      if(state.served%8===0){state.day++;state.cash+=10000;toast('Hari baru! Bonus operasional Rp 10.000.');}
+      else toast('Pesanan tersaji! +'+money(reward)+' pendapatan'+(tip?' termasuk tip pelanggan.':'.'));
+      state.orderNo++;state.menu=['nasi','mie','bakso','es'][Math.floor(Math.random()*4)];state.step=0;state.patience=100;
+      $('scene-status').textContent='Pelanggan menikmati hidangan';persist();
+    }
+    persist();updateStats();updateOrder();drawScene();
+  }
+  function upgrade(kind){
+    if(kind==='stove'){const price=80000*state.stove;if(state.cash<price){toast('Uang kas belum cukup. Layani beberapa pelanggan dulu.');return;}state.cash-=price;state.stove++;state.rep=Math.min(5,state.rep+.15);toast('Kompor ditingkatkan! Masak jadi lebih efisien.');}
+    if(kind==='table'){const price=60000*state.tables;if(state.cash<price){toast('Uang kas belum cukup. Layani beberapa pelanggan dulu.');return;}state.cash-=price;state.tables++;state.rep=Math.min(5,state.rep+.2);toast('Meja baru siap! Kapasitas pelanggan bertambah.');}
+    if(kind==='stock'){if(state.cash<25000){toast('Uang kas belum cukup untuk belanja stok.');return;}state.cash-=25000;state.stock+=12;toast('Stok bahan bertambah 12 porsi. Dapur siap!');}
+    persist();updateStats();drawScene();
+  }
+  function frame(t){const dt=Math.min((t-lastTime)/1000||0,.1);lastTime=t;state.tick+=dt;
+    if(state.step<2){state.patience=Math.max(0,state.patience-dt*(state.step===1?1.4:.35));}
+    if(state.patience===0&&state.step<2){state.rep=Math.max(.5,state.rep-.08);state.patience=100;state.step=0;state.orderNo++;toast('Pelanggan kehabisan sabar. Pesanan baru masuk.');state.menu=['nasi','mie','bakso','es'][Math.floor(Math.random()*4)];updateOrder();updateStats();persist();}
+    $('patience-label').textContent=Math.round(state.patience)+'%';$('patience-bar').style.width=state.patience+'%';$('patience-bar').style.background=state.patience<30?'#c66a54':state.patience<60?'#d7a64e':'#70a879';
+    if(Math.floor(state.tick*2)%2===0)drawScene();
+    requestAnimationFrame(frame);
+  }
+  $('menu-select').addEventListener('change',e=>{if(state.step!==0){toast('Selesaikan atau lewati pesanan dulu sebelum ganti menu.');$('menu-select').value=state.menu;return;}state.menu=e.target.value;updateOrder();persist();});
+  $('cook-btn').addEventListener('click',cookAction);
+  $('new-order-btn').addEventListener('click',()=>nextOrder(true));
+  $('stove-btn').addEventListener('click',()=>upgrade('stove'));
+  $('table-btn').addEventListener('click',()=>upgrade('table'));
+  $('stock-btn').addEventListener('click',()=>upgrade('stock'));
+  $('sound-btn').addEventListener('click',()=>{state.sound=!state.sound;$('sound-btn').textContent=state.sound?'♫':'♪';toast('Efek suara akan ditambahkan pada update berikutnya.');});
+  window.addEventListener('resize',drawScene);
+  updateStats();updateOrder();drawScene();requestAnimationFrame(frame);
 })();
