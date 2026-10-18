@@ -3,34 +3,69 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <meta name="theme-color" content="#101a2b">
-  <meta name="description" content="Petualangan kecil di dunia hutan ajaib. Kumpulkan koin, selesaikan misi, dan jelajahi dunia.">
-  <title>Wildbound — Adventure</title>
+  <meta name="theme-color" content="#17352d">
+  <meta name="description" content="Bangun warung kecil menjadi restoran ramai. Masak pesanan, layani pelanggan, kelola uang, dan upgrade usahamu.">
+  <title>Warung Kita — Cooking & Restaurant Sim</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
   <main class="app">
     <header class="topbar">
-      <a class="brand" href="./" aria-label="Wildbound home"><span class="brand-mark">✦</span><span>WILDBOUND</span></a>
-      <div class="top-actions"><span class="pill" id="save-status">● Progres lokal</span><button class="icon-btn" id="sound-btn" aria-label="Toggle sound" title="Suara">♫</button></div>
+      <a class="brand" href="./" aria-label="Warung Kita beranda"><span class="brand-mark">WK</span><span><b>WARUNG</b><small>KITA · SIMULATOR</small></span></a>
+      <div class="day-chip"><span class="live-dot"></span><span id="day-label">HARI 1</span><span class="chip-divider">•</span><span id="time-label">PAGI</span></div>
+      <button class="icon-btn" id="sound-btn" aria-label="Suara" title="Suara">♫</button>
     </header>
-    <section class="game-shell" aria-label="Permainan petualangan">
-      <div class="hud">
-        <div class="player-card"><div class="avatar">🧙</div><div class="player-info"><strong>Penjelajah</strong><div class="level-line"><span>LVL 1</span><div class="xp-track"><span id="xp-bar"></span></div></div></div></div>
-        <div class="hud-stats"><div class="stat"><span>❤️</span><strong id="health">100</strong></div><div class="stat coin-stat"><span>🪙</span><strong id="coins">0</strong></div></div>
+
+    <section class="stats-bar" aria-label="Status warung">
+      <div class="stat"><span class="stat-icon money-icon">Rp</span><div><small>UANG KAS</small><strong id="cash">Rp 150.000</strong></div></div>
+      <div class="stat"><span class="stat-icon">★</span><div><small>REPUTASI</small><strong><span id="rep">1.0</span><span class="muted"> / 5</span></strong></div></div>
+      <div class="stat"><span class="stat-icon">🍽</span><div><small>PELANGGAN</small><strong id="served">0</strong></div></div>
+      <div class="stat"><span class="stat-icon">📦</span><div><small>BAHAN</small><strong id="stock">12</strong></div></div>
+    </section>
+
+    <div class="section-heading"><div><p class="eyebrow">USAHA HARI INI</p><h1>Dari warung kecil,<br><em>jadi favorit semua.</em></h1></div><div class="open-badge"><span></span> WARUNG BUKA</div></div>
+
+    <section class="main-grid">
+      <div class="left-column">
+        <article class="scene-card">
+          <div class="scene-top"><div><span class="eyebrow">SUASANA WARUNG</span><strong>Warung Bu Rasa</strong></div><span class="scene-weather">☀ Cerah · 28°C</span></div>
+          <div class="scene-wrap"><canvas id="scene" width="900" height="520" aria-label="Ilustrasi warung, dapur, dan pelanggan"></canvas><div class="scene-caption"><span class="scene-live"></span><span id="scene-status">Dapur siap melayani pesanan</span></div></div>
+          <div class="scene-footer"><span>📍 Gang Melati No. 8</span><span id="upgrade-level">Warung Level 1</span></div>
+        </article>
+
+        <article class="order-card">
+          <div class="card-heading"><div><p class="eyebrow">PESANAN MASUK</p><h2 id="order-title">Nasi goreng spesial</h2></div><span class="order-tag" id="order-tag">PESANAN #001</span></div>
+          <div class="order-body"><div class="dish-art" id="dish-art">🍳</div><div class="order-details"><div class="order-customer"><span class="customer-avatar" id="customer-avatar">👨🏻</span><div><strong id="customer-name">Mas Andi</strong><small id="customer-mood">Lapar berat · sabar menunggu</small></div></div><div class="patience"><div class="patience-label"><span>Kesabaran pelanggan</span><strong id="patience-label">100%</strong></div><div class="patience-track"><span id="patience-bar"></span></div></div><div class="order-reward"><span>Bayaran</span><strong id="order-price">Rp 18.000</strong></div></div></div>
+        </article>
       </div>
-      <div class="canvas-wrap">
-        <canvas id="game" width="960" height="600" aria-label="Arena game. Gunakan tombol arah atau WASD untuk bergerak."></canvas>
-        <div class="toast" id="toast" role="status">Selamat datang, penjelajah!</div>
-        <div class="start-overlay" id="start-overlay"><div class="portal">✦</div><p class="eyebrow">DUNIA BARU MENUNGGU</p><h1>Petualangan<br><em>dimulai di sini.</em></h1><p class="intro">Jelajahi hutan, kumpulkan koin, dan temukan kristal kuno.</p><button class="primary-btn" id="start-btn">Mulai petualangan <span>→</span></button><small>WASD / tombol arah · sentuh layar untuk bergerak</small></div>
-        <div class="pause-overlay hidden" id="pause-overlay"><div class="pause-card"><div class="portal small">Ⅱ</div><h2>Petualangan dijeda</h2><p>Tarik napas, penjelajah.</p><button class="primary-btn" id="resume-btn">Lanjut bermain →</button><button class="quiet-btn" id="reset-btn">Mulai ulang progres</button></div></div>
-      </div>
-      <div class="bottom-panel">
-        <div class="quest"><div class="quest-icon">✧</div><div class="quest-copy"><span class="eyebrow">MISI AKTIF</span><strong id="quest-title">Koin pertama</strong><span id="quest-desc">Kumpulkan 5 koin yang tersebar di hutan.</span><div class="quest-progress"><span id="quest-bar"></span></div></div><span class="quest-count" id="quest-count">0/5</span></div>
-        <div class="controls"><div class="control-hint"><span class="key">W A S D</span><span>atau tombol arah untuk bergerak</span></div><div class="control-buttons"><button class="action-btn" id="interact-btn" aria-label="Interaksi">✧<small>AKSI</small></button><button class="action-btn pause-btn" id="pause-btn" aria-label="Jeda permainan">Ⅱ<small>JEDA</small></button></div></div>
+
+      <aside class="kitchen-card">
+        <div class="card-heading"><div><p class="eyebrow">DAPUR AKTIF</p><h2>Area memasak</h2></div><span class="kitchen-status" id="kitchen-status">SIAP</span></div>
+        <div class="dish-selector"><label for="menu-select">Pilih menu pesanan</label><select id="menu-select"><option value="nasi">Nasi goreng spesial · Rp18.000</option><option value="mie">Mi goreng Jawa · Rp15.000</option><option value="bakso">Bakso kuah · Rp17.000</option><option value="es">Es teh manis · Rp5.000</option></select></div>
+        <div class="recipe-box"><div class="recipe-title"><span>BAHAN YANG DIBUTUHKAN</span><span id="recipe-cost">Modal Rp 7.000</span></div><div class="ingredients" id="ingredients"><span>🍚 Nasi</span><span>🥚 Telur</span><span>🥬 Sayur</span><span>🌶️ Bumbu</span></div></div>
+        <div class="cook-steps">
+          <div class="cook-step active" id="step-1"><span class="step-num">1</span><div><strong>Siapkan bahan</strong><small>Pastikan bahan tersedia</small></div><span class="step-check">●</span></div>
+          <div class="step-line"></div>
+          <div class="cook-step" id="step-2"><span class="step-num">2</span><div><strong>Masak hidangan</strong><small>Jaga kualitas masakan</small></div><span class="step-check">○</span></div>
+          <div class="step-line"></div>
+          <div class="cook-step" id="step-3"><span class="step-num">3</span><div><strong>Sajikan ke pelanggan</strong><small>Terima pembayaran</small></div><span class="step-check">○</span></div>
+        </div>
+        <div class="cook-feedback" id="cook-feedback">Pilih menu, lalu siapkan bahan untuk mulai memasak.</div>
+        <button class="primary-btn" id="cook-btn"><span>♨</span> Siapkan bahan</button>
+        <button class="secondary-btn" id="new-order-btn">↻ Pesanan berikutnya <small>(lewati)</small></button>
+      </aside>
+    </section>
+
+    <section class="management">
+      <div class="management-heading"><div><p class="eyebrow">KEMBANGKAN USAHAMU</p><h2>Kelola warung</h2></div><span class="muted small-text">Investasikan keuntungan dengan bijak</span></div>
+      <div class="upgrade-grid">
+        <article class="upgrade-card"><div class="upgrade-icon stove">♨</div><div class="upgrade-copy"><strong>Kompor profesional</strong><p>Masak lebih cepat dan tambah kapasitas.</p><span class="upgrade-meta">LEVEL <b id="stove-level">1</b> · + bonus reputasi</span></div><button class="upgrade-btn" id="stove-btn">Rp 80.000 <span>↗</span></button></article>
+        <article class="upgrade-card"><div class="upgrade-icon table-icon">▤</div><div class="upgrade-copy"><strong>Tambah meja</strong><p>Warung lebih nyaman untuk pelanggan.</p><span class="upgrade-meta">KAPASITAS <b id="table-level">2</b> KURSI</span></div><button class="upgrade-btn" id="table-btn">Rp 60.000 <span>↗</span></button></article>
+        <article class="upgrade-card"><div class="upgrade-icon stock-icon">▦</div><div class="upgrade-copy"><strong>Belanja bahan baku</strong><p>Isi ulang stok dapur agar tetap siap.</p><span class="upgrade-meta">+12 PORSI BAHAN</span></div><button class="upgrade-btn" id="stock-btn">Rp 25.000 <span>+</span></button></article>
       </div>
     </section>
-    <footer><span>WILDBOUND <span class="muted">· DEMO AWAL</span></span><span>Jelajahi dengan caramu <span class="spark">✦</span></span></footer>
+    <footer><span><b>WARUNG KITA</b> <span class="muted">· DEMO SIMULATOR</span></span><span>Masak dengan hati, layani sepenuh hati <span class="footer-star">✦</span></span></footer>
+    <div class="toast" id="toast" role="status"></div>
   </main>
   <script src="game.js"></script>
 </body>
