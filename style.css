@@ -255,3 +255,8 @@ body{background:radial-gradient(ellipse at 12% 0%,#e9eee2 0,transparent 34%),var
  .market-item button{min-height:35px;font-size:10px}
  .market-note{font-size:10px}
 }
+
+.market-bulk-stock{margin-top:12px;padding:10px;border:1px dashed var(--line);border-radius:12px;background:#fbfcf7}
+.market-bulk-stock .upgrade-card{margin:0;background:#fffefa}
+.market-bulk-stock .upgrade-grid{margin:0}
+@media(max-width:650px){.market-bulk-stock{margin-top:9px;padding:7px}.market-bulk-stock .upgrade-card{grid-template-columns:36px minmax(0,1fr) auto}}
