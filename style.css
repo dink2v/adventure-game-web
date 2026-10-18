@@ -205,3 +205,53 @@ body{background:radial-gradient(ellipse at 12% 0%,#e9eee2 0,transparent 34%),var
   .ledger-note{margin-top:8px}
   footer{margin-top:10px;padding-top:8px}
 }
+
+/* Warung Kita: single-screen navigation and dynamic market */
+.app-bottom-nav{display:none}
+.app-view-hidden{display:none!important}
+.market-panel{background:var(--paper);border:1px solid var(--line);border-radius:17px;padding:20px;margin-top:0}
+.market-intro{margin:7px 0 0;color:var(--muted);font-size:12px;line-height:1.5}
+.market-refresh{flex:none;padding:8px 10px;border-radius:8px;background:#e6f0e4;color:var(--green);font-size:10px;font-weight:800}
+.market-wallet{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:13px 14px;margin:16px 0;background:#f4f5ed;border-radius:11px;font-size:12px;color:var(--muted)}
+.market-wallet strong{font:800 17px 'Manrope',sans-serif;color:var(--green)}
+.market-stock-total{margin-left:auto}
+.market-stock-total b{color:var(--ink)}
+.market-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.market-item{display:flex;flex-direction:column;gap:8px;min-width:0;padding:14px;border:1px solid var(--line);border-radius:12px;background:#fffefa}
+.market-item-top{display:flex;align-items:center;gap:10px}
+.market-item-emoji{display:grid;place-items:center;width:42px;height:42px;flex:none;border-radius:11px;background:#f2efdf;font-size:24px}
+.market-item h3{margin:0;font:800 13px 'Manrope',sans-serif}
+.market-item p{margin:3px 0 0;color:var(--muted);font-size:10px;line-height:1.4}
+.market-item-price{font:800 16px 'Manrope',sans-serif;color:var(--green)}
+.market-item-meta{display:flex;justify-content:space-between;gap:6px;color:var(--muted);font-size:10px}
+.market-item button{width:100%;min-height:38px;border:0;border-radius:9px;background:var(--green);color:white;font:700 11px 'DM Sans',sans-serif;cursor:pointer}
+.market-item button:disabled{opacity:.42;cursor:not-allowed}
+.market-note{margin:14px 0 0;color:var(--muted);font-size:11px;line-height:1.5}
+.app-bottom-nav button{font-family:'DM Sans',sans-serif}
+@media(max-width:650px){
+ body{padding:0 10px}
+ .app{padding-bottom:calc(78px + env(safe-area-inset-bottom))}
+ .app-bottom-nav{position:fixed;z-index:100;left:0;right:0;bottom:0;display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:2px;padding:7px 5px calc(7px + env(safe-area-inset-bottom));background:#fffefaed;border-top:1px solid var(--line);box-shadow:0 -5px 20px #20362d0b;backdrop-filter:blur(12px)}
+ .app-bottom-nav button{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;min-width:0;min-height:47px;padding:4px 1px;border:0;border-radius:9px;background:transparent;color:#778579}
+ .app-bottom-nav button span{font-size:17px;line-height:1.1}
+ .app-bottom-nav button small{font-size:9px;font-weight:700;white-space:nowrap}
+ .app-bottom-nav button.active{background:#e6f0e4;color:var(--green)}
+ .dashboard-nav{display:none}
+ .market-panel{padding:13px;border-radius:14px}
+ .market-panel .management-heading{align-items:flex-start}
+ .market-panel .management-heading h2{font-size:17px}
+ .market-intro{font-size:10px}
+ .market-wallet{padding:10px;margin:12px 0;font-size:10px;gap:7px}
+ .market-wallet strong{font-size:14px}
+ .market-stock-total{margin-left:0;width:100%}
+ .market-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}
+ .market-item{padding:9px;gap:7px}
+ .market-item-top{gap:7px;align-items:flex-start}
+ .market-item-emoji{width:34px;height:34px;font-size:20px}
+ .market-item h3{font-size:11px}
+ .market-item p{font-size:9px}
+ .market-item-price{font-size:13px}
+ .market-item-meta{font-size:9px}
+ .market-item button{min-height:35px;font-size:10px}
+ .market-note{font-size:10px}
+}
