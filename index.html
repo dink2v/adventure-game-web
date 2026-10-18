@@ -41,7 +41,7 @@
 
       <aside class="kitchen-card">
         <div class="card-heading"><div><p class="eyebrow">DAPUR AKTIF</p><h2>Area memasak</h2></div><span class="kitchen-status" id="kitchen-status">SIAP</span></div>
-        <div class="dish-selector"><label for="menu-select">Pilih menu pesanan</label><select id="menu-select"><option value="nasi">Nasi goreng spesial · Rp18.000</option><option value="mie">Mi goreng Jawa · Rp15.000</option><option value="bakso">Bakso kuah · Rp17.000</option><option value="es">Es teh manis · Rp5.000</option></select></div>
+        <div class="dish-selector"><label for="menu-select">Pilih menu pesanan</label><select id="menu-select"><option value="nasi">Nasi goreng spesial · Rp18.000</option><option value="mie">Mi goreng Jawa · Rp15.000</option><option value="bakso">Bakso kuah · Rp17.000</option><option value="es">Es teh manis · Rp5.000</option><option value="ayam" disabled>🔒 Ayam geprek · buka setelah 8 pelanggan</option><option value="soto" disabled>🔒 Soto ayam · buka setelah 15 pelanggan</option><option value="sate" disabled>🔒 Sate ayam · buka setelah 25 pelanggan</option></select></div>
         <div class="recipe-box"><div class="recipe-title"><span>BAHAN YANG DIBUTUHKAN</span><span id="recipe-cost">Modal Rp 7.000</span></div><div class="ingredients" id="ingredients"><span>🍚 Nasi</span><span>🥚 Telur</span><span>🥬 Sayur</span><span>🌶️ Bumbu</span></div></div>
         <div class="cook-steps">
           <div class="cook-step active" id="step-1"><span class="step-num">1</span><div><strong>Siapkan bahan</strong><small>Pastikan bahan tersedia</small></div><span class="step-check">●</span></div>
@@ -64,7 +64,39 @@
         <article class="upgrade-card"><div class="upgrade-icon stock-icon">▦</div><div class="upgrade-copy"><strong>Belanja bahan baku</strong><p>Isi ulang stok dapur agar tetap siap.</p><span class="upgrade-meta">+12 PORSI BAHAN</span></div><button class="upgrade-btn" id="stock-btn">Rp 25.000 <span>+</span></button></article>
       </div>
     </section>
-    <footer><span><b>WARUNG KITA</b> <span class="muted">· DEMO SIMULATOR</span></span><span>Masak dengan hati, layani sepenuh hati <span class="footer-star">✦</span></span></footer>
+
+    <section class="progression-panel">
+      <div class="management-heading"><div><p class="eyebrow">TARGET & PERKEMBANGAN</p><h2>Perjalanan usahamu</h2></div><span class="muted small-text" id="rank-label">Pemilik Warung Pemula</span></div>
+      <div class="progression-grid">
+        <article class="progress-card">
+          <div class="progress-title"><span class="progress-icon">🎯</span><div><strong>Misi hari ini</strong><small id="mission-summary">Layani 3 pelanggan</small></div></div>
+          <div class="mission-row"><span>Layani 3 pelanggan</span><strong id="mission-served-text">0/3</strong></div><div class="mission-track"><span id="mission-served-bar"></span></div>
+          <div class="mission-row"><span>Dapatkan omzet Rp 30.000</span><strong id="mission-cash-text">Rp 0</strong></div><div class="mission-track"><span id="mission-cash-bar"></span></div>
+          <p class="mission-reward" id="mission-reward">Hadiah misi: Rp 15.000 dan reputasi +0,2</p>
+          <button class="secondary-btn panel-btn" id="claim-mission-btn" disabled>🎁 Klaim hadiah misi</button>
+        </article>
+        <article class="progress-card">
+          <div class="progress-title"><span class="progress-icon">🏆</span><div><strong>Reputasi & level</strong><small>Naikkan kualitas pelayanan</small></div></div>
+          <div class="rank-progress"><div><span>Reputasi warung</span><strong id="rank-rep-text">1.0 / 5</strong></div><div class="rank-track"><span id="rank-rep-bar"></span></div></div>
+          <div class="rank-progress"><div><span>Total pelanggan</span><strong id="rank-served-text">0</strong></div><div class="rank-track"><span id="rank-served-bar"></span></div></div>
+          <div class="unlock-note" id="unlock-note">Menu berikutnya terbuka setelah 8 pelanggan.</div>
+        </article>
+      </div>
+    </section>
+
+    <section class="management extra-management">
+      <div class="management-heading"><div><p class="eyebrow">TIM & PROMOSI</p><h2>Buat warung makin ramai</h2></div><span class="muted small-text">Keputusan bisnis punya dampak</span></div>
+      <div class="upgrade-grid extra-grid">
+        <article class="upgrade-card"><div class="upgrade-icon staff-icon">🧑‍🍳</div><div class="upgrade-copy"><strong>Rekrut asisten dapur</strong><p>Asisten membantu pelayanan dan menjaga pelanggan lebih sabar.</p><span class="upgrade-meta" id="staff-status">BELUM DIREKRUT</span></div><button class="upgrade-btn" id="staff-btn">Rp 90.000 <span>+</span></button></article>
+        <article class="upgrade-card"><div class="upgrade-icon promo-icon">📣</div><div class="upgrade-copy"><strong>Promosi lingkungan</strong><p>Promosi sekali pakai menaikkan reputasi dan kesabaran pelanggan berikutnya.</p><span class="upgrade-meta" id="promo-status">BELUM AKTIF HARI INI</span></div><button class="upgrade-btn" id="promo-btn">Rp 12.000 <span>↗</span></button></article>
+      </div>
+    </section>
+    <section class="ledger-panel">
+      <div class="management-heading"><div><p class="eyebrow">CATATAN USAHA</p><h2>Ringkasan operasional</h2></div></div>
+      <div class="ledger-grid"><div><small>OMZET HARI INI</small><strong id="today-revenue">Rp 0</strong></div><div><small>PELANGGAN HARI INI</small><strong id="today-served">0</strong></div><div><small>HARI BERJALAN</small><strong id="ledger-day">1</strong></div><div><small>ASISTEN</small><strong id="ledger-staff">Belum ada</strong></div></div>
+      <p class="ledger-note" id="business-tip">Tips bisnis: layani pesanan sebelum kesabaran pelanggan habis untuk memperoleh tip lebih besar.</p>
+    </section>
+    <footer><span><b>WARUNG KITA</b> <span class="muted">· SINGLE-PLAYER</span></span><span>Masak dengan hati, layani sepenuh hati <span class="footer-star">✦</span></span></footer>
     <div class="toast" id="toast" role="status"></div>
   </main>
   <script src="game.js"></script>
