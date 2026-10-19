@@ -6,7 +6,7 @@
   <meta name="theme-color" content="#17352d">
   <meta name="description" content="Bangun warung kecil menjadi restoran ramai. Masak pesanan, layani pelanggan, kelola uang, dan upgrade usahamu.">
   <title>Warung Kita — Cooking & Restaurant Sim</title>
-  <link rel="stylesheet" href="style.css?v=blitar-market-20261019-01">
+  <link rel="stylesheet" href="style.css?v=dashboard-cta-20261019-01">
 </head>
 <body>
   <main class="app">
@@ -23,7 +23,7 @@
           <h1>Warung Bu Rasa</h1>
           <span class="dashboard-subtitle"><span class="live-dot"></span> <span id="dashboard-day">Hari 1</span> · Usaha sedang buka</span>
         </div>
-        <button class="dashboard-action" id="enter-kitchen-btn">🍳 Masuk Dapur <span>→</span></button>
+        
       </div>
       <div class="dashboard-metrics">
         <div class="dashboard-metric"><span class="dashboard-metric-icon">Rp</span><div><small>UANG KAS</small><strong id="cash">Rp 150.000</strong></div></div>
@@ -31,9 +31,8 @@
         <div class="dashboard-metric"><span class="dashboard-metric-icon">🍽</span><div><small>PELANGGAN HARI INI</small><strong id="dashboard-served">0</strong></div></div>
         <div class="dashboard-metric"><span class="dashboard-metric-icon">★</span><div><small>REPUTASI</small><strong><span id="rep">1.0</span><span class="muted"> / 5</span></strong></div></div>
       </div>
-      <nav class="dashboard-nav" aria-label="Navigasi utama">
-        <a class="active" href="#dashboard" data-view-link="home">Beranda</a><a href="#kitchen-panel" data-view-link="kitchen">Dapur</a><a href="#market-panel" data-view-link="market">Pasar</a><a href="#business-panel" data-view-link="business">Usaha</a><a href="#report-panel" data-view-link="report">Laporan</a><a href="#more-panel" data-view-link="more">Lainnya</a>
-      </nav>
+      <div class="dashboard-action-wrap"><button class="dashboard-action" id="enter-kitchen-btn">🍳 Masuk Dapur <span>→</span></button></div>
+
     </section>
 
     <section class="main-grid">
@@ -127,6 +126,6 @@
     </nav>
     <div class="toast" id="toast" role="status"></div>
   </main>
-  <script src="game.js?v=blitar-market-20261019-01"></script>
+  <script src="game.js?v=dashboard-cta-20261019-01"></script>
 </body>
 </html>
