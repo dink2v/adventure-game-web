@@ -74,10 +74,10 @@
     persist();renderMarket();
   }
   function renderCart(){
-    const list=$('market-cart-items'),total=$('market-cart-total'),count=$('market-cart-count'),checkout=$('market-checkout-btn'),history=$('market-receipt-history');
+    const list=$('market-cart-items'),total=$('market-cart-total'),count=$('market-cart-count'),checkout=$('market-checkout-btn'),history=$('market-receipt-history'),badge=$('market-cart-badge');
     if(!list)return;
     const items=cartItems();
-    count.textContent=items.reduce((sum,item)=>sum+item.qty,0)+' paket';
+    const itemCount=items.reduce((sum,item)=>sum+item.qty,0);count.textContent=itemCount+' paket';if(badge)badge.textContent=itemCount>99?'99+':String(itemCount);
     total.textContent=money(cartTotal());
     list.innerHTML=items.length?items.map(({good,qty,unitPrice,subtotal})=>'<article class="cart-line"><div class="cart-line-info"><span>'+good.emoji+'</span><div><strong>'+good.name+'</strong><small>'+qty+' × '+money(unitPrice)+' = '+money(subtotal)+'</small></div></div><div class="cart-line-actions"><button type="button" data-cart-minus="'+good.id+'" aria-label="Kurangi '+good.name+'">−</button><b>'+qty+'</b><button type="button" data-cart-plus="'+good.id+'" aria-label="Tambah '+good.name+'">+</button><button type="button" data-cart-remove="'+good.id+'" aria-label="Hapus '+good.name+'" title="Hapus">×</button></div></article>').join(''):'<p class="cart-empty">Keranjang masih kosong. Tambahkan bahan dari daftar pasar di atas.</p>';
     list.querySelectorAll('[data-cart-minus]').forEach(b=>b.addEventListener('click',()=>changeCartQuantity(b.dataset.cartMinus,-1)));
@@ -98,7 +98,7 @@
     state.cash-=total;
     for(const item of items){state.stock+=item.good.add*item.qty;state.marketInventory[item.good.id]=(state.marketInventory[item.good.id]||0)+item.qty;state.marketSold[item.good.id]=(state.marketSold[item.good.id]||0)+item.qty;}
     state.marketCart={};state.marketReceipts.push(receipt);if(state.marketReceipts.length>100)state.marketReceipts=state.marketReceipts.slice(-100);
-    persist();updateStats();renderMarket();showReceipt(receipt.id);
+    persist();updateStats();renderMarket();toggleMarketCart(false);showReceipt(receipt.id);
   }
   function showReceipt(id){
     const receipt=state.marketReceipts.find(r=>r.id===id);if(!receipt)return;
@@ -297,6 +297,11 @@
   }
   $('enter-kitchen-btn').addEventListener('click',()=>setView('kitchen'));
   $('market-checkout-btn').addEventListener('click',confirmMarketPurchase);
+  function toggleMarketCart(open){const panel=$('market-cart-panel'),trigger=$('market-cart-trigger');if(!panel||!trigger)return;const shouldOpen=typeof open==='boolean'?open:!panel.classList.contains('cart-drawer-open');panel.classList.toggle('cart-drawer-open',shouldOpen);trigger.setAttribute('aria-expanded',String(shouldOpen));document.body.classList.toggle('market-cart-drawer-active',shouldOpen);if(shouldOpen){renderCart();const close=$('market-cart-close');if(close)close.focus();}else trigger.focus();}
+  $('market-cart-trigger').addEventListener('click',()=>toggleMarketCart());
+  $('market-cart-close').addEventListener('click',()=>toggleMarketCart(false));
+  $('market-cart-panel').addEventListener('click',event=>{if(event.target===$('market-cart-panel'))toggleMarketCart(false);});
+  document.addEventListener('keydown',event=>{if(event.key==='Escape')toggleMarketCart(false);});
   $('receipt-close-btn').addEventListener('click',closeReceipt);
   $('receipt-close-bottom-btn').addEventListener('click',closeReceipt);
   $('receipt-print-btn').addEventListener('click',()=>window.print());
