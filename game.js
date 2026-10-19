@@ -25,24 +25,29 @@
   function persist(){try{localStorage.setItem('warung-kita-save',JSON.stringify({marketInventory:state.marketInventory,marketCycle:state.marketCycle,cash:state.cash,rep:state.rep,served:state.served,stock:state.stock,day:state.day,stove:state.stove,tables:state.tables,orderNo:state.orderNo,menu:state.menu,orderMenu:state.orderMenu,step:state.step,patience:state.patience,cookingStarted:state.cookingStarted,cookingElapsed:state.cookingElapsed,actionIndex:state.actionIndex,qualityScore:state.qualityScore,qualityLabel:state.qualityLabel,staff:state.staff,promoUsed:state.promoUsed,promoBonusPending:state.promoBonusPending,todayServed:state.todayServed,todayRevenue:state.todayRevenue,missionClaimed:state.missionClaimed,totalRevenue:state.totalRevenue}));}catch{}}
   function toast(message){const el=$('toast');el.textContent=message;el.classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>el.classList.remove('show'),2200);}
 
+  // Acuan PIHPS untuk Kota Blitar, data 16 Oktober 2026.
+  // Harga paket dihitung dari harga per kg x bobot paket; bukan harga live.
   const marketGoods = [
-    {id:'rice',name:'Beras & nasi',emoji:'🍚',desc:'Bahan pokok untuk menu nasi.',base:6500,add:3},
-    {id:'egg',name:'Telur & sayur',emoji:'🥚',desc:'Pelengkap menu goreng dan tumisan.',base:5000,add:3},
-    {id:'seasoning',name:'Bumbu dapur',emoji:'🌶️',desc:'Bumbu dasar untuk racikan masakan.',base:4000,add:3},
-    {id:'noodle',name:'Mi & kaldu',emoji:'🍜',desc:'Untuk mi goreng dan kuah hangat.',base:5500,add:3},
-    {id:'chicken',name:'Ayam & sambal',emoji:'🍗',desc:'Bahan menu ayam saat sudah terbuka.',base:9000,add:2},
-    {id:'tea',name:'Teh, es & gula',emoji:'🧋',desc:'Bahan minuman segar.',base:3000,add:4}
+    {id:'rice',name:'Beras (0,5 kg)',emoji:'🍚',desc:'Acuan Blitar Rp14.850/kg · paket 0,5 kg.',marketPrice:7425,add:3},
+    {id:'egg',name:'Telur ayam (0,25 kg)',emoji:'🥚',desc:'Acuan Blitar Rp26.000/kg · paket 0,25 kg.',marketPrice:6500,add:3},
+    {id:'seasoning',name:'Cabai rawit (0,1 kg)',emoji:'🌶️',desc:'Acuan Blitar Rp47.500/kg · paket 0,1 kg.',marketPrice:4750,add:3},
+    {id:'noodle',name:'Bawang merah (0,1 kg)',emoji:'🧅',desc:'Acuan Blitar Rp27.250/kg · paket 0,1 kg.',marketPrice:2725,add:3},
+    {id:'chicken',name:'Daging ayam (0,25 kg)',emoji:'🍗',desc:'Acuan Blitar Rp37.500/kg · paket 0,25 kg.',marketPrice:9375,add:2},
+    {id:'tea',name:'Gula pasir (0,25 kg)',emoji:'🧂',desc:'Acuan Blitar Rp17.850/kg · paket 0,25 kg.',marketPrice:4463,add:4}
   ];
-  function marketPrice(g){const phase=(state.marketCycle+marketGoods.findIndex(x=>x.id===g.id)*3)%7;return Math.round(g.base*(phase===0?.82:phase===1?.91:phase===2?1:phase===3?1.08:phase===4?1.16:phase===5?1.25:.98)/500)*500;}
+  const marketPriceDate = '16 Oktober 2026';
+  function marketPrice(g){return g.marketPrice;}
   function renderMarket(){
     const grid=$('market-grid');if(!grid)return;
     $('market-cash').textContent=money(state.cash);$('market-stock-total').textContent=state.stock;
-    $('market-refresh').textContent='Harga berubah tiap 45 detik';
+    $('market-refresh').textContent='Acuan Kota Blitar · data '+marketPriceDate;
     grid.innerHTML=marketGoods.map(g=>{
       const price=marketPrice(g),available=Math.max(0,8-((state.marketCycle+marketGoods.indexOf(g)*2)%10));
       const qty=state.marketInventory[g.id]||0;
       return '<article class="market-item"><div class="market-item-top"><span class="market-item-emoji">'+g.emoji+'</span><div><h3>'+g.name+'</h3><p>'+g.desc+'</p></div></div><div class="market-item-price">'+money(price)+'</div><div class="market-item-meta"><span>+ '+g.add+' porsi stok</span><span>Pasar: '+available+'</span></div><div class="market-item-meta"><span>Catatan belanja</span><b>'+qty+' paket</b></div><button type="button" data-buy-good="'+g.id+'" '+(state.cash<price||available<=0?'disabled':'')+'>Beli bahan</button></article>';
     }).join('');
+    const note=$('market-note');
+    if(note)note.innerHTML='Harga paket dihitung dari harga acuan per kg di Kota Blitar, berdasarkan data PIHPS tanggal '+marketPriceDate+'. Ini snapshot terakhir yang diverifikasi, bukan harga live. <a href="https://www.panganindonesia.com/harga/kota/blitar/" target="_blank" rel="noopener noreferrer">Lihat sumber harga</a>.';
     grid.querySelectorAll('[data-buy-good]').forEach(btn=>btn.addEventListener('click',()=>buyMarketGood(btn.dataset.buyGood)));
   }
   function buyMarketGood(id){
@@ -211,7 +216,7 @@
     if(kind==='stock'){if(state.cash<25000){toast('Uang kas belum cukup untuk belanja stok.');return;}state.cash-=25000;state.stock+=12;toast('Stok bahan bertambah 12 porsi. Dapur siap!');}
     persist();updateStats();drawScene();
   }
-  function frame(t){const dt=Math.min((t-lastTime)/1000||0,.1);lastTime=t;state.tick+=dt;state.marketTimer+=dt;if(state.marketTimer>=45){state.marketTimer=0;state.marketCycle++;persist();if(!$('market-panel').classList.contains('app-view-hidden'))renderMarket();}
+  function frame(t){const dt=Math.min((t-lastTime)/1000||0,.1);lastTime=t;state.tick+=dt;state.marketTimer+=dt;if(state.marketTimer>=45){state.marketTimer=0;if(!$('market-panel').classList.contains('app-view-hidden'))renderMarket();}
     if(state.step<2&&!state.cookingStarted){state.patience=Math.max(0,state.patience-dt*(state.step===1?(state.staff?0.95:1.4):(state.staff?0.22:.35)));}
     if(state.cookingStarted&&state.step===1){const r=recipes[state.orderMenu]||recipes.nasi;state.cookingElapsed=Math.min(r.cookTime,state.cookingElapsed+dt);const win=state.actionIndex<(r.actions||1)?actionWindow():null;if(win&&state.cookingElapsed>win.end){state.actionIndex++;persist();}if(state.cookingElapsed>=r.cookTime){state.step=2;state.cookingStarted=false;state.qualityLabel=state.qualityScore>=(r.actions||1)?'Istimewa':state.qualityScore>0?'Enak':'Biasa';$('scene-status').textContent='Hidangan '+state.qualityLabel.toLowerCase()+' siap disajikan';toast('Masakan selesai! Kualitas: '+state.qualityLabel+'.');persist();updateOrder();updateStats();}}
     if(state.patience===0&&state.step<2&&!state.cookingStarted){state.rep=Math.max(.5,state.rep-.08);state.patience=100;state.step=0;state.orderNo++;const available=Object.keys(recipes).filter(id=>unlocked(id));state.orderMenu=available[Math.floor(Math.random()*available.length)];state.actionIndex=0;state.qualityScore=0;toast('Pelanggan kehabisan sabar. Pesanan dilepas dan pelanggan baru datang.');updateOrder();updateStats();persist();}
