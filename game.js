@@ -15,6 +15,7 @@
   const saved = (() => { try { return JSON.parse(localStorage.getItem('warung-kita-save') || '{}'); } catch { return {}; } })();
   const state = {
     cash:saved.cash ?? 150000, rep:saved.rep ?? 1, served:saved.served ?? 0,
+    menuPrices:saved.menuPrices && typeof saved.menuPrices==='object' ? saved.menuPrices : {},
     stock:saved.stock ?? 12, day:saved.day ?? 1, stove:saved.stove ?? 1,
     tables:saved.tables ?? 2, orderNo:saved.orderNo ?? 1,
     menu:saved.menu || 'nasi', orderMenu:saved.orderMenu || saved.menu || 'nasi', step:saved.step ?? 0, patience:saved.patience ?? 100, cookingStarted:saved.cookingStarted ?? false, cookingElapsed:saved.cookingElapsed ?? 0, actionIndex:saved.actionIndex ?? 0, qualityScore:saved.qualityScore ?? 0, qualityLabel:saved.qualityLabel || 'Biasa', tick:0, sound:false,
@@ -22,7 +23,9 @@
     cashEarned:0, marketInventory:saved.marketInventory ?? {rice:5,egg:5,vegetable:5,seasoning:5,noodle:5,chicken:3,tea:5,ice:5}, marketCycle:saved.marketCycle ?? 0, marketTimer:0, staff:saved.staff ?? false, promoUsed:saved.promoUsed ?? false, promoBonusPending:saved.promoBonusPending ?? false, todayServed:saved.todayServed ?? 0, todayRevenue:saved.todayRevenue ?? 0, missionClaimed:saved.missionClaimed ?? false, totalRevenue:saved.totalRevenue ?? 0
   };
   let lastTime=0, toastTimer=0, lastUiUpdate=0, lastSaveAt=0;
-  function persist(){try{localStorage.setItem('warung-kita-save',JSON.stringify({marketInventory:state.marketInventory,marketCycle:state.marketCycle,cash:state.cash,rep:state.rep,served:state.served,stock:state.stock,day:state.day,stove:state.stove,tables:state.tables,orderNo:state.orderNo,menu:state.menu,orderMenu:state.orderMenu,step:state.step,patience:state.patience,cookingStarted:state.cookingStarted,cookingElapsed:state.cookingElapsed,actionIndex:state.actionIndex,qualityScore:state.qualityScore,qualityLabel:state.qualityLabel,staff:state.staff,promoUsed:state.promoUsed,promoBonusPending:state.promoBonusPending,todayServed:state.todayServed,todayRevenue:state.todayRevenue,missionClaimed:state.missionClaimed,totalRevenue:state.totalRevenue}));}catch{}}
+  function sellingPrice(id){const base=recipes[id]?.price??1000;const custom=Number(state.menuPrices[id]);return Number.isFinite(custom)&&custom>=1?Math.round(custom):base;}
+  function compactPrice(id){const value=sellingPrice(id)/1000;return (Number.isInteger(value)?String(value):value.toFixed(1))+'k';}
+  function persist(){try{localStorage.setItem('warung-kita-save',JSON.stringify({menuPrices:state.menuPrices,marketInventory:state.marketInventory,marketCycle:state.marketCycle,cash:state.cash,rep:state.rep,served:state.served,stock:state.stock,day:state.day,stove:state.stove,tables:state.tables,orderNo:state.orderNo,menu:state.menu,orderMenu:state.orderMenu,step:state.step,patience:state.patience,cookingStarted:state.cookingStarted,cookingElapsed:state.cookingElapsed,actionIndex:state.actionIndex,qualityScore:state.qualityScore,qualityLabel:state.qualityLabel,staff:state.staff,promoUsed:state.promoUsed,promoBonusPending:state.promoBonusPending,todayServed:state.todayServed,todayRevenue:state.todayRevenue,missionClaimed:state.missionClaimed,totalRevenue:state.totalRevenue}));}catch{}}
   function toast(message){const el=$('toast');el.textContent=message;el.classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>el.classList.remove('show'),2200);}
 
   // Acuan PIHPS untuk Kota Blitar, data 16 Oktober 2026.
@@ -83,6 +86,25 @@
   function formatClock(){return state.todayServed>5?'SORE':state.todayServed>2?'SIANG':'PAGI';}
   function unlocked(id){return !recipes[id].unlock || state.served>=recipes[id].unlock;}
   function rankName(){return state.served>=25?'Calon Juragan Restoran':state.served>=15?'Pemilik Rumah Makan':state.served>=8?'Juragan Warung Berkembang':'Pemilik Warung Pemula';}
+  function renderMenuPrices(){
+    const list=$('menu-price-list');if(!list)return;
+    list.innerHTML=Object.keys(recipes).map(id=>{
+      const r=recipes[id],value=sellingPrice(id),isLocked=!unlocked(id);
+      const profit=value-r.cost;
+      return '<article class="price-editor-card" data-price-card="'+id+'"><div class="price-editor-info"><span class="price-editor-emoji">'+r.emoji+'</span><div><strong>'+r.name+'</strong><small>Rekomendasi: '+money(r.price)+' · Modal: '+money(r.cost)+'</small><span class="price-profit '+(profit>=0?'profit-positive':'profit-negative')+'">'+(profit>=0?'Selisih kotor: ':'Selisih terhadap modal: ')+money(profit)+'</span>'+(isLocked?'<span class="price-locked">Menu terbuka setelah '+r.unlock+' pelanggan</span>':'')+'</div></div><label class="price-input-label" for="price-'+id+'">Harga jual (Rp)</label><div class="price-editor-controls"><input id="price-'+id+'" data-menu-price="'+id+'" type="number" inputmode="numeric" min="1" max="1000000000" step="500" value="'+value+'" aria-label="Harga jual '+r.name+'"><button type="button" data-save-price="'+id+'">Simpan</button></div></article>';
+    }).join('');
+    list.querySelectorAll('[data-save-price]').forEach(button=>button.addEventListener('click',()=>saveMenuPrice(button.dataset.savePrice)));
+    list.querySelectorAll('[data-menu-price]').forEach(input=>input.addEventListener('keydown',event=>{if(event.key==='Enter'){event.preventDefault();saveMenuPrice(input.dataset.menuPrice);}}));
+  }
+  function saveMenuPrice(id){
+    if(!recipes[id])return;
+    const input=$('price-'+id),value=Number(input?.value);
+    if(!Number.isFinite(value)||value<1||value>1000000000){toast('Masukkan harga minimal Rp 1 dan maksimal Rp 1.000.000.000.');if(input)input.focus();return;}
+    state.menuPrices[id]=Math.round(value);
+    persist();updateStats();updateOrder();drawScene();renderMenuPrices();
+    toast('Harga '+recipes[id].name+' disimpan: '+money(sellingPrice(id))+'.');
+  }
+
   function updateProgress(){
     $('rank-label').textContent=rankName();$('rank-rep-text').textContent=state.rep.toFixed(1)+' / 5';$('rank-rep-bar').style.width=(state.rep/5*100)+'%';
     $('rank-served-text').textContent=state.served;$('rank-served-bar').style.width=Math.min(100,state.served/25*100)+'%';
@@ -94,8 +116,9 @@
     $('unlock-note').textContent=state.served<8?'Menu Ayam geprek terbuka setelah '+(8-state.served)+' pelanggan lagi.':state.served<15?'Menu Soto ayam terbuka setelah '+(15-state.served)+' pelanggan lagi.':state.served<25?'Menu Sate ayam terbuka setelah '+(25-state.served)+' pelanggan lagi.':'Semua menu demo sudah terbuka!';
     $('today-revenue').textContent=money(state.todayRevenue);$('today-served').textContent=state.todayServed;$('ledger-day').textContent=state.day;$('ledger-staff').textContent=state.staff?'Direkrut':'Belum ada';
     $('staff-status').textContent=state.staff?'SUDAH DIREKRUT · AKTIF':'BELUM DIREKRUT';$('staff-btn').textContent=state.staff?'Asisten aktif':'Rp 90.000 +';$('staff-btn').disabled=state.staff||state.cash<90000;
+    renderMenuPrices();
     $('promo-status').textContent=state.promoUsed?'PROMOSI SUDAH DIPAKAI':'BELUM AKTIF HARI INI';$('promo-btn').disabled=state.promoUsed||state.cash<12000;
-    for(const option of $('menu-select').options){if(recipes[option.value]?.unlock){const open=unlocked(option.value);option.disabled=!open;option.textContent=(open?'':'🔒 ')+recipes[option.value].name+' · '+money(recipes[option.value].price)+(open?'':' · buka '+recipes[option.value].unlock+' pelanggan');}}
+    for(const option of $('menu-select').options){if(recipes[option.value]){const open=unlocked(option.value);option.disabled=!!recipes[option.value].unlock&&!open;option.textContent=(open?'':'🔒 ')+recipes[option.value].name+' · '+money(sellingPrice(option.value))+(open?'':' · buka '+recipes[option.value].unlock+' pelanggan');}}
   }
   function updateStats(){
     $('cash').textContent=money(state.cash);$('rep').textContent=state.rep.toFixed(1);$('dashboard-revenue').textContent=money(state.todayRevenue);$('dashboard-served').textContent=state.todayServed;$('dashboard-day').textContent='Hari '+state.day;
@@ -107,7 +130,7 @@
   function actionWindow(){const r=recipes[state.orderMenu]||recipes.nasi;const count=r.actions||1;const center=r.cookTime*(state.actionIndex+1)/(count+1);return {start:center-1.1,end:center+1.1};}
   function updateOrder(){
     const r=recipes[state.orderMenu]||recipes.nasi, selected=current();
-    $('order-title').textContent=r.name;$('dish-art').textContent=r.emoji;$('order-price').textContent=money(r.price);
+    $('order-title').textContent=r.name;$('dish-art').textContent=r.emoji;$('order-price').textContent=money(sellingPrice(state.orderMenu));
     $('customer-name').textContent=r.customer[0];$('customer-avatar').textContent=r.customer[1];$('customer-mood').textContent=r.customer[2];
     $('order-tag').textContent='PESANAN #'+String(state.orderNo).padStart(3,'0');
     $('recipe-cost').textContent='Modal '+money(selected.cost);$('ingredients').innerHTML=selected.ingredients.map(x=>'<span>'+x+'</span>').join('');
@@ -161,7 +184,7 @@
     // Hanging menu board
     rounded(690,40,173,132,8,'#4d3d2d');rounded(698,48,157,116,4,'#334b3a');
     ctx.fillStyle='#f2e6c7';ctx.font='bold 15px Manrope, sans-serif';ctx.fillText('MENU HARI INI',710,72);
-    ctx.font='12px DM Sans, sans-serif';['Nasi goreng  18k','Mi goreng     15k','Bakso kuah   17k','Es teh             5k'].forEach((t,i)=>ctx.fillText(t,710,95+i*17));
+    ctx.font='12px DM Sans, sans-serif';['Nasi goreng  '+compactPrice('nasi'),'Mi goreng     '+compactPrice('mie'),'Bakso kuah   '+compactPrice('bakso'),'Es teh             '+compactPrice('es')].forEach((t,i)=>ctx.fillText(t,710,95+i*17));
     // Customer tables in the dining area
     const positions=state.tables>2?[[760,355],[835,420],[755,455],[835,290]]:[[770,374],[830,450]];
     positions.forEach((p,i)=>{
@@ -197,7 +220,7 @@
     } else {
       const tip=state.patience>65?1500:state.patience>30?500:0;
       const qualityBonus=state.qualityLabel==='Istimewa'?1500:state.qualityLabel==='Enak'?700:0;
-      const reward=r.price+tip+qualityBonus;state.cash+=reward;state.cashEarned+=reward;state.totalRevenue+=reward;state.todayRevenue+=reward;state.served++;state.todayServed++;
+      const reward=sellingPrice(state.orderMenu)+tip+qualityBonus;state.cash+=reward;state.cashEarned+=reward;state.totalRevenue+=reward;state.todayRevenue+=reward;state.served++;state.todayServed++;
       const repChange=state.qualityLabel==='Istimewa'?.16:state.qualityLabel==='Enak'?.08:(state.patience>45?.03:-.12);
       state.rep=Math.min(5,Math.max(.5,state.rep+repChange));
       let rolloverMessage='';
