@@ -1545,3 +1545,81 @@ body.home-view .topbar{display:none!important}
 /* Metric cards live in their respective tabs, not on Beranda. */
 .section-metrics{margin:14px 0 20px;grid-template-columns:repeat(auto-fit,minmax(190px,1fr))}
 
+
+
+/* UI/UX polish v5 — consistent hierarchy, accessible touch targets, calmer surfaces */
+:root{
+  --bg:#f3f5ef;
+  --paper:#fffefa;
+  --ink:#20362d;
+  --muted:#748278;
+  --line:#e2e7dd;
+  --green:#286849;
+  --green2:#e5f1e6;
+}
+html{scroll-behavior:smooth}
+body{line-height:1.45;-webkit-font-smoothing:antialiased}
+.app{padding-top:16px}
+.scene-card,.order-card,.kitchen-card,.upgrade-card,.management,.progression-panel,.ledger-panel,.extra-management,.market-panel,.dashboard-compact{
+  box-shadow:0 3px 14px rgba(32,54,45,.035);
+}
+.scene-card,.order-card,.kitchen-card,.upgrade-card,.management,.progression-panel,.ledger-panel,.extra-management,.market-panel{
+  border-color:#e3e8de;
+}
+.eyebrow{letter-spacing:1.35px}
+button,select,input{font:inherit}
+button{touch-action:manipulation}
+button:not(:disabled){transition:background-color .16s ease,border-color .16s ease,transform .16s ease,box-shadow .16s ease}
+button:active:not(:disabled){transform:scale(.985)}
+.primary-btn,.dashboard-action,.cart-checkout-btn{min-height:44px;border-radius:12px}
+.primary-btn:hover:not(:disabled),.dashboard-action:hover,.cart-checkout-btn:hover:not(:disabled){box-shadow:0 7px 18px rgba(40,104,73,.18)}
+.secondary-btn{min-height:42px;border-radius:11px}
+input,select{max-width:100%}
+:where(button,a,input,select,textarea):focus-visible{outline:3px solid #d9ad4f;outline-offset:3px}
+.app-bottom-nav{
+  background:rgba(255,254,250,.97);
+  border:1px solid rgba(226,231,221,.9);
+  box-shadow:0 -5px 24px rgba(32,54,45,.08);
+  backdrop-filter:blur(14px);
+  -webkit-backdrop-filter:blur(14px);
+}
+.app-bottom-nav button{border-radius:11px}
+.app-bottom-nav button[aria-current="page"],
+.app-bottom-nav button.active{background:#e8f2e7;color:var(--green)}
+.market-item,.market-wallet,.market-search-wrap,.market-cart-panel,.receipt-paper{box-shadow:none}
+@media(min-width:651px){
+  .app{padding-top:22px}
+  .topbar{margin-bottom:20px}
+  .dashboard-compact{padding:22px 24px}
+  .main-grid{gap:18px}
+  .left-column{gap:16px}
+  .management{margin-top:22px}
+}
+@media(max-width:650px){
+  body{padding:0;background:#f3f5ef}
+  .app{padding:8px 10px calc(88px + env(safe-area-inset-bottom))}
+  .topbar{padding:0 2px 8px}
+  .day-chip{border:1px solid var(--line);background:#fffefa}
+  .dashboard-compact{padding:13px;margin-bottom:10px;border:1px solid var(--line);box-shadow:0 3px 14px rgba(32,54,45,.035)}
+  .dashboard-action-wrap{margin-top:10px}
+  .dashboard-action{width:100%;min-height:45px;border-radius:12px}
+  .main-grid{display:flex;flex-direction:column;gap:10px}
+  .left-column{display:contents}
+  .scene-card{order:0}
+  .order-card{order:1}
+  .kitchen-card{order:2;width:100%}
+  .scene-wrap canvas{max-height:210px;object-fit:cover}
+  .scene-caption{left:9px;bottom:9px;padding:7px 9px;font-size:10px}
+  .scene-footer{font-size:9px}
+  .card-heading h2,.management-heading h2{letter-spacing:-.25px}
+  .order-body{align-items:center}
+  .order-reward strong{font-size:16px}
+  .kitchen-badges{display:flex;flex-wrap:wrap;justify-content:flex-end;gap:5px}
+  .app-bottom-nav{padding-top:5px}
+  .app-bottom-nav button{min-height:50px}
+  .app-bottom-nav button small{font-weight:700}
+  .toast{bottom:calc(75px + env(safe-area-inset-bottom));border-radius:12px}
+}
+@media(prefers-reduced-motion:reduce){
+  *,*::before,*::after{scroll-behavior:auto!important;transition:none!important;animation:none!important}
+}
