@@ -6,7 +6,7 @@
   <meta name="theme-color" content="#17352d">
   <meta name="description" content="Bangun warung kecil menjadi restoran ramai. Masak pesanan, layani pelanggan, kelola uang, dan upgrade usahamu.">
   <title>Warung Kita — Cooking & Restaurant Sim</title>
-  <link rel="stylesheet" href="style.css?v=beranda-only-final-20261019-20">
+  <link rel="stylesheet" href="style.css?v=separate-dashboard-items-20261019-21">
 </head>
 <body>
   <main class="app">
@@ -26,10 +26,6 @@
         
       </div>
       <div class="dashboard-metrics">
-        <div class="dashboard-metric"><span class="dashboard-metric-icon">Rp</span><div><small>UANG KAS</small><strong id="cash">Rp 150.000</strong></div></div>
-        <div class="dashboard-metric"><span class="dashboard-metric-icon">↗</span><div><small>OMZET HARI INI</small><strong id="dashboard-revenue">Rp 0</strong></div></div>
-        <div class="dashboard-metric"><span class="dashboard-metric-icon">🍽</span><div><small>PELANGGAN HARI INI</small><strong id="dashboard-served">0</strong></div></div>
-        <div class="dashboard-metric"><span class="dashboard-metric-icon">★</span><div><small>REPUTASI</small><strong><span id="rep">1.0</span><span class="muted"> / 5</span></strong></div></div>
       </div>
       <div class="dashboard-action-wrap"><button class="dashboard-action" id="enter-kitchen-btn">🍳 Masuk Dapur <span>→</span></button></div>
 
@@ -85,6 +81,9 @@
 
     <section class="management" id="business-panel">
       <div class="management-heading"><div><p class="eyebrow">KEMBANGKAN USAHAMU</p><h2>Kelola warung</h2></div><span class="muted small-text">Investasikan keuntungan dengan bijak</span></div>
+      <div class="dashboard-metrics section-metrics">
+        <div class="dashboard-metric"><span class="dashboard-metric-icon">Rp</span><div><small>UANG KAS</small><strong id="cash">Rp 150.000</strong></div></div>
+      </div>
       <div class="upgrade-grid">
         <article class="upgrade-card"><div class="upgrade-icon stove">♨</div><div class="upgrade-copy"><strong>Kompor profesional</strong><p>Masak lebih cepat dan tambah kapasitas.</p><span class="upgrade-meta">LEVEL <b id="stove-level">1</b> · + bonus reputasi</span></div><button class="upgrade-btn" id="stove-btn">Rp 80.000 <span>↗</span></button></article>
         <article class="upgrade-card"><div class="upgrade-icon table-icon">▤</div><div class="upgrade-copy"><strong>Tambah meja</strong><p>Warung lebih nyaman untuk pelanggan.</p><span class="upgrade-meta">KAPASITAS <b id="table-level">2</b> KURSI</span></div><button class="upgrade-btn" id="table-btn">Rp 60.000 <span>↗</span></button></article>
@@ -124,7 +123,12 @@
     </section>
     <section class="ledger-panel" id="report-panel">
       <div class="management-heading"><div><p class="eyebrow">CATATAN USAHA</p><h2>Ringkasan operasional</h2></div></div>
-      <div class="ledger-grid"><div><small>OMZET HARI INI</small><strong id="today-revenue">Rp 0</strong></div><div><small>PELANGGAN HARI INI</small><strong id="today-served">0</strong></div><div><small>HARI BERJALAN</small><strong id="ledger-day">1</strong></div><div><small>ASISTEN</small><strong id="ledger-staff">Belum ada</strong></div></div>
+      <div class="dashboard-metrics section-metrics">
+        <div class="dashboard-metric"><span class="dashboard-metric-icon">↗</span><div><small>OMZET HARI INI</small><strong id="dashboard-revenue">Rp 0</strong></div></div>
+        <div class="dashboard-metric"><span class="dashboard-metric-icon">🍽</span><div><small>PELANGGAN HARI INI</small><strong id="dashboard-served">0</strong></div></div>
+        <div class="dashboard-metric"><span class="dashboard-metric-icon">★</span><div><small>REPUTASI</small><strong><span id="rep">1.0</span><span class="muted"> / 5</span></strong></div></div>
+      </div>
+      <div class="ledger-grid"><div><small>HARI BERJALAN</small><strong id="ledger-day">1</strong></div><div><small>ASISTEN</small><strong id="ledger-staff">Belum ada</strong></div></div>
       <p class="ledger-note" id="business-tip">Tips bisnis: layani pesanan sebelum kesabaran pelanggan habis untuk memperoleh tip lebih besar.</p>
     </section>
     <footer><span><b>WARUNG KITA</b> <span class="muted">· SINGLE-PLAYER</span></span><span>Masak dengan hati, layani sepenuh hati <span class="footer-star">✦</span></span></footer>
@@ -145,6 +149,6 @@
       </section>
     </div>
   </main>
-  <script src="game.js?v=beranda-only-final-20261019-20"></script>
+  <script src="game.js?v=separate-dashboard-items-20261019-21"></script>
 </body>
 </html>

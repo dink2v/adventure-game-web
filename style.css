@@ -1540,3 +1540,7 @@ body:has(#dashboard:not(.app-view-hidden)) .app{padding-bottom:110px!important}
 
 /* Beranda hanya menampilkan isi dashboard; navigasi bawah tetap tersedia. */
 body.home-view .topbar{display:none!important}
+
+
+/* Metric cards live in their respective tabs, not on Beranda. */
+.section-metrics{margin:14px 0 20px;grid-template-columns:repeat(auto-fit,minmax(190px,1fr))}
