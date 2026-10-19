@@ -15,6 +15,7 @@
   const saved = (() => { try { return JSON.parse(localStorage.getItem('warung-kita-save') || '{}'); } catch { return {}; } })();
   const state = {
     cash:saved.cash ?? 150000, rep:saved.rep ?? 1, served:saved.served ?? 0,
+    marketCart:saved.marketCart && typeof saved.marketCart==='object' ? saved.marketCart : {}, marketReceipts:Array.isArray(saved.marketReceipts) ? saved.marketReceipts : [],
     menuPrices:saved.menuPrices && typeof saved.menuPrices==='object' ? saved.menuPrices : {},
     stock:saved.stock ?? 12, day:saved.day ?? 1, stove:saved.stove ?? 1,
     tables:saved.tables ?? 2, orderNo:saved.orderNo ?? 1,
@@ -25,7 +26,7 @@
   let lastTime=0, toastTimer=0, lastUiUpdate=0, lastSaveAt=0;
   function sellingPrice(id){const base=recipes[id]?.price??1000;const custom=Number(state.menuPrices[id]);return Number.isFinite(custom)&&custom>=1?Math.round(custom):base;}
   function compactPrice(id){const value=sellingPrice(id)/1000;return (Number.isInteger(value)?String(value):value.toFixed(1))+'k';}
-  function persist(){try{localStorage.setItem('warung-kita-save',JSON.stringify({menuPrices:state.menuPrices,marketInventory:state.marketInventory,marketCycle:state.marketCycle,cash:state.cash,rep:state.rep,served:state.served,stock:state.stock,day:state.day,stove:state.stove,tables:state.tables,orderNo:state.orderNo,menu:state.menu,orderMenu:state.orderMenu,step:state.step,patience:state.patience,cookingStarted:state.cookingStarted,cookingElapsed:state.cookingElapsed,actionIndex:state.actionIndex,qualityScore:state.qualityScore,qualityLabel:state.qualityLabel,staff:state.staff,promoUsed:state.promoUsed,promoBonusPending:state.promoBonusPending,todayServed:state.todayServed,todayRevenue:state.todayRevenue,missionClaimed:state.missionClaimed,totalRevenue:state.totalRevenue}));}catch{}}
+  function persist(){try{localStorage.setItem('warung-kita-save',JSON.stringify({menuPrices:state.menuPrices,marketInventory:state.marketInventory,marketCycle:state.marketCycle,marketCart:state.marketCart,marketReceipts:state.marketReceipts,cash:state.cash,rep:state.rep,served:state.served,stock:state.stock,day:state.day,stove:state.stove,tables:state.tables,orderNo:state.orderNo,menu:state.menu,orderMenu:state.orderMenu,step:state.step,patience:state.patience,cookingStarted:state.cookingStarted,cookingElapsed:state.cookingElapsed,actionIndex:state.actionIndex,qualityScore:state.qualityScore,qualityLabel:state.qualityLabel,staff:state.staff,promoUsed:state.promoUsed,promoBonusPending:state.promoBonusPending,todayServed:state.todayServed,todayRevenue:state.todayRevenue,missionClaimed:state.missionClaimed,totalRevenue:state.totalRevenue}));}catch{}}
   function toast(message){const el=$('toast');el.textContent=message;el.classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>el.classList.remove('show'),2200);}
 
   // Acuan PIHPS untuk Kota Blitar, data 16 Oktober 2026.
@@ -40,28 +41,72 @@
   ];
   const marketPriceDate = '16 Oktober 2026';
   function marketPrice(g){return g.marketPrice;}
+
+  function marketAvailable(g){return Math.max(0,8-((state.marketCycle+marketGoods.indexOf(g)*2)%10));}
+  function cartQuantity(id){return Math.max(0,Math.floor(Number(state.marketCart[id])||0));}
+  function cartItems(){return marketGoods.filter(g=>cartQuantity(g.id)>0).map(g=>({good:g,qty:cartQuantity(g.id),unitPrice:marketPrice(g),subtotal:marketPrice(g)*cartQuantity(g.id)}));}
+  function cartTotal(){return cartItems().reduce((sum,item)=>sum+item.subtotal,0);}
   function renderMarket(){
     const grid=$('market-grid');if(!grid)return;
     $('market-cash').textContent=money(state.cash);$('market-stock-total').textContent=state.stock;
     $('market-refresh').textContent='Acuan Kota Blitar · data '+marketPriceDate;
     grid.innerHTML=marketGoods.map(g=>{
-      const price=marketPrice(g),available=Math.max(0,8-((state.marketCycle+marketGoods.indexOf(g)*2)%10));
-      const qty=state.marketInventory[g.id]||0;
-      return '<article class="market-item"><div class="market-item-top"><span class="market-item-emoji">'+g.emoji+'</span><div><h3>'+g.name+'</h3><p>'+g.desc+'</p></div></div><div class="market-item-price">'+money(price)+'</div><div class="market-item-meta"><span>+ '+g.add+' porsi stok</span><span>Pasar: '+available+'</span></div><div class="market-item-meta"><span>Catatan belanja</span><b>'+qty+' paket</b></div><button type="button" data-buy-good="'+g.id+'" '+(state.cash<price||available<=0?'disabled':'')+'>Beli bahan</button></article>';
+      const price=marketPrice(g),available=marketAvailable(g),qty=cartQuantity(g.id);
+      return '<article class="market-item"><div class="market-item-top"><span class="market-item-emoji">'+g.emoji+'</span><div><h3>'+g.name+'</h3><p>'+g.desc+'</p></div></div><div class="market-item-price">'+money(price)+'</div><div class="market-item-meta"><span>+ '+g.add+' porsi stok/paket</span><span>Pasar: '+available+'</span></div><div class="market-item-meta"><span>Di keranjang</span><b>'+qty+' paket</b></div><button type="button" data-add-cart="'+g.id+'" '+(qty>=available||available<=0?'disabled':'')+'>＋ Tambah ke keranjang</button></article>';
     }).join('');
     const note=$('market-note');
     if(note)note.innerHTML='Harga paket dihitung dari harga acuan per kg di Kota Blitar, berdasarkan data PIHPS tanggal '+marketPriceDate+'. Ini snapshot terakhir yang diverifikasi, bukan harga live. <a href="https://www.panganindonesia.com/harga/kota/blitar/" target="_blank" rel="noopener noreferrer">Lihat sumber harga</a>.';
-    grid.querySelectorAll('[data-buy-good]').forEach(btn=>btn.addEventListener('click',()=>buyMarketGood(btn.dataset.buyGood)));
+    grid.querySelectorAll('[data-add-cart]').forEach(btn=>btn.addEventListener('click',()=>addToCart(btn.dataset.addCart)));
+    renderCart();
   }
-  function buyMarketGood(id){
+  function addToCart(id){
     const g=marketGoods.find(x=>x.id===id);if(!g)return;
-    const price=marketPrice(g),available=Math.max(0,8-((state.marketCycle+marketGoods.indexOf(g)*2)%10));
-    if(available<=0){toast('Stok bahan di pasar habis sementara. Coba lagi setelah pasar berubah.');return;}
-    if(state.cash<price){toast('Uang kas belum cukup untuk membeli bahan ini.');return;}
-    state.cash-=price;state.stock+=g.add;state.marketInventory[id]=(state.marketInventory[id]||0)+1;
-    toast(g.name+' dibeli! Stok dapur bertambah '+g.add+' porsi.');
-    persist();updateStats();renderMarket();
+    const available=marketAvailable(g),qty=cartQuantity(id);
+    if(available<=qty){toast('Jumlah di keranjang sudah mencapai stok pasar yang tersedia.');return;}
+    state.marketCart[id]=qty+1;persist();renderMarket();toast(g.name+' ditambahkan ke keranjang.');
   }
+  function changeCartQuantity(id,delta){
+    const g=marketGoods.find(x=>x.id===id);if(!g)return;
+    const next=cartQuantity(id)+delta,available=marketAvailable(g);
+    if(next<=0)delete state.marketCart[id];
+    else if(next>available){toast('Melebihi stok pasar yang tersedia.');return;}
+    else state.marketCart[id]=next;
+    persist();renderMarket();
+  }
+  function renderCart(){
+    const list=$('market-cart-items'),total=$('market-cart-total'),count=$('market-cart-count'),checkout=$('market-checkout-btn'),history=$('market-receipt-history');
+    if(!list)return;
+    const items=cartItems();
+    count.textContent=items.reduce((sum,item)=>sum+item.qty,0)+' paket';
+    total.textContent=money(cartTotal());
+    list.innerHTML=items.length?items.map(({good,qty,unitPrice,subtotal})=>'<article class="cart-line"><div class="cart-line-info"><span>'+good.emoji+'</span><div><strong>'+good.name+'</strong><small>'+qty+' × '+money(unitPrice)+' = '+money(subtotal)+'</small></div></div><div class="cart-line-actions"><button type="button" data-cart-minus="'+good.id+'" aria-label="Kurangi '+good.name+'">−</button><b>'+qty+'</b><button type="button" data-cart-plus="'+good.id+'" aria-label="Tambah '+good.name+'">+</button><button type="button" data-cart-remove="'+good.id+'" aria-label="Hapus '+good.name+'" title="Hapus">×</button></div></article>').join(''):'<p class="cart-empty">Keranjang masih kosong. Tambahkan bahan dari daftar pasar di atas.</p>';
+    list.querySelectorAll('[data-cart-minus]').forEach(b=>b.addEventListener('click',()=>changeCartQuantity(b.dataset.cartMinus,-1)));
+    list.querySelectorAll('[data-cart-plus]').forEach(b=>b.addEventListener('click',()=>changeCartQuantity(b.dataset.cartPlus,1)));
+    list.querySelectorAll('[data-cart-remove]').forEach(b=>b.addEventListener('click',()=>{delete state.marketCart[b.dataset.cartRemove];persist();renderMarket();}));
+    checkout.disabled=!items.length||cartTotal()>state.cash;
+    checkout.textContent=cartTotal()>state.cash?'Uang kas tidak cukup':'Konfirmasi Pembelian · '+money(cartTotal());
+    history.innerHTML=state.marketReceipts.length?state.marketReceipts.slice().reverse().slice(0,10).map(r=>'<button type="button" class="receipt-history-item" data-open-receipt="'+r.id+'"><span><strong>'+r.number+'</strong><small>'+new Date(r.timestamp).toLocaleString('id-ID')+' · '+r.items.length+' jenis bahan</small></span><b>'+money(r.total)+'</b></button>').join(''):'<p class="cart-empty">Belum ada transaksi belanja.</p>';
+    history.querySelectorAll('[data-open-receipt]').forEach(b=>b.addEventListener('click',()=>showReceipt(b.dataset.openReceipt)));
+  }
+  function confirmMarketPurchase(){
+    const items=cartItems();if(!items.length){toast('Keranjang masih kosong.');return;}
+    const total=items.reduce((sum,item)=>sum+item.subtotal,0);
+    if(total>state.cash){toast('Uang kas tidak cukup. Kurangi jumlah barang di keranjang.');renderCart();return;}
+    for(const item of items){if(item.qty>marketAvailable(item.good)){toast('Stok '+item.good.name+' berubah. Periksa keranjang lagi.');renderMarket();return;}}
+    const now=Date.now(),sequence=(state.marketReceipts[state.marketReceipts.length-1]?.sequence||0)+1;
+    const receipt={id:'receipt-'+now+'-'+Math.random().toString(36).slice(2,7),sequence,number:'PSR-'+String(sequence).padStart(4,'0'),timestamp:now,day:state.day,items:items.map(({good,qty,unitPrice,subtotal})=>({id:good.id,name:good.name,emoji:good.emoji,qty,unitPrice,subtotal,stockAdded:good.add*qty})),total,cashBefore:state.cash,cashAfter:state.cash-total};
+    state.cash-=total;
+    for(const item of items){state.stock+=item.good.add*item.qty;state.marketInventory[item.good.id]=(state.marketInventory[item.good.id]||0)+item.qty;}
+    state.marketCart={};state.marketReceipts.push(receipt);if(state.marketReceipts.length>100)state.marketReceipts=state.marketReceipts.slice(-100);
+    persist();updateStats();renderMarket();showReceipt(receipt.id);
+  }
+  function showReceipt(id){
+    const receipt=state.marketReceipts.find(r=>r.id===id);if(!receipt)return;
+    const modal=$('receipt-modal'),content=$('receipt-content');if(!modal||!content)return;
+    content.innerHTML='<div class="receipt-brand"><div class="receipt-logo">WK</div><h2>WARUNG KITA</h2><p>STRUK PEMBELIAN BAHAN</p></div><div class="receipt-meta"><span>No. transaksi</span><strong>'+receipt.number+'</strong><span>Tanggal</span><strong>'+new Date(receipt.timestamp).toLocaleString("id-ID")+'</strong><span>Hari usaha</span><strong>Hari '+receipt.day+'</strong><span>Lokasi</span><strong>Pasar bahan baku</strong></div><div class="receipt-items">'+receipt.items.map(item=>'<div class="receipt-item"><div><strong>'+item.emoji+' '+item.name+'</strong><small>'+item.qty+' paket × '+money(item.unitPrice)+'</small></div><b>'+money(item.subtotal)+'</b><small class="receipt-stock">Stok dapur +'+item.stockAdded+' porsi</small></div>').join('')+'</div><div class="receipt-total"><span>Total belanja</span><strong>'+money(receipt.total)+'</strong></div><div class="receipt-payment"><span>Metode pembayaran</span><b>Uang kas</b><span>Sebelum transaksi</span><b>'+money(receipt.cashBefore)+'</b><span>Sisa uang kas</span><b>'+money(receipt.cashAfter)+'</b><span>Status</span><b class="receipt-paid">LUNAS</b></div><p class="receipt-thanks">Terima kasih sudah berbelanja!<br>Bahan siap digunakan untuk memasak.</p>';
+    modal.hidden=false;modal.dataset.receiptId=id;$('receipt-close-btn').focus();
+  }
+  function closeReceipt(){const modal=$('receipt-modal');if(modal)modal.hidden=true;}
   function setView(view){
     const all=['home','kitchen','market','business','report','more'];
     if(!all.includes(view))view='home';
@@ -251,6 +296,12 @@
     requestAnimationFrame(frame);
   }
   $('enter-kitchen-btn').addEventListener('click',()=>setView('kitchen'));
+  $('market-checkout-btn').addEventListener('click',confirmMarketPurchase);
+  $('receipt-close-btn').addEventListener('click',closeReceipt);
+  $('receipt-close-bottom-btn').addEventListener('click',closeReceipt);
+  $('receipt-print-btn').addEventListener('click',()=>window.print());
+  $('receipt-modal').addEventListener('click',event=>{if(event.target===$('receipt-modal'))closeReceipt();});
+  document.addEventListener('keydown',event=>{if(event.key==='Escape')closeReceipt();});
   $('menu-select').addEventListener('change',e=>{if(state.step!==0){toast('Selesaikan atau lewati pesanan dulu sebelum ganti menu.');$('menu-select').value=state.menu;return;}if(!unlocked(e.target.value)){toast('Menu ini belum terbuka. Layani lebih banyak pelanggan dulu.');$('menu-select').value=state.menu;return;}state.menu=e.target.value;updateOrder();persist();});
   $('cook-btn').addEventListener('click',cookAction);
   $('new-order-btn').addEventListener('click',()=>nextOrder(true));
