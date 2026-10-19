@@ -1342,3 +1342,124 @@ button:focus-visible,select:focus-visible,input:focus-visible,a:focus-visible{
 .market-no-results p{margin:0;color:var(--muted);font-size:12px}
 @media(max-width:650px){.market-tools{grid-template-columns:minmax(0,1fr);gap:8px;margin:10px 0}.market-search-wrap,.market-category-wrap select{min-height:44px}.market-result-count{font-size:10px}}
 @media(max-width:390px){.market-search-wrap input{font-size:12px}.market-category-wrap select{font-size:11px}}
+
+
+/* Mobile-first sizing v3: compact without shrinking touch targets */
+@media(max-width:650px){
+  html{font-size:14px;scroll-padding-bottom:calc(82px + env(safe-area-inset-bottom))}
+  body{font-size:13px}
+  .app{width:100%;max-width:100%;padding:7px 10px calc(82px + env(safe-area-inset-bottom))}
+  .topbar{min-height:42px;gap:8px;margin-bottom:9px;padding-bottom:7px}
+  .brand{gap:7px}
+  .brand-mark{width:34px;height:34px;border-radius:10px}
+  .brand b{font-size:12px;letter-spacing:-.2px}
+  .topbar-actions{gap:6px}
+  .day-chip{font-size:9px;padding:6px 8px}
+  .dashboard-compact{padding:12px;border-radius:15px;margin-bottom:10px}
+  .dashboard-top{grid-template-columns:minmax(0,1fr);gap:8px;margin-bottom:10px}
+  .dashboard-identity h1{font-size:clamp(22px,6vw,27px);line-height:1.12}
+  .dashboard-subtitle{font-size:11px;line-height:1.45}
+  .dashboard-metrics{grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}
+  .dashboard-metric{min-height:61px;display:flex;flex-direction:row;align-items:center;gap:8px;padding:8px;border-radius:11px}
+  .dashboard-metric-icon{width:29px;height:29px;flex:none}
+  .dashboard-metric small{font-size:9px;line-height:1.25}
+  .dashboard-metric strong{font-size:14px;line-height:1.2}
+  .dashboard-action-wrap{margin-top:9px}
+  .dashboard-action{min-height:42px}
+  .main-grid,.left-column{gap:9px}
+  .scene-card,.order-card,.kitchen-card,.management,.progression-panel,.ledger-panel,.extra-management,.market-panel{border-radius:14px}
+  .scene-top{padding:10px 11px 8px}
+  .scene-top h2,.card-heading h2,.management-heading h2{font-size:15px;line-height:1.25}
+  .scene-wrap canvas{width:100%;height:auto;max-height:230px;object-fit:contain}
+  .scene-footer{gap:6px;padding:8px 10px;font-size:10px}
+  .card-heading,.kitchen-card .card-heading{padding:11px 11px 8px}
+  .order-body{gap:9px;padding:0 11px 11px}
+  .dish-art{width:clamp(68px,20vw,86px);height:clamp(68px,20vw,86px);font-size:38px}
+  .order-customer strong{font-size:13px}
+  .order-customer small{font-size:10px;line-height:1.4}
+  .kitchen-card{padding-bottom:10px}
+  .dish-selector{gap:7px;padding:0 10px 9px}
+  .recipe-box{margin:0 10px 9px;padding:9px}
+  .cook-steps{gap:6px;padding:0 10px}
+  .cook-step{min-height:43px;padding:8px}
+  .cook-feedback{margin:8px 10px;font-size:11px}
+  .primary-btn,.secondary-btn{min-height:44px;width:calc(100% - 20px);margin-left:10px;margin-right:10px}
+  .management,.progression-panel,.ledger-panel,.extra-management{margin-top:9px;padding:10px}
+  .management-heading{gap:7px;margin-bottom:9px}
+  .management-heading h2{font-size:15px}
+  .management-heading p,.management-heading .muted{font-size:10px;line-height:1.4}
+  .upgrade-grid{gap:7px}
+  .upgrade-card{gap:7px;padding:9px;border-radius:11px}
+  .upgrade-icon{width:32px;height:32px;font-size:17px}
+  .upgrade-copy strong{font-size:11px;line-height:1.35}
+  .upgrade-copy p{font-size:10px;line-height:1.4}
+  .upgrade-meta{font-size:9px;line-height:1.35}
+  .upgrade-btn{min-height:40px;font-size:10px;padding:8px 6px}
+  .progression-grid,.extra-grid{gap:7px}
+  .progress-card{padding:10px}
+  .progress-title{gap:7px;margin-bottom:9px}
+  .progress-icon{width:30px;height:30px}
+  .mission-row{gap:6px;padding:7px 0}
+  .mission-row span,.rank-progress>div:first-child span{font-size:10px}
+  .ledger-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}
+  .ledger-grid>div{padding:9px}
+  .ledger-grid strong{font-size:15px}
+  .ledger-grid small{font-size:9px}
+  .app-bottom-nav{left:0;right:0;bottom:0;gap:0;padding:4px 3px calc(4px + env(safe-area-inset-bottom));border-radius:15px 15px 0 0}
+  .app-bottom-nav button{flex:1;min-width:0;min-height:48px;gap:2px;padding:4px 1px}
+  .app-bottom-nav button span{width:22px;height:21px;font-size:17px;line-height:1}
+  .app-bottom-nav button small{font-size:9px;line-height:1.15;letter-spacing:-.15px}
+  .market-panel{padding:10px}
+  .market-panel>.management-heading{margin-bottom:9px}
+  .market-wallet{gap:7px 10px;padding:9px;margin:10px 0}
+  .market-wallet strong{font-size:15px}
+  .market-tools{gap:7px;margin:9px 0}
+  .market-search-wrap,.market-category-wrap select{min-height:44px;border-radius:10px}
+  .market-search-wrap input{font-size:13px}
+  .market-result-count{font-size:10px}
+  .market-grid{gap:8px}
+  .market-item{gap:7px;padding:9px;border-radius:11px}
+  .market-item-top{gap:7px}
+  .market-item-emoji{width:34px;height:34px;font-size:19px}
+  .market-item h3{font-size:11px;line-height:1.35}
+  .market-item p{font-size:10px;line-height:1.4}
+  .market-item-price{font-size:15px;line-height:1.3}
+  .market-item-meta{font-size:10px;line-height:1.35}
+  .market-item button{min-height:42px;padding:8px 6px;font-size:10px}
+  .market-note{margin-top:9px;padding:8px;font-size:10px;line-height:1.5}
+  .market-cart-panel{padding:10px}
+  .cart-line{padding:10px}
+  .cart-line-info strong{font-size:12px}
+  .cart-line-info small{font-size:10px}
+  .cart-line-actions button{min-width:36px;min-height:36px}
+  .receipt-paper{padding:12px}
+  footer{font-size:10px;padding:12px 4px}
+}
+@media(max-width:390px){
+  .app{padding-left:8px;padding-right:8px}
+  .dashboard-metric{min-height:58px;padding:7px}
+  .dashboard-metric small{font-size:8px}
+  .dashboard-metric strong{font-size:13px}
+  .scene-wrap canvas{max-height:205px}
+  .upgrade-grid,.progression-grid,.extra-grid{grid-template-columns:minmax(0,1fr)}
+  .upgrade-card{grid-template-columns:32px minmax(0,1fr) 88px;gap:7px;padding:9px}
+  .upgrade-icon{width:31px;height:31px}
+  .upgrade-btn{grid-column:3;grid-row:1;font-size:9px;min-height:40px}
+  .app-bottom-nav button small{font-size:8px}
+  .market-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .market-item{padding:8px}
+  .market-item h3{font-size:10px}
+  .market-item p{font-size:9px}
+  .market-item-price{font-size:14px}
+  .market-item-meta{font-size:9px}
+  .market-item button{font-size:9px;padding:7px 4px}
+}
+@media(max-width:340px){
+  .app-bottom-nav button span{font-size:16px}
+  .app-bottom-nav button small{font-size:7px}
+  .market-grid{grid-template-columns:minmax(0,1fr)}
+  .market-item{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center}
+  .market-item-top{grid-column:1/-1;align-items:center}
+  .market-item-price,.market-item-meta{grid-column:1}
+  .market-item button{grid-column:2;grid-row:2/span 2;width:92px;align-self:stretch;font-size:10px}
+}
