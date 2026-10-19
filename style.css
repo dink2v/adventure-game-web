@@ -1527,9 +1527,3 @@ button:focus-visible,select:focus-visible,input:focus-visible,a:focus-visible{
   .market-item-meta:nth-of-type(3){font-size:9px}
   .market-item button{min-width:112px;min-height:38px;padding:7px;font-size:9px}
 }
-
-
-
-/* Fix tap target priority without changing the dashboard layout. */
-.app-bottom-nav{position:fixed!important;z-index:10000!important;pointer-events:auto!important;isolation:isolate}
-.app-bottom-nav button{position:relative;z-index:1;pointer-events:auto!important;touch-action:manipulation}
