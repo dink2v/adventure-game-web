@@ -370,3 +370,90 @@ body:has(#dashboard:not(.app-view-hidden)) .app-bottom-nav{display:flex!importan
 body:has(#dashboard:not(.app-view-hidden)) #dashboard .dashboard-action-wrap{position:static!important;left:auto!important;bottom:auto!important;transform:none!important;width:100%!important;margin:22px auto 8px!important;display:flex!important;justify-content:center!important;pointer-events:auto!important}
 body:has(#dashboard:not(.app-view-hidden)) #dashboard .dashboard-action{width:auto!important;min-width:220px;max-width:100%!important;min-height:50px;font-size:14px!important;pointer-events:auto!important;box-shadow:0 8px 22px #28684926!important}
 body:has(#dashboard:not(.app-view-hidden)) .app{padding-bottom:110px!important}
+
+
+/* UX refinement pass — readability, spacing, and comfortable touch targets */
+:root{scroll-behavior:smooth;scroll-padding-bottom:120px}
+button,select{font:inherit}
+button{touch-action:manipulation}
+button:focus-visible,a:focus-visible,select:focus-visible{outline:3px solid #8dbb8e;outline-offset:3px}
+.dashboard-compact{padding:clamp(14px,2.2vw,22px);border-radius:20px}
+.dashboard-top{align-items:center;gap:16px}
+.dashboard-identity h1{letter-spacing:-.035em}
+.dashboard-subtitle{display:inline-flex;align-items:center;gap:6px;flex-wrap:wrap}
+.dashboard-metrics{gap:10px;margin-top:18px}
+.dashboard-metric{min-width:0;min-height:76px;padding:13px;gap:11px;border-radius:14px}
+.dashboard-metric>div{min-width:0}
+.dashboard-metric small{display:block;line-height:1.35;letter-spacing:.045em}
+.dashboard-metric strong{display:block;line-height:1.35;overflow-wrap:anywhere}
+.dashboard-action-wrap{margin:20px auto 8px!important}
+.dashboard-action{min-width:240px;min-height:50px;border-radius:14px;letter-spacing:.01em;transition:transform .16s ease,filter .16s ease,box-shadow .16s ease}
+.dashboard-action:active{transform:translateY(1px) scale(.99)}
+.app-bottom-nav{z-index:120;backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px)}
+.app-bottom-nav button{min-height:54px;gap:5px;transition:background .16s ease,color .16s ease}
+.app-bottom-nav button span{line-height:1.15}
+.app-bottom-nav button small{font-size:11px;line-height:1.2}
+.app-bottom-nav button.active{font-weight:800}
+.card-heading,.management-heading{gap:12px}
+.card-heading h2,.management-heading h2{line-height:1.25;letter-spacing:-.02em}
+.scene-card,.order-card,.kitchen-card,.upgrade-card,.progress-card,.mission-card,.ledger-panel,.market-panel{border-radius:16px}
+.scene-card,.order-card,.kitchen-card,.upgrade-card,.progress-card,.mission-card,.ledger-panel{scroll-margin-bottom:120px}
+.primary-btn,.secondary-btn,.upgrade-btn,.market-item button,.icon-btn{min-height:44px}
+.primary-btn,.upgrade-btn,.market-item button{font-weight:800}
+.dish-selector select{min-height:46px;padding:10px 12px}
+.cook-feedback,.market-intro,.market-note,.ledger-note,.upgrade-copy p{font-size:12px;line-height:1.6}
+.market-panel{padding:clamp(14px,2.4vw,22px)}
+.market-grid{gap:12px}
+.market-item{padding:13px;gap:10px;border-radius:14px}
+.market-item h3{font-size:13px;line-height:1.4}
+.market-item p,.market-item-meta{font-size:11px;line-height:1.5}
+.market-item-price{font-size:15px;line-height:1.4}
+.market-item button{padding:9px 12px;border-radius:10px}
+.management-heading{align-items:center;margin-bottom:14px}
+.upgrade-grid{gap:12px}
+.upgrade-card{padding:14px;border-radius:15px}
+.upgrade-copy strong{line-height:1.4}
+.upgrade-btn{border-radius:11px}
+.ledger-grid>div{min-width:0}
+.ledger-grid small{line-height:1.4}
+.ledger-grid strong{overflow-wrap:anywhere}
+.toast{max-width:calc(100vw - 28px);line-height:1.45}
+
+@media(max-width:650px){
+  .dashboard-compact{padding:14px;border-radius:16px}
+  .dashboard-metrics{gap:8px;margin-top:14px}
+  .dashboard-metric{min-height:68px;padding:10px;gap:8px;border-radius:12px}
+  .dashboard-metric small{font-size:10px}
+  .dashboard-metric strong{font-size:13px;overflow-wrap:anywhere}
+  .dashboard-action-wrap{margin:17px auto 8px!important}
+  .dashboard-action{min-width:min(240px,100%);width:auto!important;max-width:100%!important;min-height:48px;font-size:14px!important;padding:12px 22px}
+  .app-bottom-nav{padding:6px 5px calc(6px + env(safe-area-inset-bottom))}
+  .app-bottom-nav button{min-height:49px;gap:4px;padding:4px 0}
+  .app-bottom-nav button span{font-size:18px}
+  .app-bottom-nav button small{font-size:10px}
+  .market-panel{padding:13px}
+  .market-grid{gap:9px}
+  .market-item{padding:10px;gap:8px}
+  .market-item h3{font-size:12px}
+  .market-item p,.market-item-meta{font-size:11px}
+  .market-item-price{font-size:14px}
+  .market-item button{min-height:42px;font-size:11px}
+  .upgrade-card{padding:12px}
+  .primary-btn,.secondary-btn,.upgrade-btn{min-height:44px}
+}
+@media(max-width:380px){
+  .dashboard-compact{padding:11px}
+  .dashboard-metrics{gap:6px}
+  .dashboard-metric{padding:8px;gap:6px}
+  .dashboard-metric-icon{flex:none}
+  .dashboard-metric small{font-size:9px}
+  .dashboard-metric strong{font-size:12px}
+  .app-bottom-nav{gap:0;padding-left:2px;padding-right:2px}
+  .app-bottom-nav button small{font-size:9px}
+  .market-grid{gap:7px}
+  .market-item{padding:8px}
+}
+@media(prefers-reduced-motion:reduce){
+  :root{scroll-behavior:auto}
+  .dashboard-action,.app-bottom-nav button{transition:none}
+}
