@@ -1536,5 +1536,7 @@ body:has(#dashboard:not(.app-view-hidden)) #dashboard .dashboard-action{width:au
 body:has(#dashboard:not(.app-view-hidden)) .app{padding-bottom:110px!important}
 
 
-/* Beranda only: hide the global header so the dashboard contains only the requested items. */
+
+
+/* Beranda hanya menampilkan isi dashboard; navigasi bawah tetap tersedia. */
 body.home-view .topbar{display:none!important}

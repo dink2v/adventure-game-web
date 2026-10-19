@@ -138,6 +138,7 @@
     const all=['home','kitchen','market','business','report','more'];
     if(!all.includes(view))view='home';
     document.body.classList.toggle('home-view',view==='home');
+    const topbar=document.querySelector('.topbar');if(topbar)topbar.style.display=view==='home'?'none':'';
     document.querySelectorAll('.app-bottom-nav [data-view]').forEach(b=>b.classList.toggle('active',b.dataset.view===view));
     const scene=document.querySelector('.scene-card'), order=document.querySelector('.order-card'), kitchen=$('kitchen-panel');
     const dashboard=$('dashboard'), market=$('market-panel'), business=$('business-panel'), extras=document.querySelector('.extra-management'), more=$('more-panel'), report=$('report-panel'), footer=document.querySelector('footer');
