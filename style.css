@@ -1323,3 +1323,22 @@ button:focus-visible,select:focus-visible,input:focus-visible,a:focus-visible{
   .app-bottom-nav button small{font-size:7px}
   .market-grid{grid-template-columns:minmax(0,1fr)}
 }
+
+
+/* Pasar: pencarian bahan dan filter kategori */
+.market-tools{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(180px,.8fr);gap:10px;align-items:end;margin:14px 0 12px}
+.market-search-wrap{display:flex;align-items:center;gap:9px;min-width:0;min-height:48px;padding:0 12px;border:1px solid var(--line);border-radius:12px;background:#fffefa;color:var(--muted)}
+.market-search-wrap>span{font-size:24px;line-height:1;flex:none}
+.market-search-wrap input{width:100%;min-width:0;border:0;outline:0;background:transparent;color:var(--ink);font:600 13px 'DM Sans',sans-serif}
+.market-search-wrap input::placeholder{color:#929b92;font-weight:400}
+.market-search-wrap:focus-within{border-color:#76a88a;box-shadow:0 0 0 3px #26794a16}
+.market-search-wrap button{width:30px;height:30px;flex:none;border:0;border-radius:8px;background:#edf2e9;color:var(--ink);font-size:20px;cursor:pointer}
+.market-category-wrap{display:grid;gap:5px;color:var(--muted);font-size:11px;font-weight:700}
+.market-category-wrap select{width:100%;min-height:48px;padding:0 12px;border:1px solid var(--line);border-radius:12px;background:#fffefa;color:var(--ink);font:700 12px 'DM Sans',sans-serif}
+.market-result-count{grid-column:1/-1;margin:0;color:var(--muted);font-size:11px}
+.market-no-results{grid-column:1/-1;display:grid;justify-items:center;gap:6px;padding:30px 14px;border:1px dashed var(--line);border-radius:13px;background:#fbfcf7;text-align:center}
+.market-no-results>span{font-size:27px}
+.market-no-results strong{font-size:14px}
+.market-no-results p{margin:0;color:var(--muted);font-size:12px}
+@media(max-width:650px){.market-tools{grid-template-columns:minmax(0,1fr);gap:8px;margin:10px 0}.market-search-wrap,.market-category-wrap select{min-height:44px}.market-result-count{font-size:10px}}
+@media(max-width:390px){.market-search-wrap input{font-size:12px}.market-category-wrap select{font-size:11px}}

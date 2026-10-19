@@ -32,15 +32,38 @@
   // Acuan PIHPS untuk Kota Blitar, data 16 Oktober 2026.
   // Harga paket dihitung dari harga per kg x bobot paket; bukan harga live.
   const marketGoods = [
-    {id:'rice',name:'Beras (0,5 kg)',emoji:'🍚',desc:'Acuan Blitar Rp14.850/kg · paket 0,5 kg.',marketPrice:7425,add:3},
-    {id:'egg',name:'Telur ayam (0,25 kg)',emoji:'🥚',desc:'Acuan Blitar Rp26.000/kg · paket 0,25 kg.',marketPrice:6500,add:3},
-    {id:'seasoning',name:'Cabai rawit (0,1 kg)',emoji:'🌶️',desc:'Acuan Blitar Rp47.500/kg · paket 0,1 kg.',marketPrice:4750,add:3},
-    {id:'noodle',name:'Bawang merah (0,1 kg)',emoji:'🧅',desc:'Acuan Blitar Rp27.250/kg · paket 0,1 kg.',marketPrice:2725,add:3},
-    {id:'chicken',name:'Daging ayam (0,25 kg)',emoji:'🍗',desc:'Acuan Blitar Rp37.500/kg · paket 0,25 kg.',marketPrice:9375,add:2},
-    {id:'tea',name:'Gula pasir (0,25 kg)',emoji:'🧂',desc:'Acuan Blitar Rp17.850/kg · paket 0,25 kg.',marketPrice:4463,add:4}
+    {id:'rice',name:'Beras (0,5 kg)',emoji:'🍚',category:'pokok',desc:'Acuan Blitar Rp14.850/kg · paket 0,5 kg.',marketPrice:7425,add:3},
+    {id:'egg',name:'Telur ayam (0,25 kg)',emoji:'🥚',category:'protein',desc:'Acuan Blitar Rp26.000/kg · paket 0,25 kg.',marketPrice:6500,add:3},
+    {id:'seasoning',name:'Cabai rawit (0,1 kg)',emoji:'🌶️',category:'sayur',desc:'Acuan Blitar Rp47.500/kg · paket 0,1 kg.',marketPrice:4750,add:3},
+    {id:'noodle',name:'Bawang merah (0,1 kg)',emoji:'🧅',category:'sayur',desc:'Acuan Blitar Rp27.250/kg · paket 0,1 kg.',marketPrice:2725,add:3},
+    {id:'chicken',name:'Daging ayam (0,25 kg)',emoji:'🍗',category:'protein',desc:'Acuan Blitar Rp37.500/kg · paket 0,25 kg.',marketPrice:9375,add:2},
+    {id:'tea',name:'Gula pasir (0,25 kg)',emoji:'🧂',category:'pokok',desc:'Acuan Blitar Rp17.850/kg · paket 0,25 kg.',marketPrice:4463,add:4},
+    {id:'vegetable',name:'Sayuran campur (1 paket)',emoji:'🥬',category:'sayur',desc:'Paket simulasi game · sayur untuk nasi goreng dan lalapan.',marketPrice:3500,add:3},
+    {id:'garlic',name:'Bawang putih (0,1 kg)',emoji:'🧄',category:'sayur',desc:'Paket simulasi game · bumbu dasar masakan.',marketPrice:3200,add:3},
+    {id:'noodle-pack',name:'Mi telur (2 porsi)',emoji:'🍜',category:'pokok',desc:'Paket simulasi game · mi goreng dan bakso.',marketPrice:4000,add:3},
+    {id:'bihun',name:'Bihun (1 bungkus)',emoji:'🍝',category:'pokok',desc:'Paket simulasi game · pelengkap soto ayam.',marketPrice:3500,add:3},
+    {id:'meatball',name:'Bakso (1 paket)',emoji:'🍖',category:'protein',desc:'Paket simulasi game · bakso siap olah.',marketPrice:8000,add:3},
+    {id:'beef',name:'Daging sapi (0,25 kg)',emoji:'🥩',category:'protein',desc:'Paket simulasi game · pilihan menu tambahan.',marketPrice:18000,add:2},
+    {id:'tofu',name:'Tahu (1 paket)',emoji:'⬜',category:'protein',desc:'Paket simulasi game · lauk dan pelengkap.',marketPrice:3000,add:3},
+    {id:'tempe',name:'Tempe (1 papan)',emoji:'🟫',category:'protein',desc:'Paket simulasi game · lauk dan pelengkap.',marketPrice:3500,add:3},
+    {id:'oil',name:'Minyak goreng (0,25 L)',emoji:'🫗',category:'pokok',desc:'Paket simulasi game · kebutuhan menggoreng.',marketPrice:5000,add:4},
+    {id:'salt',name:'Garam (1 bungkus)',emoji:'🧂',category:'lainnya',desc:'Paket simulasi game · bumbu dasar.',marketPrice:1500,add:4},
+    {id:'soy-sauce',name:'Kecap manis (1 botol kecil)',emoji:'🍶',category:'lainnya',desc:'Paket simulasi game · bumbu mi goreng.',marketPrice:4500,add:3},
+    {id:'peanut',name:'Kacang tanah (0,1 kg)',emoji:'🥜',category:'sayur',desc:'Paket simulasi game · bahan bumbu kacang sate.',marketPrice:3500,add:3},
+    {id:'celery',name:'Seledri (1 ikat)',emoji:'🌿',category:'sayur',desc:'Paket simulasi game · pelengkap bakso dan soto.',marketPrice:2000,add:3},
+    {id:'lime',name:'Jeruk limau (1 paket)',emoji:'🍋',category:'sayur',desc:'Paket simulasi game · pelengkap sate ayam.',marketPrice:2500,add:3},
+    {id:'tea-leaf',name:'Teh (1 paket)',emoji:'🫖',category:'minuman',desc:'Paket simulasi game · seduh minuman.',marketPrice:3000,add:4},
+    {id:'ice',name:'Es batu (1 paket)',emoji:'🧊',category:'minuman',desc:'Paket simulasi game · minuman dingin.',marketPrice:2000,add:4},
+    {id:'ginger',name:'Jahe (0,1 kg)',emoji:'🫚',category:'sayur',desc:'Paket simulasi game · rempah tambahan.',marketPrice:2500,add:3},
+    {id:'coconut-milk',name:'Santan (1 bungkus)',emoji:'🥥',category:'lainnya',desc:'Paket simulasi game · bahan tambahan masakan.',marketPrice:3000,add:3}
   ];
   const marketPriceDate = '16 Oktober 2026';
+  let marketSearch = '', marketCategory = 'all';
   function marketPrice(g){return g.marketPrice;}
+  function filterMarketGoods(){
+    const query=marketSearch.trim().toLocaleLowerCase('id-ID');
+    return marketGoods.filter(g=>(marketCategory==='all'||g.category===marketCategory)&&(!query||[g.name,g.desc,g.category].join(' ').toLocaleLowerCase('id-ID').includes(query)));
+  }
 
   function marketAvailable(g){return Math.max(0,8-((state.marketCycle+marketGoods.indexOf(g)*2)%10)-(Number(state.marketSold[g.id])||0));}
   function cartQuantity(id){return Math.max(0,Math.floor(Number(state.marketCart[id])||0));}
@@ -50,12 +73,16 @@
     const grid=$('market-grid');if(!grid)return;
     $('market-cash').textContent=money(state.cash);$('market-stock-total').textContent=state.stock;
     $('market-refresh').textContent='Acuan Kota Blitar · data '+marketPriceDate;
-    grid.innerHTML=marketGoods.map(g=>{
+    const visibleGoods=filterMarketGoods();
+    grid.innerHTML=visibleGoods.length?visibleGoods.map(g=>{
       const price=marketPrice(g),available=marketAvailable(g),qty=cartQuantity(g.id);
       return '<article class="market-item"><div class="market-item-top"><span class="market-item-emoji">'+g.emoji+'</span><div><h3>'+g.name+'</h3><p>'+g.desc+'</p></div></div><div class="market-item-price">'+money(price)+'</div><div class="market-item-meta"><span>+ '+g.add+' porsi stok/paket</span><span>Pasar: '+available+'</span></div><div class="market-item-meta"><span>Di keranjang</span><b>'+qty+' paket</b></div><button type="button" data-add-cart="'+g.id+'" '+(qty>=available||available<=0?'disabled':'')+'>＋ Tambah ke keranjang</button></article>';
-    }).join('');
+    }).join(''):'<div class="market-no-results"><span>🔎</span><strong>Bahan tidak ditemukan</strong><p>Coba kata kunci lain atau pilih kategori Semua bahan.</p></div>';
+    const resultCount=$('market-result-count');
+    if(resultCount)resultCount.textContent='Menampilkan '+visibleGoods.length+' dari '+marketGoods.length+' bahan';
+    const clear=$('market-search-clear');if(clear)clear.hidden=!marketSearch;
     const note=$('market-note');
-    if(note)note.innerHTML='Harga paket dihitung dari harga acuan per kg di Kota Blitar, berdasarkan data PIHPS tanggal '+marketPriceDate+'. Ini snapshot terakhir yang diverifikasi, bukan harga live. <a href="https://www.panganindonesia.com/harga/kota/blitar/" target="_blank" rel="noopener noreferrer">Lihat sumber harga</a>.';
+    if(note)note.innerHTML='Harga 6 bahan acuan mengikuti snapshot PIHPS Kota Blitar tanggal '+marketPriceDate+' (bukan harga live). Bahan lainnya menggunakan harga simulasi game. <a href="https://www.panganindonesia.com/harga/kota/blitar/" target="_blank" rel="noopener noreferrer">Lihat sumber acuan</a>.';
     grid.querySelectorAll('[data-add-cart]').forEach(btn=>btn.addEventListener('click',()=>addToCart(btn.dataset.addCart)));
     renderCart();
   }
@@ -297,6 +324,10 @@
   }
   $('enter-kitchen-btn').addEventListener('click',()=>setView('kitchen'));
   $('market-checkout-btn').addEventListener('click',confirmMarketPurchase);
+  const marketSearchInput=$('market-search'),marketCategorySelect=$('market-category'),marketSearchClear=$('market-search-clear');
+  if(marketSearchInput)marketSearchInput.addEventListener('input',()=>{marketSearch=marketSearchInput.value;renderMarket();marketSearchInput.focus();});
+  if(marketCategorySelect)marketCategorySelect.addEventListener('change',()=>{marketCategory=marketCategorySelect.value;renderMarket();});
+  if(marketSearchClear)marketSearchClear.addEventListener('click',()=>{marketSearch='';if(marketSearchInput)marketSearchInput.value='';renderMarket();if(marketSearchInput)marketSearchInput.focus();});
   function toggleMarketCart(open){const panel=$('market-cart-panel'),trigger=$('market-cart-trigger');if(!panel||!trigger)return;const shouldOpen=typeof open==='boolean'?open:!panel.classList.contains('cart-drawer-open');panel.classList.toggle('cart-drawer-open',shouldOpen);trigger.setAttribute('aria-expanded',String(shouldOpen));document.body.classList.toggle('market-cart-drawer-active',shouldOpen);if(shouldOpen){renderCart();const close=$('market-cart-close');if(close)close.focus();}else trigger.focus();}
   $('market-cart-trigger').addEventListener('click',()=>toggleMarketCart());
   $('market-cart-close').addEventListener('click',()=>toggleMarketCart(false));
