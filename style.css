@@ -347,3 +347,14 @@ html,body{max-width:100%;overflow-x:hidden}
   .dashboard-action{max-width:43%;font-size:8px}
   .app-bottom-nav button small{font-size:8px}
 }
+
+
+/* Dashboard fokus: tombol Masuk Dapur menggantikan bilah navigasi saat beranda */
+.dashboard-action-wrap{display:flex;justify-content:center;margin:18px auto 4px}
+.dashboard-action{display:inline-flex;align-items:center;justify-content:center;gap:12px;min-width:210px;min-height:48px;padding:12px 24px;border:0;border-radius:13px;background:var(--green);color:#fffefa;font:800 14px 'Manrope',sans-serif;box-shadow:0 8px 22px #28684926;cursor:pointer}
+.dashboard-action span{font-size:18px}
+.dashboard-action:hover{filter:brightness(1.06)}
+body.home-view .app-bottom-nav{display:none}
+body.home-view .dashboard-action-wrap{position:fixed;z-index:110;left:50%;bottom:18px;transform:translateX(-50%);width:calc(100vw - 32px);margin:0;pointer-events:none}
+body.home-view .dashboard-action{width:min(340px,100%);pointer-events:auto;box-shadow:0 8px 28px #20362d30}
+body.home-view .app{padding-bottom:88px}
