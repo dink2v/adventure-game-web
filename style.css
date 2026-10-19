@@ -1527,3 +1527,8 @@ button:focus-visible,select:focus-visible,input:focus-visible,a:focus-visible{
   .market-item-meta:nth-of-type(3){font-size:9px}
   .market-item button{min-width:112px;min-height:38px;padding:7px;font-size:9px}
 }
+
+
+/* Navigation reliability fix: keep the bottom menu above dashboard elements. */
+.app-bottom-nav{z-index:10000!important;pointer-events:auto!important}
+@media(max-width:650px){body.home-view .dashboard-action-wrap{position:static!important;z-index:auto!important;transform:none!important;width:100%!important;margin:12px auto!important;pointer-events:auto!important}body.home-view .dashboard-action{pointer-events:auto!important}}
