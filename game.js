@@ -65,7 +65,9 @@
     return marketGoods.filter(g=>(marketCategory==='all'||g.category===marketCategory)&&(!query||[g.name,g.desc,g.category].join(' ').toLocaleLowerCase('id-ID').includes(query)));
   }
 
-  const MARKET_PACKAGE_LIMIT=100;\n  const MARKET_RESTOCK_SECONDS=20;\n  function marketAvailable(g){return Math.max(0,MARKET_PACKAGE_LIMIT-(Number(state.marketSold[g.id])||0));}
+  const MARKET_PACKAGE_LIMIT=100;
+  const MARKET_RESTOCK_SECONDS=20;
+  function marketAvailable(g){return Math.max(0,MARKET_PACKAGE_LIMIT-(Number(state.marketSold[g.id])||0));}
   function cartQuantity(id){return Math.max(0,Math.floor(Number(state.marketCart[id])||0));}
   function cartItems(){return marketGoods.filter(g=>cartQuantity(g.id)>0).map(g=>({good:g,qty:cartQuantity(g.id),unitPrice:marketPrice(g),subtotal:marketPrice(g)*cartQuantity(g.id)}));}
   function cartTotal(){return cartItems().reduce((sum,item)=>sum+item.subtotal,0);}
