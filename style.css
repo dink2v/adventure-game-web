@@ -1527,3 +1527,10 @@ button:focus-visible,select:focus-visible,input:focus-visible,a:focus-visible{
   .market-item-meta:nth-of-type(3){font-size:9px}
   .market-item button{min-width:112px;min-height:38px;padding:7px;font-size:9px}
 }
+
+
+/* Restore the previously built Beranda layout */
+body:has(#dashboard:not(.app-view-hidden)) .app-bottom-nav{display:flex!important}
+body:has(#dashboard:not(.app-view-hidden)) #dashboard .dashboard-action-wrap{position:static!important;left:auto!important;bottom:auto!important;transform:none!important;width:100%!important;margin:22px auto 8px!important;display:flex!important;justify-content:center!important;pointer-events:auto!important}
+body:has(#dashboard:not(.app-view-hidden)) #dashboard .dashboard-action{width:auto!important;min-width:220px;max-width:100%!important;min-height:50px;font-size:14px!important;pointer-events:auto!important;box-shadow:0 8px 22px #28684926!important}
+body:has(#dashboard:not(.app-view-hidden)) .app{padding-bottom:110px!important}
