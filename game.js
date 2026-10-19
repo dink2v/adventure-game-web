@@ -15,7 +15,7 @@
   const saved = (() => { try { return JSON.parse(localStorage.getItem('warung-kita-save') || '{}'); } catch { return {}; } })();
   const state = {
     cash:saved.cash ?? 150000, rep:saved.rep ?? 1, served:saved.served ?? 0,
-    marketCart:saved.marketCart && typeof saved.marketCart==='object' ? saved.marketCart : {}, marketReceipts:Array.isArray(saved.marketReceipts) ? saved.marketReceipts : [],
+    marketCart:saved.marketCart && typeof saved.marketCart==='object' ? saved.marketCart : {}, marketReceipts:Array.isArray(saved.marketReceipts) ? saved.marketReceipts : [], marketSold:saved.marketSold && typeof saved.marketSold==='object' ? saved.marketSold : {},
     menuPrices:saved.menuPrices && typeof saved.menuPrices==='object' ? saved.menuPrices : {},
     stock:saved.stock ?? 12, day:saved.day ?? 1, stove:saved.stove ?? 1,
     tables:saved.tables ?? 2, orderNo:saved.orderNo ?? 1,
@@ -26,7 +26,7 @@
   let lastTime=0, toastTimer=0, lastUiUpdate=0, lastSaveAt=0;
   function sellingPrice(id){const base=recipes[id]?.price??1000;const custom=Number(state.menuPrices[id]);return Number.isFinite(custom)&&custom>=1?Math.round(custom):base;}
   function compactPrice(id){const value=sellingPrice(id)/1000;return (Number.isInteger(value)?String(value):value.toFixed(1))+'k';}
-  function persist(){try{localStorage.setItem('warung-kita-save',JSON.stringify({menuPrices:state.menuPrices,marketInventory:state.marketInventory,marketCycle:state.marketCycle,marketCart:state.marketCart,marketReceipts:state.marketReceipts,cash:state.cash,rep:state.rep,served:state.served,stock:state.stock,day:state.day,stove:state.stove,tables:state.tables,orderNo:state.orderNo,menu:state.menu,orderMenu:state.orderMenu,step:state.step,patience:state.patience,cookingStarted:state.cookingStarted,cookingElapsed:state.cookingElapsed,actionIndex:state.actionIndex,qualityScore:state.qualityScore,qualityLabel:state.qualityLabel,staff:state.staff,promoUsed:state.promoUsed,promoBonusPending:state.promoBonusPending,todayServed:state.todayServed,todayRevenue:state.todayRevenue,missionClaimed:state.missionClaimed,totalRevenue:state.totalRevenue}));}catch{}}
+  function persist(){try{localStorage.setItem('warung-kita-save',JSON.stringify({menuPrices:state.menuPrices,marketInventory:state.marketInventory,marketCycle:state.marketCycle,marketCart:state.marketCart,marketReceipts:state.marketReceipts,marketSold:state.marketSold,cash:state.cash,rep:state.rep,served:state.served,stock:state.stock,day:state.day,stove:state.stove,tables:state.tables,orderNo:state.orderNo,menu:state.menu,orderMenu:state.orderMenu,step:state.step,patience:state.patience,cookingStarted:state.cookingStarted,cookingElapsed:state.cookingElapsed,actionIndex:state.actionIndex,qualityScore:state.qualityScore,qualityLabel:state.qualityLabel,staff:state.staff,promoUsed:state.promoUsed,promoBonusPending:state.promoBonusPending,todayServed:state.todayServed,todayRevenue:state.todayRevenue,missionClaimed:state.missionClaimed,totalRevenue:state.totalRevenue}));}catch{}}
   function toast(message){const el=$('toast');el.textContent=message;el.classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>el.classList.remove('show'),2200);}
 
   // Acuan PIHPS untuk Kota Blitar, data 16 Oktober 2026.
@@ -42,7 +42,7 @@
   const marketPriceDate = '16 Oktober 2026';
   function marketPrice(g){return g.marketPrice;}
 
-  function marketAvailable(g){return Math.max(0,8-((state.marketCycle+marketGoods.indexOf(g)*2)%10));}
+  function marketAvailable(g){return Math.max(0,8-((state.marketCycle+marketGoods.indexOf(g)*2)%10)-(Number(state.marketSold[g.id])||0));}
   function cartQuantity(id){return Math.max(0,Math.floor(Number(state.marketCart[id])||0));}
   function cartItems(){return marketGoods.filter(g=>cartQuantity(g.id)>0).map(g=>({good:g,qty:cartQuantity(g.id),unitPrice:marketPrice(g),subtotal:marketPrice(g)*cartQuantity(g.id)}));}
   function cartTotal(){return cartItems().reduce((sum,item)=>sum+item.subtotal,0);}
@@ -96,7 +96,7 @@
     const now=Date.now(),sequence=(state.marketReceipts[state.marketReceipts.length-1]?.sequence||0)+1;
     const receipt={id:'receipt-'+now+'-'+Math.random().toString(36).slice(2,7),sequence,number:'PSR-'+String(sequence).padStart(4,'0'),timestamp:now,day:state.day,items:items.map(({good,qty,unitPrice,subtotal})=>({id:good.id,name:good.name,emoji:good.emoji,qty,unitPrice,subtotal,stockAdded:good.add*qty})),total,cashBefore:state.cash,cashAfter:state.cash-total};
     state.cash-=total;
-    for(const item of items){state.stock+=item.good.add*item.qty;state.marketInventory[item.good.id]=(state.marketInventory[item.good.id]||0)+item.qty;}
+    for(const item of items){state.stock+=item.good.add*item.qty;state.marketInventory[item.good.id]=(state.marketInventory[item.good.id]||0)+item.qty;state.marketSold[item.good.id]=(state.marketSold[item.good.id]||0)+item.qty;}
     state.marketCart={};state.marketReceipts.push(receipt);if(state.marketReceipts.length>100)state.marketReceipts=state.marketReceipts.slice(-100);
     persist();updateStats();renderMarket();showReceipt(receipt.id);
   }
@@ -285,7 +285,7 @@
     if(kind==='stock'){if(state.cash<25000){toast('Uang kas belum cukup untuk belanja stok.');return;}state.cash-=25000;state.stock+=12;toast('Stok bahan bertambah 12 porsi. Dapur siap!');}
     persist();updateStats();drawScene();
   }
-  function frame(t){const dt=Math.min((t-lastTime)/1000||0,.1);lastTime=t;state.tick+=dt;state.marketTimer+=dt;if(state.marketTimer>=45){state.marketTimer=0;if(!$('market-panel').classList.contains('app-view-hidden'))renderMarket();}
+  function frame(t){const dt=Math.min((t-lastTime)/1000||0,.1);lastTime=t;state.tick+=dt;state.marketTimer+=dt;if(state.marketTimer>=45){state.marketTimer=0;state.marketCycle++;state.marketSold={};persist();if(!$('market-panel').classList.contains('app-view-hidden'))renderMarket();}
     if(state.step<2&&!state.cookingStarted){state.patience=Math.max(0,state.patience-dt*(state.step===1?(state.staff?0.95:1.4):(state.staff?0.22:.35)));}
     if(state.cookingStarted&&state.step===1){const r=recipes[state.orderMenu]||recipes.nasi;state.cookingElapsed=Math.min(r.cookTime,state.cookingElapsed+dt);const win=state.actionIndex<(r.actions||1)?actionWindow():null;if(win&&state.cookingElapsed>win.end){state.actionIndex++;persist();}if(state.cookingElapsed>=r.cookTime){state.step=2;state.cookingStarted=false;state.qualityLabel=state.qualityScore>=(r.actions||1)?'Istimewa':state.qualityScore>0?'Enak':'Biasa';$('scene-status').textContent='Hidangan '+state.qualityLabel.toLowerCase()+' siap disajikan';toast('Masakan selesai! Kualitas: '+state.qualityLabel+'.');persist();updateOrder();updateStats();}}
     if(state.patience===0&&state.step<2&&!state.cookingStarted){state.rep=Math.max(.5,state.rep-.08);state.patience=100;state.step=0;state.orderNo++;const available=Object.keys(recipes).filter(id=>unlocked(id));state.orderMenu=available[Math.floor(Math.random()*available.length)];state.actionIndex=0;state.qualityScore=0;toast('Pelanggan kehabisan sabar. Pesanan dilepas dan pelanggan baru datang.');updateOrder();updateStats();persist();}
