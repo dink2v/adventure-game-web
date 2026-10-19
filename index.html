@@ -6,7 +6,7 @@
   <meta name="theme-color" content="#17352d">
   <meta name="description" content="Bangun warung kecil menjadi restoran ramai. Masak pesanan, layani pelanggan, kelola uang, dan upgrade usahamu.">
   <title>Warung Kita — Cooking & Restaurant Sim</title>
-  <link rel="stylesheet" href="style.css?v=manual-menu-prices-20261019-01">
+  <link rel="stylesheet" href="style.css?v=market-cart-receipts-20261019-01">
 </head>
 <body>
   <main class="app">
@@ -72,6 +72,13 @@
       <div class="market-wallet"><span>Uang kas</span><strong id="market-cash">Rp 150.000</strong><span class="market-stock-total">Stok dapur: <b id="market-stock-total">12</b> porsi</span></div>
       <div class="market-grid" id="market-grid" aria-live="polite"></div>
       <p class="market-note" id="market-note">Harga paket dihitung dari harga acuan per kg. Data yang ditampilkan memiliki tanggal sumber.</p>
+      <section class="market-cart-panel" aria-labelledby="market-cart-title">
+        <div class="cart-heading"><div><p class="eyebrow">KERANJANG BELANJA</p><h2 id="market-cart-title">Periksa belanjaanmu</h2><p>Uang kas dan stok dapur baru berubah setelah pembelian dikonfirmasi.</p></div><span class="cart-count" id="market-cart-count">0 paket</span></div>
+        <div id="market-cart-items"><p class="cart-empty">Keranjang masih kosong. Tambahkan bahan dari daftar pasar di atas.</p></div>
+        <div class="cart-total-row"><span>Total belanja</span><strong id="market-cart-total">Rp 0</strong></div>
+        <button type="button" class="cart-checkout-btn" id="market-checkout-btn" disabled>Konfirmasi Pembelian</button>
+        <div class="receipt-history"><div class="cart-heading history-heading"><div><p class="eyebrow">ARSIP TRANSAKSI</p><h3>Riwayat struk belanja</h3></div></div><div id="market-receipt-history"><p class="cart-empty">Belum ada transaksi belanja.</p></div></div>
+      </section>
       <div class="market-bulk-stock"><article class="upgrade-card"><div class="upgrade-icon stock-icon">▦</div><div class="upgrade-copy"><strong>Belanja bahan baku</strong><p>Isi ulang stok dapur agar tetap siap.</p><span class="upgrade-meta">+12 PORSI BAHAN</span></div><button class="upgrade-btn" id="stock-btn">Rp 25.000 <span>+</span></button></article></div>
     </section>
 
@@ -129,7 +136,14 @@
       <button type="button" data-view="more" aria-label="Lainnya"><span aria-hidden="true">•••</span><small>Lainnya</small></button>
     </nav>
     <div class="toast" id="toast" role="status"></div>
+    <div class="receipt-modal" id="receipt-modal" hidden role="dialog" aria-modal="true" aria-labelledby="receipt-dialog-title">
+      <section class="receipt-paper">
+        <div class="receipt-dialog-actions"><span id="receipt-dialog-title">Struk pembelian</span><button type="button" id="receipt-close-btn" aria-label="Tutup struk">×</button></div>
+        <div id="receipt-content"></div>
+        <div class="receipt-buttons"><button type="button" id="receipt-print-btn">Cetak / Simpan PDF</button><button type="button" id="receipt-close-bottom-btn">Tutup</button></div>
+      </section>
+    </div>
   </main>
-  <script src="game.js?v=manual-menu-prices-20261019-01"></script>
+  <script src="game.js?v=market-cart-receipts-20261019-01"></script>
 </body>
 </html>
