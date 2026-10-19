@@ -1529,6 +1529,7 @@ button:focus-visible,select:focus-visible,input:focus-visible,a:focus-visible{
 }
 
 
-/* Navigation reliability fix: keep the bottom menu above dashboard elements. */
-.app-bottom-nav{z-index:10000!important;pointer-events:auto!important}
-@media(max-width:650px){body.home-view .dashboard-action-wrap{position:static!important;z-index:auto!important;transform:none!important;width:100%!important;margin:12px auto!important;pointer-events:auto!important}body.home-view .dashboard-action{pointer-events:auto!important}}
+
+/* Fix tap target priority without changing the dashboard layout. */
+.app-bottom-nav{position:fixed!important;z-index:10000!important;pointer-events:auto!important;isolation:isolate}
+.app-bottom-nav button{position:relative;z-index:1;pointer-events:auto!important;touch-action:manipulation}

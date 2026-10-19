@@ -150,10 +150,7 @@
     if(view==='more'){more.classList.remove('app-view-hidden');footer.classList.remove('app-view-hidden');}
     if(view==='home')window.scrollTo({top:0,behavior:'smooth'});else window.scrollTo({top:0,behavior:'smooth'});
   }
-  document.querySelectorAll('.app-bottom-nav [data-view]').forEach(btn=>btn.addEventListener('click',event=>{event.preventDefault();event.stopPropagation();setView(btn.dataset.view);}));
-  // Keep mobile navigation reliable even if another element handles bubbling clicks.
-  const bottomNav=$('app-bottom-nav');
-  if(bottomNav)bottomNav.addEventListener('click',event=>{const btn=event.target.closest('button[data-view]');if(!btn)return;event.preventDefault();setView(btn.dataset.view);},true);
+  document.querySelectorAll('.app-bottom-nav [data-view]').forEach(btn=>btn.addEventListener('click',()=>setView(btn.dataset.view)));
   document.querySelectorAll('.dashboard-nav [data-view-link]').forEach(link=>link.addEventListener('click',e=>{e.preventDefault();setView(link.dataset.viewLink);document.querySelectorAll('.dashboard-nav a').forEach(a=>a.classList.toggle('active',a===link));}));
 
 
