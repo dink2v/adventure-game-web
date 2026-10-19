@@ -1534,3 +1534,7 @@ body:has(#dashboard:not(.app-view-hidden)) .app-bottom-nav{display:flex!importan
 body:has(#dashboard:not(.app-view-hidden)) #dashboard .dashboard-action-wrap{position:static!important;left:auto!important;bottom:auto!important;transform:none!important;width:100%!important;margin:22px auto 8px!important;display:flex!important;justify-content:center!important;pointer-events:auto!important}
 body:has(#dashboard:not(.app-view-hidden)) #dashboard .dashboard-action{width:auto!important;min-width:220px;max-width:100%!important;min-height:50px;font-size:14px!important;pointer-events:auto!important;box-shadow:0 8px 22px #28684926!important}
 body:has(#dashboard:not(.app-view-hidden)) .app{padding-bottom:110px!important}
+
+
+/* Beranda only: hide the global header so the dashboard contains only the requested items. */
+body.home-view .topbar{display:none!important}
