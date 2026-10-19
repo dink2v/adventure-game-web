@@ -621,3 +621,138 @@ body:has(#dashboard:not(.app-view-hidden)) .app-bottom-nav{
   .receipt-paper{width:100%!important;max-height:none!important;overflow:visible!important;padding:0!important;border-radius:0!important;box-shadow:none!important;background:#fff!important}
   .receipt-dialog-actions,.receipt-buttons{display:none!important}
 }
+
+
+/* Market & receipt polish — layout-only overrides */
+.market-panel{padding:clamp(14px,2.2vw,26px);border-radius:20px;box-shadow:0 8px 28px #20362d08}
+.market-panel>.management-heading{align-items:flex-start;gap:18px;margin-bottom:18px}
+.market-panel>.management-heading>div{min-width:0}
+.market-panel .management-heading h2{font-size:clamp(21px,2.4vw,28px);letter-spacing:-.8px}
+.market-panel .market-intro{max-width:620px;font-size:13px;line-height:1.65}
+.market-refresh{max-width:210px;white-space:normal;text-align:center;line-height:1.45;border:1px solid #dce9d9}
+.market-wallet{gap:10px 14px;padding:15px 17px;margin:18px 0;border:1px solid #e8ebdf;background:linear-gradient(110deg,#f6f7ef,#eff5eb)}
+.market-wallet>span:first-child{font-weight:700;color:#647268}
+.market-wallet strong{font-size:19px;letter-spacing:-.3px}
+.market-stock-total{padding-left:14px;border-left:1px solid #dce3d6}
+.market-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:13px}
+.market-item{position:relative;gap:11px;padding:16px;border-radius:15px;box-shadow:0 2px 9px #20362d05;transition:border-color .18s,box-shadow .18s,transform .18s}
+.market-item:hover{border-color:#c7d9c7;box-shadow:0 8px 20px #20362d0b;transform:translateY(-1px)}
+.market-item-top{align-items:center;min-height:48px}
+.market-item-emoji{width:46px;height:46px;border-radius:13px;background:linear-gradient(145deg,#f6f2e3,#eaf1e4);font-size:25px}
+.market-item h3{font-size:13px;line-height:1.4}
+.market-item p{font-size:11px;line-height:1.5}
+.market-item-price{font-size:19px;letter-spacing:-.45px}
+.market-item-meta{align-items:center;min-height:22px;font-size:10px;line-height:1.4}
+.market-item-meta b{color:var(--ink);font-weight:800}
+.market-item button{min-height:42px;margin-top:auto;border-radius:10px;font-size:11px;font-weight:800;transition:background .18s,transform .18s}
+.market-item button:not(:disabled):hover{background:#1f553b}
+.market-item button:not(:disabled):active{transform:scale(.985)}
+.market-item button:focus-visible,.cart-line-actions button:focus-visible,.cart-checkout-btn:focus-visible,.receipt-buttons button:focus-visible,.receipt-dialog-actions button:focus-visible,.receipt-history-item:focus-visible{outline:3px solid #e6b650;outline-offset:2px}
+.market-note{max-width:850px;padding:10px 12px;margin:14px 0 0;border-left:3px solid #d8e5d2;border-radius:0 8px 8px 0;background:#f7f8f1;font-size:11px;line-height:1.65}
+.market-note a{color:var(--green);font-weight:700;text-underline-offset:2px}
+.market-cart-panel{margin-top:19px;padding:clamp(15px,2.4vw,24px);border-radius:18px;box-shadow:0 8px 24px #20362d08}
+.cart-heading{align-items:center;margin-bottom:16px}
+.cart-heading h2{font-size:clamp(18px,2vw,22px);letter-spacing:-.55px}
+.cart-heading p:not(.eyebrow){max-width:560px;font-size:12px;line-height:1.6}
+.cart-count{padding:8px 12px;border:1px solid #dce9d9;font-size:11px}
+.cart-line{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:16px;padding:14px 2px;border-bottom:1px solid #eceee5}
+.cart-line-info>span{width:42px;height:42px;border:1px solid #eee9d8}
+.cart-line-info strong{font-size:12px}
+.cart-line-info small{font-size:11px}
+.cart-line-actions{gap:7px}
+.cart-line-actions button{width:34px;height:34px;background:#fff;border-radius:10px;font-size:18px;transition:background .15s,border-color .15s}
+.cart-line-actions button:hover{background:#f0f6ed;border-color:#c9dbc8}
+.cart-line-actions button[data-cart-remove]:hover{background:#fff0ec;border-color:#edc7bd}
+.cart-empty{padding:18px 16px;border:1px dashed #dfe5d8;background:#f8f9f4;text-align:center;line-height:1.65}
+.cart-total-row{padding:19px 2px 14px;font-weight:700}
+.cart-total-row strong{font-size:clamp(21px,2.5vw,25px);letter-spacing:-.6px}
+.cart-checkout-btn{min-height:50px;border-radius:12px;box-shadow:0 5px 12px #28684918;transition:background .18s,transform .18s,box-shadow .18s}
+.cart-checkout-btn:not(:disabled):hover{background:#1f553b;box-shadow:0 7px 16px #28684924}
+.cart-checkout-btn:not(:disabled):active{transform:scale(.995)}
+.receipt-history{margin-top:25px;padding-top:20px;border-top:1px solid #e6e9df}
+.history-heading{align-items:center;margin-bottom:12px}
+.history-heading h3{font-size:15px;letter-spacing:-.2px}
+.receipt-history-item{padding:13px 10px;border:1px solid transparent;border-bottom-color:#eceee5;border-radius:10px;transition:background .15s,border-color .15s}
+.receipt-history-item:hover{background:#f7f8f2;border-color:#e8ecdf}
+.receipt-history-item strong{font-size:12px}
+.receipt-history-item small{font-size:11px;line-height:1.5}
+.receipt-history-item>b{font-size:13px}
+.receipt-modal{padding:22px;background:#10251dcc;backdrop-filter:blur(5px)}
+.receipt-paper{width:min(100%,460px);padding:22px;border:1px solid #e9e7d9;border-radius:18px;box-shadow:0 24px 80px #071b1250}
+.receipt-dialog-actions{margin-bottom:18px;color:#526258}
+.receipt-brand{padding:9px 0 19px}
+.receipt-logo{width:48px;height:48px;border-radius:15px;box-shadow:0 5px 13px #28684925}
+.receipt-brand h2{font-size:23px;letter-spacing:1.4px}
+.receipt-meta,.receipt-payment{gap:10px 16px;padding:16px 2px;font-size:12px}
+.receipt-meta strong,.receipt-payment b{font-size:12px}
+.receipt-item{padding:13px 2px}
+.receipt-item strong,.receipt-item>b{font-size:12px}
+.receipt-item small{font-size:11px}
+.receipt-total{padding:19px 2px 12px;font-size:13px}
+.receipt-total strong{font-size:24px}
+.receipt-thanks{padding:18px 0 4px;font-size:12px}
+.receipt-buttons{gap:10px;margin-top:20px}
+.receipt-buttons button{min-height:46px;border-radius:11px;font-size:12px}
+@media(max-width:900px){
+ .market-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:11px}
+ .market-panel>.management-heading{align-items:flex-start}
+}
+@media(max-width:650px){
+ .market-panel{padding:13px;border-radius:15px}
+ .market-panel>.management-heading{display:flex;flex-direction:column;align-items:stretch;gap:10px;margin-bottom:14px}
+ .market-panel .management-heading h2{font-size:21px}
+ .market-panel .market-intro{font-size:12px}
+ .market-refresh{align-self:flex-start;max-width:100%;text-align:left;padding:7px 9px;font-size:10px}
+ .market-wallet{display:grid;grid-template-columns:auto minmax(0,1fr);gap:7px 12px;padding:12px;margin:13px 0}
+ .market-wallet strong{justify-self:end;font-size:17px}
+ .market-stock-total{grid-column:1/-1;margin:3px 0 0;padding:10px 0 0;border-left:0;border-top:1px solid #dce3d6}
+ .market-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+ .market-item{gap:9px;padding:11px;border-radius:13px}
+ .market-item-top{align-items:flex-start;gap:8px;min-height:43px}
+ .market-item-emoji{width:38px;height:38px;border-radius:11px;font-size:21px}
+ .market-item h3{font-size:12px}
+ .market-item p{font-size:10px}
+ .market-item-price{font-size:16px;overflow-wrap:anywhere}
+ .market-item-meta{align-items:flex-start;flex-direction:column;gap:3px;font-size:9px}
+ .market-item button{min-height:42px;padding:8px 6px;font-size:10px;line-height:1.35}
+ .market-note{padding:9px 10px;font-size:10px}
+ .market-cart-panel{margin-top:14px;padding:13px;border-radius:15px}
+ .cart-heading{gap:8px;align-items:flex-start}
+ .cart-heading h2{font-size:18px}
+ .cart-heading p:not(.eyebrow){font-size:11px}
+ .cart-count{padding:7px 9px;font-size:10px}
+ .cart-line{grid-template-columns:minmax(0,1fr);gap:9px;padding:12px 0}
+ .cart-line-info>span{width:38px;height:38px}
+ .cart-line-info strong{font-size:12px}
+ .cart-line-info small{font-size:10px}
+ .cart-line-actions{align-self:flex-end;gap:7px}
+ .cart-line-actions button{width:35px;height:35px}
+ .cart-total-row{padding:16px 1px 12px;font-size:12px}
+ .cart-total-row strong{font-size:21px}
+ .cart-checkout-btn{min-height:48px;font-size:12px}
+ .receipt-history{margin-top:21px;padding-top:17px}
+ .history-heading h3{font-size:14px}
+ .receipt-history-item{gap:8px;padding:12px 7px}
+ .receipt-history-item small{font-size:10px}
+ .receipt-history-item>b{font-size:11px}
+ .receipt-modal{align-items:flex-start;padding:8px}
+ .receipt-paper{width:100%;max-height:calc(100dvh - 16px);padding:15px;border-radius:15px}
+ .receipt-brand h2{font-size:21px}
+ .receipt-meta,.receipt-payment{gap:9px 10px;padding:13px 0;font-size:10px}
+ .receipt-meta strong,.receipt-payment b{font-size:10px}
+ .receipt-total strong{font-size:22px}
+ .receipt-buttons{gap:8px}
+ .receipt-buttons button{padding:9px 6px;font-size:10px}
+}
+@media(max-width:360px){
+ .market-grid{grid-template-columns:minmax(0,1fr)}
+ .market-item-top{align-items:center}
+ .market-item-meta{flex-direction:row;justify-content:space-between}
+ .market-item button{font-size:11px}
+ .cart-heading{flex-direction:column}
+ .cart-count{align-self:flex-start}
+}
+@media(prefers-reduced-motion:reduce){
+ .market-item,.market-item button,.cart-line-actions button,.cart-checkout-btn,.receipt-history-item{transition:none}
+ .market-item:hover{transform:none}
+}
