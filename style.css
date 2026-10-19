@@ -1544,3 +1544,66 @@ body.home-view .topbar{display:none!important}
 
 /* Metric cards live in their respective tabs, not on Beranda. */
 .section-metrics{margin:14px 0 20px;grid-template-columns:repeat(auto-fit,minmax(190px,1fr))}
+
+
+/* Enforce one active navigation view at a time. */
+body[data-active-view="home"] #dashboard{display:block!important}
+body[data-active-view="home"] .scene-card,
+body[data-active-view="home"] .order-card,
+body[data-active-view="home"] #kitchen-panel,
+body[data-active-view="home"] #market-panel,
+body[data-active-view="home"] #business-panel,
+body[data-active-view="home"] .extra-management,
+body[data-active-view="home"] #more-panel,
+body[data-active-view="home"] #report-panel,
+body[data-active-view="home"] footer{display:none!important}
+body[data-active-view="kitchen"] #dashboard,
+body[data-active-view="kitchen"] #market-panel,
+body[data-active-view="kitchen"] #business-panel,
+body[data-active-view="kitchen"] .extra-management,
+body[data-active-view="kitchen"] #more-panel,
+body[data-active-view="kitchen"] #report-panel,
+body[data-active-view="kitchen"] footer{display:none!important}
+body[data-active-view="kitchen"] .scene-card,
+body[data-active-view="kitchen"] .order-card,
+body[data-active-view="kitchen"] #kitchen-panel{display:block!important}
+body[data-active-view="market"] #dashboard,
+body[data-active-view="market"] .scene-card,
+body[data-active-view="market"] .order-card,
+body[data-active-view="market"] #kitchen-panel,
+body[data-active-view="market"] #business-panel,
+body[data-active-view="market"] .extra-management,
+body[data-active-view="market"] #more-panel,
+body[data-active-view="market"] #report-panel,
+body[data-active-view="market"] footer{display:none!important}
+body[data-active-view="market"] #market-panel{display:block!important}
+body[data-active-view="business"] #dashboard,
+body[data-active-view="business"] .scene-card,
+body[data-active-view="business"] .order-card,
+body[data-active-view="business"] #kitchen-panel,
+body[data-active-view="business"] #market-panel,
+body[data-active-view="business"] #more-panel,
+body[data-active-view="business"] #report-panel,
+body[data-active-view="business"] footer{display:none!important}
+body[data-active-view="business"] #business-panel,
+body[data-active-view="business"] .extra-management{display:block!important}
+body[data-active-view="report"] #dashboard,
+body[data-active-view="report"] .scene-card,
+body[data-active-view="report"] .order-card,
+body[data-active-view="report"] #kitchen-panel,
+body[data-active-view="report"] #market-panel,
+body[data-active-view="report"] #business-panel,
+body[data-active-view="report"] .extra-management,
+body[data-active-view="report"] #more-panel,
+body[data-active-view="report"] footer{display:none!important}
+body[data-active-view="report"] #report-panel{display:block!important}
+body[data-active-view="more"] #dashboard,
+body[data-active-view="more"] .scene-card,
+body[data-active-view="more"] .order-card,
+body[data-active-view="more"] #kitchen-panel,
+body[data-active-view="more"] #market-panel,
+body[data-active-view="more"] #business-panel,
+body[data-active-view="more"] .extra-management,
+body[data-active-view="more"] #report-panel{display:none!important}
+body[data-active-view="more"] #more-panel,
+body[data-active-view="more"] footer{display:block!important}
