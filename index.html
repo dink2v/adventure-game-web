@@ -6,7 +6,7 @@
   <meta name="theme-color" content="#17352d">
   <meta name="description" content="Bangun warung kecil menjadi restoran ramai. Masak pesanan, layani pelanggan, kelola uang, dan upgrade usahamu.">
   <title>Warung Kita — Cooking & Restaurant Sim</title>
-  <link rel="stylesheet" href="style.css?v=nav-match-dapur-20261019-01">
+  <link rel="stylesheet" href="style.css?v=manual-menu-prices-20261019-01">
 </head>
 <body>
   <main class="app">
@@ -82,6 +82,10 @@
         <article class="upgrade-card"><div class="upgrade-icon table-icon">▤</div><div class="upgrade-copy"><strong>Tambah meja</strong><p>Warung lebih nyaman untuk pelanggan.</p><span class="upgrade-meta">KAPASITAS <b id="table-level">2</b> KURSI</span></div><button class="upgrade-btn" id="table-btn">Rp 60.000 <span>↗</span></button></article>
         
       </div>
+      <section class="menu-pricing-panel" aria-labelledby="menu-pricing-title">
+        <div class="management-heading"><div><p class="eyebrow">HARGA JUAL</p><h2 id="menu-pricing-title">Atur harga tiap menu</h2><p class="price-panel-intro">Tentukan harga sendiri. Rekomendasi hanya sebagai panduan; harga jual berlaku pada pesanan berikutnya.</p></div></div>
+        <div class="menu-price-list" id="menu-price-list" aria-live="polite"></div>
+      </section>
     </section>
 
     <section class="progression-panel" id="more-panel">
@@ -126,6 +130,6 @@
     </nav>
     <div class="toast" id="toast" role="status"></div>
   </main>
-  <script src="game.js?v=dashboard-cta-20261019-02"></script>
+  <script src="game.js?v=manual-menu-prices-20261019-01"></script>
 </body>
 </html>
