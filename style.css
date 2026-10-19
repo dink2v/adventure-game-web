@@ -358,3 +358,9 @@ body.home-view .app-bottom-nav{display:none}
 body.home-view .dashboard-action-wrap{position:fixed;z-index:110;left:50%;bottom:18px;transform:translateX(-50%);width:calc(100vw - 32px);margin:0;pointer-events:none}
 body.home-view .dashboard-action{width:min(340px,100%);pointer-events:auto;box-shadow:0 8px 28px #20362d30}
 body.home-view .app{padding-bottom:88px}
+
+/* Dashboard navigation replacement: selector follows visible page state directly */
+body:has(#dashboard:not(.app-view-hidden)) .app-bottom-nav{display:none!important}
+body:has(#dashboard:not(.app-view-hidden)) #dashboard .dashboard-action-wrap{position:fixed!important;z-index:999;left:50%;bottom:18px;transform:translateX(-50%);width:calc(100vw - 32px);margin:0;pointer-events:none}
+body:has(#dashboard:not(.app-view-hidden)) #dashboard .dashboard-action{width:min(340px,100%);min-height:52px;pointer-events:auto;box-shadow:0 8px 28px #20362d30}
+body:has(#dashboard:not(.app-view-hidden)) .app{padding-bottom:92px}
