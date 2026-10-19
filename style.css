@@ -553,3 +553,23 @@ body:has(#dashboard:not(.app-view-hidden)) .app-bottom-nav{
   grid-template-columns:repeat(6,minmax(0,1fr))!important;
   align-items:stretch;
 }
+
+
+/* Manual selling prices — per-menu controls inside Usaha */
+.menu-pricing-panel{margin-top:18px;padding:clamp(13px,2.4vw,20px);border:1px solid var(--line);border-radius:16px;background:var(--paper);box-shadow:0 3px 14px #243c2d05}
+.price-panel-intro{margin:7px 0 0;color:var(--muted);font-size:12px;line-height:1.55}
+.menu-price-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.price-editor-card{min-width:0;padding:13px;border:1px solid var(--line);border-radius:13px;background:#fffefa}
+.price-editor-info{display:flex;align-items:flex-start;gap:10px;margin-bottom:12px}
+.price-editor-emoji{display:grid;place-items:center;flex:none;width:38px;height:38px;border-radius:10px;background:#f2efdf;font-size:21px}
+.price-editor-info>div{display:flex;flex-direction:column;gap:4px;min-width:0}
+.price-editor-info strong{font:800 12px 'Manrope',sans-serif;line-height:1.4;overflow-wrap:anywhere}
+.price-editor-info small,.price-locked{font-size:10px;line-height:1.45;color:var(--muted)}
+.price-profit{font-size:10px;font-weight:800;line-height:1.4}
+.profit-positive{color:#36784b}.profit-negative{color:#bd5d4c}.price-locked{color:#a06c32}
+.price-input-label{display:block;margin:0 0 6px;font-size:10px;font-weight:800;color:#657468}
+.price-editor-controls{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:7px;align-items:stretch}
+.price-editor-controls input{width:100%;min-width:0;min-height:42px;padding:9px 10px;border:1px solid #dfe4d8;border-radius:9px;background:#fbfcf7;color:var(--ink);font:700 12px 'DM Sans',sans-serif;outline-color:#74a982}
+.price-editor-controls button{min-width:72px;min-height:42px;padding:8px 11px;border:0;border-radius:9px;background:var(--green);color:#fff;font:800 11px 'DM Sans',sans-serif;cursor:pointer}
+.price-editor-controls button:active{transform:scale(.98)}
+@media(max-width:650px){.menu-pricing-panel{margin-top:13px;padding:12px}.menu-price-list{grid-template-columns:1fr;gap:8px}.price-editor-card{padding:11px}.price-editor-info{margin-bottom:10px}.price-editor-controls input{font-size:14px}}
