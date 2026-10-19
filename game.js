@@ -65,7 +65,7 @@
     return marketGoods.filter(g=>(marketCategory==='all'||g.category===marketCategory)&&(!query||[g.name,g.desc,g.category].join(' ').toLocaleLowerCase('id-ID').includes(query)));
   }
 
-  function marketAvailable(g){return Math.max(0,8-((state.marketCycle+marketGoods.indexOf(g)*2)%10)-(Number(state.marketSold[g.id])||0));}
+  const MARKET_PACKAGE_LIMIT=100;\n  const MARKET_RESTOCK_SECONDS=20;\n  function marketAvailable(g){return Math.max(0,MARKET_PACKAGE_LIMIT-(Number(state.marketSold[g.id])||0));}
   function cartQuantity(id){return Math.max(0,Math.floor(Number(state.marketCart[id])||0));}
   function cartItems(){return marketGoods.filter(g=>cartQuantity(g.id)>0).map(g=>({good:g,qty:cartQuantity(g.id),unitPrice:marketPrice(g),subtotal:marketPrice(g)*cartQuantity(g.id)}));}
   function cartTotal(){return cartItems().reduce((sum,item)=>sum+item.subtotal,0);}
@@ -82,7 +82,7 @@
     if(resultCount)resultCount.textContent='Menampilkan '+visibleGoods.length+' dari '+marketGoods.length+' bahan';
     const clear=$('market-search-clear');if(clear)clear.hidden=!marketSearch;
     const note=$('market-note');
-    if(note)note.innerHTML='Harga 6 bahan acuan mengikuti snapshot PIHPS Kota Blitar tanggal '+marketPriceDate+' (bukan harga live). Bahan lainnya menggunakan harga simulasi game. <a href="https://www.panganindonesia.com/harga/kota/blitar/" target="_blank" rel="noopener noreferrer">Lihat sumber acuan</a>.';
+    if(note)note.innerHTML='Stok pasar maksimal 100 paket per bahan dan diperbarui setiap 20 detik. Harga 6 bahan acuan mengikuti snapshot PIHPS Kota Blitar tanggal '+marketPriceDate+' (bukan harga live). Bahan lainnya menggunakan harga simulasi game. <a href="https://www.panganindonesia.com/harga/kota/blitar/" target="_blank" rel="noopener noreferrer">Lihat sumber acuan</a>.';
     grid.querySelectorAll('[data-add-cart]').forEach(btn=>btn.addEventListener('click',()=>addToCart(btn.dataset.addCart)));
     renderCart();
   }
@@ -312,7 +312,7 @@
     if(kind==='stock'){if(state.cash<25000){toast('Uang kas belum cukup untuk belanja stok.');return;}state.cash-=25000;state.stock+=12;toast('Stok bahan bertambah 12 porsi. Dapur siap!');}
     persist();updateStats();drawScene();
   }
-  function frame(t){const dt=Math.min((t-lastTime)/1000||0,.1);lastTime=t;state.tick+=dt;state.marketTimer+=dt;if(state.marketTimer>=45){state.marketTimer=0;state.marketCycle++;state.marketSold={};persist();if(!$('market-panel').classList.contains('app-view-hidden'))renderMarket();}
+  function frame(t){const dt=Math.min((t-lastTime)/1000||0,.1);lastTime=t;state.tick+=dt;state.marketTimer+=dt;if(state.marketTimer>=MARKET_RESTOCK_SECONDS){state.marketTimer=0;state.marketCycle++;state.marketSold={};persist();if(!$('market-panel').classList.contains('app-view-hidden'))renderMarket();}
     if(state.step<2&&!state.cookingStarted){state.patience=Math.max(0,state.patience-dt*(state.step===1?(state.staff?0.95:1.4):(state.staff?0.22:.35)));}
     if(state.cookingStarted&&state.step===1){const r=recipes[state.orderMenu]||recipes.nasi;state.cookingElapsed=Math.min(r.cookTime,state.cookingElapsed+dt);const win=state.actionIndex<(r.actions||1)?actionWindow():null;if(win&&state.cookingElapsed>win.end){state.actionIndex++;persist();}if(state.cookingElapsed>=r.cookTime){state.step=2;state.cookingStarted=false;state.qualityLabel=state.qualityScore>=(r.actions||1)?'Istimewa':state.qualityScore>0?'Enak':'Biasa';$('scene-status').textContent='Hidangan '+state.qualityLabel.toLowerCase()+' siap disajikan';toast('Masakan selesai! Kualitas: '+state.qualityLabel+'.');persist();updateOrder();updateStats();}}
     if(state.patience===0&&state.step<2&&!state.cookingStarted){state.rep=Math.max(.5,state.rep-.08);state.patience=100;state.step=0;state.orderNo++;const available=Object.keys(recipes).filter(id=>unlocked(id));state.orderMenu=available[Math.floor(Math.random()*available.length)];state.actionIndex=0;state.qualityScore=0;toast('Pelanggan kehabisan sabar. Pesanan dilepas dan pelanggan baru datang.');updateOrder();updateStats();persist();}
