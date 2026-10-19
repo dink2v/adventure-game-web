@@ -545,3 +545,11 @@ button:focus-visible,a:focus-visible,select:focus-visible{outline:3px solid #8db
 @media(prefers-reduced-motion:reduce){
   .app-bottom-nav button{transition:none}
 }
+
+
+/* Keep dashboard navigation identical to the Dapur navigation */
+body:has(#dashboard:not(.app-view-hidden)) .app-bottom-nav{
+  display:grid!important;
+  grid-template-columns:repeat(6,minmax(0,1fr))!important;
+  align-items:stretch;
+}
