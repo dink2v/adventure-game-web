@@ -6,12 +6,13 @@
   <meta name="theme-color" content="#17352d">
   <meta name="description" content="Bangun warung kecil menjadi restoran ramai. Masak pesanan, layani pelanggan, kelola uang, dan upgrade usahamu.">
   <title>Warung Kita — Cooking & Restaurant Sim</title>
-  <link rel="stylesheet" href="style.css?v=ready-stock-20261020-01">
+  <link rel="stylesheet" href="style.css?v=money-cooking-fix-20261020-02">
 </head>
 <body>
   <main class="app">
     <header class="topbar">
       <a class="brand" href="./" aria-label="Warung Kita beranda"><span class="brand-mark">WK</span><span><b>WARUNG</b><small>KITA · SIMULATOR</small></span></a>
+      <div class="topbar-cash" aria-live="polite"><small>UANG KAS</small><strong id="topbar-cash">Rp 150.000</strong></div>
       <div class="day-chip"><span class="live-dot"></span><span id="day-label">HARI 1</span><span class="chip-divider">•</span><span id="time-label">PAGI</span></div>
       <button class="icon-btn" id="sound-btn" aria-label="Suara" title="Suara">♫</button>
     </header>
@@ -164,6 +165,6 @@
       </section>
     </div>
   </main>
-  <script src="game.js?v=ready-stock-20261020-01"></script>
+  <script src="game.js?v=money-cooking-fix-20261020-02"></script>
 </body>
 </html>
