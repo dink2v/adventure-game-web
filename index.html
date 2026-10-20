@@ -6,7 +6,7 @@
   <meta name="theme-color" content="#17352d">
   <meta name="description" content="Bangun warung kecil menjadi restoran ramai. Masak pesanan, layani pelanggan, kelola uang, dan upgrade usahamu.">
   <title>Warung Kita — Cooking & Restaurant Sim</title>
-  <link rel="stylesheet" href="style.css?v=cook-flow-fix-20261020-29">
+  <link rel="stylesheet" href="style.css?v=online-orders-20261020-31">
 </head>
 <body>
   <main class="app">
@@ -44,6 +44,7 @@
 
     <section class="main-grid">
       <div class="left-column">
+        <article class="online-orders-card app-view-hidden" id="online-orders-card" aria-labelledby="online-orders-title"><div class="online-orders-heading"><div><p class="eyebrow">PESANAN ONLINE</p><h2 id="online-orders-title">Kotak masuk order</h2><p>Ambil saat siap. Maksimal 5 order antre; order masuk kedaluwarsa setelah 45 detik.</p></div><span class="online-orders-count" id="online-order-count">0</span></div><div id="online-order-list" class="online-order-list" aria-live="polite"><div class="online-orders-empty">Belum ada order online. Pesanan baru akan muncul otomatis — ambil saat kamu siap.</div></div></article>
         <article class="scene-card app-view-hidden">
           <div class="scene-top"><div><span class="eyebrow">SUASANA WARUNG</span><strong>Warung Bu Rasa</strong></div><span class="scene-weather">☀ Cerah · 28°C</span></div>
           <div class="scene-wrap"><canvas id="scene" width="900" height="520" aria-label="Ilustrasi warung, dapur, dan pelanggan"></canvas><div class="scene-caption"><span class="scene-live"></span><span id="scene-status">Dapur siap melayani pesanan</span></div></div>
@@ -161,6 +162,6 @@
       </section>
     </div>
   </main>
-  <script src="game.js?v=one-tap-cook-fix-20261020-30"></script>
+  <script src="game.js?v=online-orders-20261020-31"></script>
 </body>
 </html>
