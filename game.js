@@ -25,7 +25,7 @@
     onlineOrders:Array.isArray(saved.onlineOrders)?saved.onlineOrders:[], orderSource:saved.orderSource||'walkin', orderAcceptedAt:saved.orderAcceptedAt||0, orderDeadlineAt:saved.orderDeadlineAt||0, suspendedOrder:saved.suspendedOrder&&typeof saved.suspendedOrder==='object'?saved.suspendedOrder:null, nextOnlineAt:saved.nextOnlineAt||Date.now()+4500, onlineSequence:saved.onlineSequence||1,
     readyStock:Array.isArray(saved.readyStock)?saved.readyStock:[]
   };
-  let lastTime=0, toastTimer=0, lastUiUpdate=0, lastSaveAt=0;
+  let lastTime=0, toastTimer=0, lastUiUpdate=0, lastSaveAt=0, lastReadyStockRenderAt=0;
   function sellingPrice(id){const base=recipes[id]?.price??1000;const custom=Number(state.menuPrices[id]);return Number.isFinite(custom)&&custom>=1?Math.round(custom):base;}
   function compactPrice(id){const value=sellingPrice(id)/1000;return (Number.isInteger(value)?String(value):value.toFixed(1))+'k';}
   function persist(){try{localStorage.setItem('warung-kita-save',JSON.stringify({menuPrices:state.menuPrices,marketInventory:state.marketInventory,marketCycle:state.marketCycle,marketCart:state.marketCart,marketReceipts:state.marketReceipts,marketSold:state.marketSold,cash:state.cash,rep:state.rep,served:state.served,stock:state.stock,day:state.day,stove:state.stove,tables:state.tables,orderNo:state.orderNo,menu:state.menu,orderMenu:state.orderMenu,step:state.step,patience:state.patience,cookingStarted:state.cookingStarted,cookingElapsed:state.cookingElapsed,actionIndex:state.actionIndex,qualityScore:state.qualityScore,qualityLabel:state.qualityLabel,staff:state.staff,promoUsed:state.promoUsed,promoBonusPending:state.promoBonusPending,todayServed:state.todayServed,todayRevenue:state.todayRevenue,missionClaimed:state.missionClaimed,totalRevenue:state.totalRevenue,onlineOrders:state.onlineOrders,orderSource:state.orderSource,orderAcceptedAt:state.orderAcceptedAt,orderDeadlineAt:state.orderDeadlineAt,suspendedOrder:state.suspendedOrder,nextOnlineAt:state.nextOnlineAt,onlineSequence:state.onlineSequence,readyStock:state.readyStock}));}catch{}}
@@ -341,7 +341,7 @@
     $('menu-select').value=state.menu;
     const win=actionWindow();
     const buttonLabel=state.step===0?'♧ Siapkan bahan':state.step===1?(!state.cookingStarted?'♨ Mulai memasak':(state.actionIndex<(r.actions||1)?'🥄 Lakukan aksi':'⏳ Masakan diproses…')):'✓ Sajikan & terima uang';
-    $('cook-btn').innerHTML=buttonLabel;$('cook-btn').disabled=state.step===1&&state.cookingStarted&&state.cookingElapsed>=r.cookTime;const storeBtn=$('store-cooked-btn');if(storeBtn)storeBtn.hidden=state.step!==2;const storeBtn=$('store-cooked-btn');if(storeBtn)storeBtn.hidden=state.step!==2;
+    $('cook-btn').innerHTML=buttonLabel;$('cook-btn').disabled=state.step===1&&state.cookingStarted&&state.cookingElapsed>=r.cookTime;const storeBtn=$('store-cooked-btn');if(storeBtn)storeBtn.hidden=state.step!==2;
     $('kitchen-status').textContent=state.step===2?'SIAP SAJI':state.cookingStarted?'MEMASAK':state.step===1?'BAHAN SIAP':'SIAP';
     for(let i=1;i<=3;i++){const el=$('step-'+i);el.classList.toggle('active',state.step===i-1);el.classList.toggle('done',state.step>=i);el.querySelector('.step-check').textContent=state.step>=i?'✓':state.step===i-1?'●':'○';}
     if(state.step===0)$('cook-feedback-text').textContent=state.menu===state.orderMenu?'Siapkan bahan. Stok baru dikurangi saat memasak benar-benar dimulai.':'Pesanan pelanggan: '+r.name+'. Pilih menu yang sama sebelum menyiapkan bahan.';
@@ -546,6 +546,7 @@
     $('patience-label').textContent=Math.round(state.patience)+'%';$('patience-bar').style.width=Math.min(100,state.patience)+'%';$('patience-bar').style.background=state.patience<30?'#c66a54':state.patience<60?'#d7a64e':'#70a879';
     if(state.cookingStarted&&t-lastUiUpdate>180){updateOrder();lastUiUpdate=t;}
     if(state.cookingStarted&&t-lastSaveAt>1000){persist();lastSaveAt=t;}
+    if(now-lastReadyStockRenderAt>1000){renderReadyStock();lastReadyStockRenderAt=now;}
     if(Math.floor(state.tick*2)%2===0)drawScene();
     requestAnimationFrame(frame);
   }
