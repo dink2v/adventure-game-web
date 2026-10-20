@@ -32,7 +32,7 @@
     const available=Object.keys(recipes).filter(id=>unlocked(id));
     const menu=available[Math.floor(Math.random()*available.length)];
     const now=Date.now(),id='ONL-'+String(state.onlineSequence++).padStart(4,'0');
-    state.onlineOrders.push({id,menu,createdAt:now});
+    state.onlineOrders.push({id,menu,createdAt:now,expiresAt:now+45000});
     if(state.onlineOrders.length>5)state.onlineOrders.shift();
     state.nextOnlineAt=now+9000+Math.random()*6500;
     persist();renderOnlineOrders();
