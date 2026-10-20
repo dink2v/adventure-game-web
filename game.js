@@ -21,12 +21,47 @@
     tables:saved.tables ?? 2, orderNo:saved.orderNo ?? 1,
     menu:saved.menu || 'nasi', orderMenu:saved.orderMenu || saved.menu || 'nasi', step:saved.step ?? 0, patience:saved.patience ?? 100, cookingStarted:saved.cookingStarted ?? false, cookingElapsed:saved.cookingElapsed ?? 0, actionIndex:saved.actionIndex ?? 0, qualityScore:saved.qualityScore ?? 0, qualityLabel:saved.qualityLabel || 'Biasa', tick:0, sound:false,
     guests:[{x:.2,y:.53,color:'#e2a875',shirt:'#477a62',emoji:'👨🏻'},{x:.77,y:.55,color:'#d6a17b',shirt:'#bd7652',emoji:'👩🏻'}],
-    cashEarned:0, marketInventory:saved.marketInventory ?? {rice:5,egg:5,vegetable:5,seasoning:5,noodle:5,chicken:3,tea:5,ice:5}, marketCycle:saved.marketCycle ?? 0, marketTimer:0, staff:saved.staff ?? false, promoUsed:saved.promoUsed ?? false, promoBonusPending:saved.promoBonusPending ?? false, todayServed:saved.todayServed ?? 0, todayRevenue:saved.todayRevenue ?? 0, missionClaimed:saved.missionClaimed ?? false, totalRevenue:saved.totalRevenue ?? 0
+    cashEarned:0, marketInventory:saved.marketInventory ?? {rice:5,egg:5,vegetable:5,seasoning:5,noodle:5,chicken:3,tea:5,ice:5}, marketCycle:saved.marketCycle ?? 0, marketTimer:0, staff:saved.staff ?? false, promoUsed:saved.promoUsed ?? false, promoBonusPending:saved.promoBonusPending ?? false, todayServed:saved.todayServed ?? 0, todayRevenue:saved.todayRevenue ?? 0, missionClaimed:saved.missionClaimed ?? false, totalRevenue:saved.totalRevenue ?? 0,
+    onlineOrders:Array.isArray(saved.onlineOrders)?saved.onlineOrders:[], orderSource:saved.orderSource||'walkin', orderAcceptedAt:saved.orderAcceptedAt||0, orderDeadlineAt:saved.orderDeadlineAt||0, nextOnlineAt:saved.nextOnlineAt||Date.now()+4500, onlineSequence:saved.onlineSequence||1
   };
   let lastTime=0, toastTimer=0, lastUiUpdate=0, lastSaveAt=0;
   function sellingPrice(id){const base=recipes[id]?.price??1000;const custom=Number(state.menuPrices[id]);return Number.isFinite(custom)&&custom>=1?Math.round(custom):base;}
   function compactPrice(id){const value=sellingPrice(id)/1000;return (Number.isInteger(value)?String(value):value.toFixed(1))+'k';}
-  function persist(){try{localStorage.setItem('warung-kita-save',JSON.stringify({menuPrices:state.menuPrices,marketInventory:state.marketInventory,marketCycle:state.marketCycle,marketCart:state.marketCart,marketReceipts:state.marketReceipts,marketSold:state.marketSold,cash:state.cash,rep:state.rep,served:state.served,stock:state.stock,day:state.day,stove:state.stove,tables:state.tables,orderNo:state.orderNo,menu:state.menu,orderMenu:state.orderMenu,step:state.step,patience:state.patience,cookingStarted:state.cookingStarted,cookingElapsed:state.cookingElapsed,actionIndex:state.actionIndex,qualityScore:state.qualityScore,qualityLabel:state.qualityLabel,staff:state.staff,promoUsed:state.promoUsed,promoBonusPending:state.promoBonusPending,todayServed:state.todayServed,todayRevenue:state.todayRevenue,missionClaimed:state.missionClaimed,totalRevenue:state.totalRevenue}));}catch{}}
+  function persist(){try{localStorage.setItem('warung-kita-save',JSON.stringify({menuPrices:state.menuPrices,marketInventory:state.marketInventory,marketCycle:state.marketCycle,marketCart:state.marketCart,marketReceipts:state.marketReceipts,marketSold:state.marketSold,cash:state.cash,rep:state.rep,served:state.served,stock:state.stock,day:state.day,stove:state.stove,tables:state.tables,orderNo:state.orderNo,menu:state.menu,orderMenu:state.orderMenu,step:state.step,patience:state.patience,cookingStarted:state.cookingStarted,cookingElapsed:state.cookingElapsed,actionIndex:state.actionIndex,qualityScore:state.qualityScore,qualityLabel:state.qualityLabel,staff:state.staff,promoUsed:state.promoUsed,promoBonusPending:state.promoBonusPending,todayServed:state.todayServed,todayRevenue:state.todayRevenue,missionClaimed:state.missionClaimed,totalRevenue:state.totalRevenue,onlineOrders:state.onlineOrders,orderSource:state.orderSource,orderAcceptedAt:state.orderAcceptedAt,orderDeadlineAt:state.orderDeadlineAt,nextOnlineAt:state.nextOnlineAt,onlineSequence:state.onlineSequence}));}catch{}}
+  function queueOnlineOrder(){
+    const available=Object.keys(recipes).filter(id=>unlocked(id));
+    const menu=available[Math.floor(Math.random()*available.length)];
+    const now=Date.now(),id='ONL-'+String(state.onlineSequence++).padStart(4,'0');
+    state.onlineOrders.push({id,menu,createdAt:now,expiresAt:now+45000});
+    if(state.onlineOrders.length>5)state.onlineOrders.shift();
+    state.nextOnlineAt=now+9000+Math.random()*6500;
+    persist();renderOnlineOrders();
+    toast('Order online baru masuk: '+recipes[menu].name+'. Ambil saat kamu siap!');
+  }
+  function renderOnlineOrders(){
+    const list=$('online-order-list'),count=$('online-order-count');
+    if(!list||!count)return;
+    const now=Date.now();count.textContent=String(state.onlineOrders.length);
+    list.innerHTML=state.onlineOrders.length?state.onlineOrders.map(order=>{
+      const recipe=recipes[order.menu]||recipes.nasi,remaining=Math.max(0,Math.ceil((order.expiresAt-now)/1000));
+      return '<article class="online-order-item"><div class="online-order-main"><span class="online-order-emoji">'+recipe.emoji+'</span><div><strong>'+recipe.name+'</strong><small>'+order.id+' · '+money(sellingPrice(order.menu))+'</small></div></div><div class="online-order-meta"><span>⏳ '+remaining+' dtk untuk mengambil</span><button type="button" data-accept-online="'+order.id+'">Ambil order</button></div></article>';
+    }).join(''):'<div class="online-orders-empty">Belum ada order online. Pesanan baru akan muncul otomatis — ambil saat kamu siap.</div>';
+  }
+  function acceptOnlineOrder(id){
+    const order=state.onlineOrders.find(item=>item.id===id);
+    if(!order)return;
+    if(state.step!==0||state.cookingStarted){toast('Selesaikan pesanan aktif dulu sebelum mengambil order online.');return;}
+    if(state.orderSource==='online'){toast('Selesaikan atau lewati order online aktif dulu, bro.');return;}
+    if(order.expiresAt<=Date.now()){state.onlineOrders=state.onlineOrders.filter(item=>item.id!==id);persist();renderOnlineOrders();toast('Order ini sudah kedaluwarsa.');return;}
+    state.onlineOrders=state.onlineOrders.filter(item=>item.id!==id);
+    state.orderMenu=order.menu;state.menu=order.menu;state.orderNo++;state.orderSource='online';
+    state.orderAcceptedAt=Date.now();state.orderDeadlineAt=state.orderAcceptedAt+35000;
+    state.step=0;state.cookingStarted=false;state.cookingElapsed=0;state.actionIndex=0;state.qualityScore=0;state.qualityLabel='Biasa';state.patience=100;
+    $('menu-select').value=state.menu;
+    $('scene-status').textContent='Order online '+order.id+' sedang dikerjakan';
+    persist();updateOrder();updateStats();renderOnlineOrders();drawScene();
+    toast('Order '+order.id+' diambil! Selesaikan dalam 35 detik untuk bonus tepat waktu.');
+  }
   function toast(message){const el=$('toast');el.textContent=message;el.classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>el.classList.remove('show'),2200);}
 
   // Acuan PIHPS untuk Kota Blitar, data 16 Oktober 2026.
@@ -161,14 +196,14 @@
       if(active)button.setAttribute('aria-current','page');else button.removeAttribute('aria-current');
     });
     document.querySelectorAll('.dashboard-nav [data-view-link]').forEach(link=>link.classList.toggle('active',link.dataset.viewLink===view));
-    const scene=document.querySelector('.scene-card'),order=document.querySelector('.order-card'),kitchen=$('kitchen-panel');
+    const scene=document.querySelector('.scene-card'),order=document.querySelector('.order-card'),kitchen=$('kitchen-panel'),onlineOrders=$('online-orders-card');
     const dashboard=$('dashboard'),market=$('market-panel'),business=$('business-panel');
     const extras=document.querySelector('.extra-management'),more=$('more-panel'),report=$('report-panel'),footer=document.querySelector('footer');
-    const panels=[dashboard,scene,order,kitchen,market,business,extras,more,report,footer];
+    const panels=[dashboard,scene,order,kitchen,onlineOrders,market,business,extras,more,report,footer];
     panels.forEach(panel=>panel?.classList.add('app-view-hidden'));
     const reveal=(...elements)=>elements.forEach(element=>element?.classList.remove('app-view-hidden'));
     if(view==='home')reveal(dashboard);
-    if(view==='kitchen')reveal(scene,order,kitchen);
+    if(view==='kitchen')reveal(scene,order,kitchen,onlineOrders);
     if(view==='market'){reveal(market);renderMarket();}
     if(view==='business')reveal(business,extras);
     if(view==='report')reveal(report);
@@ -233,7 +268,8 @@
     const r=recipes[state.orderMenu]||recipes.nasi, selected=current();
     $('order-title').textContent=r.name;$('dish-art').textContent=r.emoji;$('order-price').textContent=money(sellingPrice(state.orderMenu));
     $('customer-name').textContent=r.customer[0];$('customer-avatar').textContent=r.customer[1];$('customer-mood').textContent=r.customer[2];
-    $('order-tag').textContent='PESANAN #'+String(state.orderNo).padStart(3,'0');
+    const deadlineLeft=state.orderSource==='online'&&state.orderDeadlineAt?Math.ceil((state.orderDeadlineAt-Date.now())/1000):0;
+    $('order-tag').textContent=state.orderSource==='online'?'ONLINE · '+String(state.orderNo).padStart(3,'0')+' · '+Math.max(0,deadlineLeft)+' dtk':'PESANAN #'+String(state.orderNo).padStart(3,'0');
     $('recipe-cost').textContent='Modal '+money(selected.cost);$('ingredients').innerHTML=selected.ingredients.map(x=>'<span>'+x+'</span>').join('');
     $('patience-label').textContent=Math.round(state.patience)+'%';$('patience-bar').style.width=Math.min(100,state.patience)+'%';
     $('patience-bar').style.background=state.patience<30?'#c66a54':state.patience<60?'#d7a64e':'#70a879';
@@ -316,6 +352,7 @@
   function nextOrder(skipped=false){
     if(skipped&&(state.cookingStarted||state.step===2)){toast('Pesanan sudah dimulai atau siap saji. Selesaikan dulu, bro!');return;}
     state.orderNo++;const available=Object.keys(recipes).filter(id=>unlocked(id));state.orderMenu=available[Math.floor(Math.random()*available.length)];state.step=0;state.cookingStarted=false;state.cookingElapsed=0;state.actionIndex=0;state.qualityScore=0;state.qualityLabel='Biasa';state.patience=state.promoBonusPending?125:100;state.promoBonusPending=false;
+    state.orderSource='walkin';state.orderAcceptedAt=0;state.orderDeadlineAt=0;
     updateOrder();updateStats();drawScene();persist();if(skipped)toast('Pesanan dibatalkan sebelum memasak. Pelanggan baru datang.');
   }
   function cookAction(){
@@ -341,16 +378,19 @@
     } else {
       const tip=state.patience>65?1500:state.patience>30?500:0;
       const qualityBonus=state.qualityLabel==='Istimewa'?1500:state.qualityLabel==='Enak'?700:0;
-      const reward=sellingPrice(state.orderMenu)+tip+qualityBonus;state.cash+=reward;state.cashEarned+=reward;state.totalRevenue+=reward;state.todayRevenue+=reward;state.served++;state.todayServed++;
-      const repChange=state.qualityLabel==='Istimewa'?.16:state.qualityLabel==='Enak'?.08:(state.patience>45?.03:-.12);
+      const onlineOrder=state.orderSource==='online';
+      const onTime=onlineOrder&&Date.now()<=state.orderDeadlineAt;
+      const deadlineAdjustment=onlineOrder?(onTime?1500:-1500):0;
+      const reward=Math.max(1000,sellingPrice(state.orderMenu)+tip+qualityBonus+deadlineAdjustment);state.cash+=reward;state.cashEarned+=reward;state.totalRevenue+=reward;state.todayRevenue+=reward;state.served++;state.todayServed++;
+      const repChange=(state.qualityLabel==='Istimewa'?.16:state.qualityLabel==='Enak'?.08:(state.patience>45?.03:-.12))+(onlineOrder&&!onTime?-.08:0);
       state.rep=Math.min(5,Math.max(.5,state.rep+repChange));
       let rolloverMessage='';
       if(state.todayServed>=8){
         if(!state.missionClaimed&&state.todayServed>=3&&state.todayRevenue>=30000){state.cash+=15000;state.rep=Math.min(5,state.rep+.2);state.missionClaimed=true;rolloverMessage=' Hadiah misi yang belum diklaim otomatis diberikan.';}
         const completedDay=state.day,dayRevenue=state.todayRevenue,dayCustomers=state.todayServed;state.day++;state.todayServed=0;state.todayRevenue=0;state.missionClaimed=false;state.promoUsed=false;state.cash+=10000;
         toast('Ringkasan Hari '+completedDay+': '+dayCustomers+' pelanggan, omzet '+money(dayRevenue)+'. Hari baru dimulai; bonus operasional Rp 10.000.'+rolloverMessage);
-      } else toast('Pesanan tersaji! '+state.qualityLabel+' · +'+money(reward)+' pendapatan'+(tip?' termasuk tip.':'.'));
-      state.orderNo++;const available=Object.keys(recipes).filter(id=>unlocked(id));state.orderMenu=available[Math.floor(Math.random()*available.length)];state.step=0;state.cookingStarted=false;state.cookingElapsed=0;state.actionIndex=0;state.qualityScore=0;state.qualityLabel='Biasa';state.patience=state.promoBonusPending?125:100;state.promoBonusPending=false;
+      } else toast('Pesanan tersaji! '+state.qualityLabel+' · '+(onlineOrder?(onTime?'bonus tepat waktu +Rp 1.500.':'terlambat, penalti Rp 1.500 dan reputasi -0,08. '):'')+'+'+money(reward)+' pendapatan'+(tip?' termasuk tip.':'.'));
+      state.orderNo++;const available=Object.keys(recipes).filter(id=>unlocked(id));state.orderMenu=available[Math.floor(Math.random()*available.length)];state.step=0;state.cookingStarted=false;state.cookingElapsed=0;state.actionIndex=0;state.qualityScore=0;state.qualityLabel='Biasa';state.patience=state.promoBonusPending?125:100;state.promoBonusPending=false;state.orderSource='walkin';state.orderAcceptedAt=0;state.orderDeadlineAt=0;
       $('scene-status').textContent='Pelanggan menikmati hidangan';persist();
     }
     persist();updateStats();updateOrder();drawScene();
@@ -361,10 +401,13 @@
     if(kind==='stock'){if(state.cash<25000){toast('Uang kas belum cukup untuk belanja stok.');return;}state.cash-=25000;state.stock+=12;toast('Stok bahan bertambah 12 porsi. Dapur siap!');}
     persist();updateStats();drawScene();
   }
-  function frame(t){const dt=Math.min((t-lastTime)/1000||0,.1);lastTime=t;state.tick+=dt;state.marketTimer+=dt;if(state.marketTimer>=MARKET_RESTOCK_SECONDS){state.marketTimer=0;state.marketCycle++;state.marketSold={};persist();if(!$('market-panel').classList.contains('app-view-hidden'))renderMarket();}
+  function frame(t){const dt=Math.min((t-lastTime)/1000||0,.1);lastTime=t;state.tick+=dt;state.marketTimer+=dt;
+    const now=Date.now();const beforeCount=state.onlineOrders.length;state.onlineOrders=state.onlineOrders.filter(order=>order.expiresAt>now);if(beforeCount!==state.onlineOrders.length){persist();renderOnlineOrders();}
+    if(now>=state.nextOnlineAt){if(state.onlineOrders.length<5)queueOnlineOrder();else state.nextOnlineAt=now+6500;}
+    if(now-(state.lastOnlineRenderAt||0)>500){state.lastOnlineRenderAt=now;renderOnlineOrders();if(state.orderSource==='online')updateOrder();}if(state.marketTimer>=MARKET_RESTOCK_SECONDS){state.marketTimer=0;state.marketCycle++;state.marketSold={};persist();if(!$('market-panel').classList.contains('app-view-hidden'))renderMarket();}
     if(state.step<2&&!state.cookingStarted){state.patience=Math.max(0,state.patience-dt*(state.step===1?(state.staff?0.95:1.4):(state.staff?0.22:.35)));}
     if(state.cookingStarted&&state.step===1){const r=recipes[state.orderMenu]||recipes.nasi;state.cookingElapsed=Math.min(r.cookTime,state.cookingElapsed+dt);const win=state.actionIndex<(r.actions||1)?actionWindow():null;if(win&&state.cookingElapsed>win.end){state.actionIndex++;persist();}if(state.cookingElapsed>=r.cookTime){state.step=2;state.cookingStarted=false;state.qualityLabel=state.qualityScore>=(r.actions||1)?'Istimewa':state.qualityScore>0?'Enak':'Biasa';$('scene-status').textContent='Hidangan '+state.qualityLabel.toLowerCase()+' siap disajikan';toast('Masakan selesai! Kualitas: '+state.qualityLabel+'.');persist();updateOrder();updateStats();}}
-    if(state.patience===0&&state.step<2&&!state.cookingStarted){state.rep=Math.max(.5,state.rep-.08);state.patience=100;state.step=0;state.orderNo++;const available=Object.keys(recipes).filter(id=>unlocked(id));state.orderMenu=available[Math.floor(Math.random()*available.length)];state.actionIndex=0;state.qualityScore=0;toast('Pelanggan kehabisan sabar. Pesanan dilepas dan pelanggan baru datang.');updateOrder();updateStats();persist();}
+    if(state.patience===0&&state.step<2&&!state.cookingStarted){state.rep=Math.max(.5,state.rep-.08);state.patience=100;state.step=0;state.orderNo++;const available=Object.keys(recipes).filter(id=>unlocked(id));state.orderMenu=available[Math.floor(Math.random()*available.length)];state.actionIndex=0;state.qualityScore=0;state.orderSource='walkin';state.orderAcceptedAt=0;state.orderDeadlineAt=0;toast('Pelanggan kehabisan sabar. Pesanan dilepas dan pelanggan baru datang.');updateOrder();updateStats();persist();}
     $('patience-label').textContent=Math.round(state.patience)+'%';$('patience-bar').style.width=Math.min(100,state.patience)+'%';$('patience-bar').style.background=state.patience<30?'#c66a54':state.patience<60?'#d7a64e':'#70a879';
     if(state.cookingStarted&&t-lastUiUpdate>180){updateOrder();lastUiUpdate=t;}
     if(state.cookingStarted&&t-lastSaveAt>1000){persist();lastSaveAt=t;}
@@ -372,6 +415,7 @@
     requestAnimationFrame(frame);
   }
   $('enter-kitchen-btn').addEventListener('click',()=>setView('kitchen'));
+  $('online-order-list').addEventListener('click',event=>{const button=event.target.closest('[data-accept-online]');if(button)acceptOnlineOrder(button.dataset.acceptOnline);});
   $('market-checkout-btn').addEventListener('click',confirmMarketPurchase);
   $('sell-stock-btn').addEventListener('click',sellStock);
   $('stock-sell-qty').addEventListener('input',()=>{const input=$('stock-sell-qty');const btn=$('sell-stock-btn');const qty=Math.max(1,Math.floor(Number(input.value)||1));btn.textContent='Jual · '+money(qty*1500);btn.disabled=state.stock<1||qty>state.stock;});
