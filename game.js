@@ -327,7 +327,7 @@
         $('menu-select').value=state.menu;
       }
       if(state.stock<r.stock){toast('Stok bahan kurang. Buka Pasar untuk membeli stok dulu.');return;}
-      state.step=1;state.cookingStarted=false;state.cookingElapsed=0;state.actionIndex=0;state.qualityScore=0;state.qualityLabel='Biasa';$('scene-status').textContent='Bahan pesanan sudah disiapkan';toast('Menu pesanan dipilih. Bahan siap! Tekan Mulai memasak untuk mulai timer.');
+      state.step=1;state.stock-=r.stock;state.cookingStarted=true;state.cookingElapsed=0;state.actionIndex=0;state.qualityScore=0;state.qualityLabel='Biasa';$('scene-status').textContent='Koki sedang memasak '+r.name;toast('Memasak dimulai! Stok dikurangi. Perhatikan indikator dan tekan tombol saat aksi muncul.');
     } else if(state.step===1&&!state.cookingStarted){
       if(state.stock<r.stock){toast('Stok bahan tidak cukup untuk memulai memasak.');state.step=0;return;}
       state.stock-=r.stock;state.cookingStarted=true;state.cookingElapsed=0;state.actionIndex=0;state.qualityScore=0;$('scene-status').textContent='Koki sedang memasak '+r.name;toast('Memasak dimulai! Perhatikan waktunya dan tekan tombol saat diminta aksi.');
