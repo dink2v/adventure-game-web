@@ -373,9 +373,17 @@
       if(state.cookingElapsed>=r.cookTime){toast('Tunggu masakan selesai diproses.');return;}
       if(state.actionIndex>=(r.actions||1)){toast('Aksi sudah selesai. Tunggu masakan matang.');return;}
       const win=actionWindow();
-      if(state.cookingElapsed<win.start){toast('Belum waktunya! Tunggu indikator aksi.');return;}
-      if(state.cookingElapsed<=win.end){state.qualityScore++;state.actionIndex++;toast('Aksi tepat waktu! Kualitas masakan meningkat.');}
-      else {state.actionIndex++;toast('Aksi terlambat. Masakan tetap selesai, tetapi bonus kualitas berkurang.');}
+      // Jangan mengunci pemain hanya karena indikator belum masuk zona aksi.
+      // Menekan tombol kapan pun selama memasak tetap menyelesaikan satu aksi;
+      // waktu yang tepat memberi kualitas terbaik, terlalu awal tetap boleh lanjut.
+      if(state.cookingElapsed<=win.end){
+        state.qualityScore++;
+        state.actionIndex++;
+        toast(state.cookingElapsed<win.start?'Aksi diterima! Untuk kualitas terbaik, tekan saat indikator berada di zona aksi.':'Aksi tepat waktu! Kualitas masakan meningkat.');
+      } else {
+        state.actionIndex++;
+        toast('Aksi terlambat. Masakan tetap selesai, tetapi bonus kualitas berkurang.');
+      }
     } else {
       const tip=state.patience>65?1500:state.patience>30?500:0;
       const qualityBonus=state.qualityLabel==='Istimewa'?1500:state.qualityLabel==='Enak'?700:0;
