@@ -64,37 +64,87 @@
   }
   function toast(message){const el=$('toast');el.textContent=message;el.classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>el.classList.remove('show'),2200);}
 
-  // Acuan PIHPS untuk Kota Blitar, data 16 Oktober 2026.
-  // Harga paket dihitung dari harga per kg x bobot paket; bukan harga live.
+  // Harga referensi aktual PIHPS Nasional melalui Refnusa (proxy publik berbasis data Bank Indonesia).
+  // Data dipakai hanya jika API mengembalikan harga dan tanggal observasi; fallback diberi label simulasi.
   const marketGoods = [
-    {id:'rice',name:'Beras (0,5 kg)',emoji:'🍚',category:'pokok',desc:'Acuan Blitar Rp14.850/kg · paket 0,5 kg.',marketPrice:7425,add:3},
-    {id:'egg',name:'Telur ayam (0,25 kg)',emoji:'🥚',category:'protein',desc:'Acuan Blitar Rp26.000/kg · paket 0,25 kg.',marketPrice:6500,add:3},
-    {id:'seasoning',name:'Cabai rawit (0,1 kg)',emoji:'🌶️',category:'sayur',desc:'Acuan Blitar Rp47.500/kg · paket 0,1 kg.',marketPrice:4750,add:3},
-    {id:'noodle',name:'Bawang merah (0,1 kg)',emoji:'🧅',category:'sayur',desc:'Acuan Blitar Rp27.250/kg · paket 0,1 kg.',marketPrice:2725,add:3},
-    {id:'chicken',name:'Daging ayam (0,25 kg)',emoji:'🍗',category:'protein',desc:'Acuan Blitar Rp37.500/kg · paket 0,25 kg.',marketPrice:9375,add:2},
-    {id:'tea',name:'Gula pasir (0,25 kg)',emoji:'🧂',category:'pokok',desc:'Acuan Blitar Rp17.850/kg · paket 0,25 kg.',marketPrice:4463,add:4},
-    {id:'vegetable',name:'Sayuran campur (1 paket)',emoji:'🥬',category:'sayur',desc:'Paket simulasi game · sayur untuk nasi goreng dan lalapan.',marketPrice:3500,add:3},
-    {id:'garlic',name:'Bawang putih (0,1 kg)',emoji:'🧄',category:'sayur',desc:'Paket simulasi game · bumbu dasar masakan.',marketPrice:3200,add:3},
-    {id:'noodle-pack',name:'Mi telur (2 porsi)',emoji:'🍜',category:'pokok',desc:'Paket simulasi game · mi goreng dan bakso.',marketPrice:4000,add:3},
-    {id:'bihun',name:'Bihun (1 bungkus)',emoji:'🍝',category:'pokok',desc:'Paket simulasi game · pelengkap soto ayam.',marketPrice:3500,add:3},
-    {id:'meatball',name:'Bakso (1 paket)',emoji:'🍖',category:'protein',desc:'Paket simulasi game · bakso siap olah.',marketPrice:8000,add:3},
-    {id:'beef',name:'Daging sapi (0,25 kg)',emoji:'🥩',category:'protein',desc:'Paket simulasi game · pilihan menu tambahan.',marketPrice:18000,add:2},
-    {id:'tofu',name:'Tahu (1 paket)',emoji:'⬜',category:'protein',desc:'Paket simulasi game · lauk dan pelengkap.',marketPrice:3000,add:3},
-    {id:'tempe',name:'Tempe (1 papan)',emoji:'🟫',category:'protein',desc:'Paket simulasi game · lauk dan pelengkap.',marketPrice:3500,add:3},
-    {id:'oil',name:'Minyak goreng (0,25 L)',emoji:'🫗',category:'pokok',desc:'Paket simulasi game · kebutuhan menggoreng.',marketPrice:5000,add:4},
-    {id:'salt',name:'Garam (1 bungkus)',emoji:'🧂',category:'lainnya',desc:'Paket simulasi game · bumbu dasar.',marketPrice:1500,add:4},
-    {id:'soy-sauce',name:'Kecap manis (1 botol kecil)',emoji:'🍶',category:'lainnya',desc:'Paket simulasi game · bumbu mi goreng.',marketPrice:4500,add:3},
-    {id:'peanut',name:'Kacang tanah (0,1 kg)',emoji:'🥜',category:'sayur',desc:'Paket simulasi game · bahan bumbu kacang sate.',marketPrice:3500,add:3},
-    {id:'celery',name:'Seledri (1 ikat)',emoji:'🌿',category:'sayur',desc:'Paket simulasi game · pelengkap bakso dan soto.',marketPrice:2000,add:3},
-    {id:'lime',name:'Jeruk limau (1 paket)',emoji:'🍋',category:'sayur',desc:'Paket simulasi game · pelengkap sate ayam.',marketPrice:2500,add:3},
-    {id:'tea-leaf',name:'Teh (1 paket)',emoji:'🫖',category:'minuman',desc:'Paket simulasi game · seduh minuman.',marketPrice:3000,add:4},
-    {id:'ice',name:'Es batu (1 paket)',emoji:'🧊',category:'minuman',desc:'Paket simulasi game · minuman dingin.',marketPrice:2000,add:4},
-    {id:'ginger',name:'Jahe (0,1 kg)',emoji:'🫚',category:'sayur',desc:'Paket simulasi game · rempah tambahan.',marketPrice:2500,add:3},
-    {id:'coconut-milk',name:'Santan (1 bungkus)',emoji:'🥥',category:'lainnya',desc:'Paket simulasi game · bahan tambahan masakan.',marketPrice:3000,add:3}
+    {id:'rice',name:'Beras (0,5 kg)',emoji:'🍚',category:'pokok',desc:'Harga simulasi; data pasar belum tersedia.',marketPrice:7500,add:3},
+    {id:'egg',name:'Telur ayam (0,25 kg)',emoji:'🥚',category:'protein',desc:'Harga simulasi; data pasar belum tersedia.',marketPrice:6500,add:3},
+    {id:'seasoning',name:'Cabai rawit (0,1 kg)',emoji:'🌶️',category:'sayur',desc:'Harga simulasi; data pasar belum tersedia.',marketPrice:4500,add:3},
+    {id:'noodle',name:'Bawang merah (0,1 kg)',emoji:'🧅',category:'sayur',desc:'Harga simulasi; data pasar belum tersedia.',marketPrice:3000,add:3},
+    {id:'chicken',name:'Daging ayam (0,25 kg)',emoji:'🍗',category:'protein',desc:'Harga simulasi; data pasar belum tersedia.',marketPrice:9500,add:2},
+    {id:'tea',name:'Gula pasir (0,25 kg)',emoji:'🧂',category:'pokok',desc:'Harga simulasi; data pasar belum tersedia.',marketPrice:4500,add:4},
+    {id:'vegetable',name:'Sayuran campur (1 paket)',emoji:'🥬',category:'sayur',desc:'Harga simulasi game; bukan data pasar live.',marketPrice:3500,add:3},
+    {id:'garlic',name:'Bawang putih (0,1 kg)',emoji:'🧄',category:'sayur',desc:'Harga simulasi game; bukan data pasar live.',marketPrice:3200,add:3},
+    {id:'noodle-pack',name:'Mi telur (2 porsi)',emoji:'🍜',category:'pokok',desc:'Harga simulasi game; bukan data pasar live.',marketPrice:4000,add:3},
+    {id:'bihun',name:'Bihun (1 bungkus)',emoji:'🍝',category:'pokok',desc:'Harga simulasi game; bukan data pasar live.',marketPrice:3500,add:3},
+    {id:'meatball',name:'Bakso (1 paket)',emoji:'🍖',category:'protein',desc:'Harga simulasi game; bukan data pasar live.',marketPrice:8000,add:3},
+    {id:'beef',name:'Daging sapi (0,25 kg)',emoji:'🥩',category:'protein',desc:'Harga simulasi game; bukan data pasar live.',marketPrice:18000,add:2},
+    {id:'tofu',name:'Tahu (1 paket)',emoji:'⬜',category:'protein',desc:'Harga simulasi game; bukan data pasar live.',marketPrice:3000,add:3},
+    {id:'tempe',name:'Tempe (1 papan)',emoji:'🟫',category:'protein',desc:'Harga simulasi game; bukan data pasar live.',marketPrice:3500,add:3},
+    {id:'oil',name:'Minyak goreng (0,25 L)',emoji:'🫗',category:'pokok',desc:'Harga simulasi game; bukan data pasar live.',marketPrice:5000,add:4},
+    {id:'salt',name:'Garam (1 bungkus)',emoji:'🧂',category:'lainnya',desc:'Harga simulasi game; bukan data pasar live.',marketPrice:1500,add:4},
+    {id:'soy-sauce',name:'Kecap manis (1 botol kecil)',emoji:'🍶',category:'lainnya',desc:'Harga simulasi game; bukan data pasar live.',marketPrice:4500,add:3},
+    {id:'peanut',name:'Kacang tanah (0,1 kg)',emoji:'🥜',category:'sayur',desc:'Harga simulasi game; bukan data pasar live.',marketPrice:3500,add:3},
+    {id:'celery',name:'Seledri (1 ikat)',emoji:'🌿',category:'sayur',desc:'Harga simulasi game; bukan data pasar live.',marketPrice:2000,add:3},
+    {id:'lime',name:'Jeruk limau (1 paket)',emoji:'🍋',category:'sayur',desc:'Harga simulasi game; bukan data pasar live.',marketPrice:2500,add:3},
+    {id:'tea-leaf',name:'Teh (1 paket)',emoji:'🫖',category:'minuman',desc:'Harga simulasi game; bukan data pasar live.',marketPrice:3000,add:4},
+    {id:'ice',name:'Es batu (1 paket)',emoji:'🧊',category:'minuman',desc:'Harga simulasi game; bukan data pasar live.',marketPrice:2000,add:4},
+    {id:'ginger',name:'Jahe (0,1 kg)',emoji:'🫚',category:'sayur',desc:'Harga simulasi game; bukan data pasar live.',marketPrice:2500,add:3},
+    {id:'coconut-milk',name:'Santan (1 bungkus)',emoji:'🥥',category:'lainnya',desc:'Harga simulasi game; bukan data pasar live.',marketPrice:3000,add:3}
   ];
-  const marketPriceDate = '16 Oktober 2026';
+  const liveMarketPrices = {};
+  let marketObservedDate = '', marketDataStatus = 'loading', marketDataScope = 'Jawa Timur';
   let marketSearch = '', marketCategory = 'all';
-  function marketPrice(g){return g.marketPrice;}
+  const liveMarketMap = {
+    rice:{aliases:['beras-medium-i','beras medium i','beras-medium','beras medium','beras'],kg:0.5},
+    egg:{aliases:['telur-ayam-ras','telur ayam ras','telur'],kg:0.25},
+    seasoning:{aliases:['cabai-rawit-merah','cabai rawit merah','cabai-rawit','cabai rawit'],kg:0.1},
+    noodle:{aliases:['bawang-merah','bawang merah'],kg:0.1},
+    chicken:{aliases:['daging-ayam-ras','daging ayam ras','ayam ras'],kg:0.25},
+    tea:{aliases:['gula-pasir-lokal','gula pasir lokal','gula-pasir','gula pasir'],kg:0.25}
+  };
+  function normalizedCommodity(row){
+    return [row?.commodity,row?.commodity_name,row?.name,row?.nama].filter(Boolean).join(' ').toLocaleLowerCase('id-ID').replace(/[_–—]/g,'-');
+  }
+  function findCommodityPrice(rows, aliases){
+    for(const alias of aliases){
+      const found=rows.find(row=>normalizedCommodity(row).includes(alias));
+      if(found && Number(found.price_idr_per_kg)>0) return found;
+    }
+    return null;
+  }
+  async function refreshLiveMarketPrices(){
+    marketDataStatus='loading';
+    try{
+      const response=await fetch('https://refnusa.dev/v1/food-prices/latest?province_code=35&market=tradisional',{cache:'no-store',headers:{Accept:'application/json'}});
+      if(!response.ok)throw new Error('HTTP '+response.status);
+      const data=await response.json();
+      const regional=Array.isArray(data.prices)?data.prices.filter(row=>String(row.province_code)==='35'):[];
+      const national=Array.isArray(data.national)?data.national:[];
+      let updated=0,dates=[];
+      Object.entries(liveMarketMap).forEach(([id,config])=>{
+        const row=findCommodityPrice(regional,config.aliases)||findCommodityPrice(national,config.aliases);
+        if(!row)return;
+        const perKg=Number(row.price_idr_per_kg);
+        if(!Number.isFinite(perKg)||perKg<=0)return;
+        liveMarketPrices[id]=Math.round(perKg*config.kg);
+        const good=marketGoods.find(item=>item.id===id);
+        if(good)good.desc='Acuan PIHPS '+(regional.includes(row)?'Jawa Timur':'nasional')+' Rp '+Math.round(perKg).toLocaleString('id-ID')+'/kg · paket '+config.kg+' kg.';
+        if(row.observed_on)dates.push(row.observed_on);
+        if(!regional.includes(row))marketDataScope='Nasional (harga provinsi tidak tersedia)';
+        updated++;
+      });
+      if(!updated)throw new Error('Data harga komoditas tidak ditemukan');
+      marketObservedDate=dates.sort().pop()||data.observed_on_max||'';
+      marketDataStatus='live';
+      marketDataScope=regional.length?'Jawa Timur':'Nasional';
+    }catch(error){
+      marketDataStatus='unavailable';
+      console.warn('Harga PIHPS belum bisa dimuat:',error);
+    }
+    renderMarket();
+  }
+  function marketPrice(g){return Number.isFinite(liveMarketPrices[g.id])?liveMarketPrices[g.id]:g.marketPrice;}
   function filterMarketGoods(){
     const query=marketSearch.trim().toLocaleLowerCase('id-ID');
     return marketGoods.filter(g=>(marketCategory==='all'||g.category===marketCategory)&&(!query||[g.name,g.desc,g.category].join(' ').toLocaleLowerCase('id-ID').includes(query)));
@@ -112,7 +162,13 @@
     const sellQty=$('stock-sell-qty'),sellBtn=$('sell-stock-btn');
     if(sellQty){sellQty.max=state.stock;if(Number(sellQty.value)>state.stock)sellQty.value=Math.max(1,state.stock);}
     if(sellBtn){sellBtn.disabled=state.stock<1;const qty=Math.max(1,Math.floor(Number(sellQty?.value)||1));sellBtn.textContent='Jual · '+money(qty*1500);}
-    $('market-refresh').textContent='Acuan Kota Blitar · data '+marketPriceDate;
+    const refreshLabel=$('market-refresh');
+    if(refreshLabel){
+      if(marketDataStatus==='live')refreshLabel.textContent='PIHPS '+marketDataScope+' · data '+marketObservedDate;
+      else if(marketDataStatus==='loading')refreshLabel.textContent='Memuat harga pasar…';
+      else refreshLabel.textContent='Harga pasar tidak tersedia';
+      refreshLabel.title='Sumber: PIHPS Bank Indonesia melalui Refnusa. Data bukan harga per detik.';
+    }
     const visibleGoods=filterMarketGoods();
     grid.innerHTML=visibleGoods.length?visibleGoods.map(g=>{
       const price=marketPrice(g),available=marketAvailable(g),qty=cartQuantity(g.id);
@@ -122,7 +178,15 @@
     if(resultCount)resultCount.textContent='Menampilkan '+visibleGoods.length+' dari '+marketGoods.length+' bahan';
     const clear=$('market-search-clear');if(clear)clear.hidden=!marketSearch;
     const note=$('market-note');
-    if(note)note.innerHTML='Stok pasar maksimal 100 paket per bahan dan diperbarui setiap 20 detik. Harga 6 bahan acuan mengikuti snapshot PIHPS Kota Blitar tanggal '+marketPriceDate+' (bukan harga live). Bahan lainnya menggunakan harga simulasi game. <a href="https://www.panganindonesia.com/harga/kota/blitar/" target="_blank" rel="noopener noreferrer">Lihat sumber acuan</a>.';
+    if(note){
+      const sourceLink='<a href="https://www.bi.go.id/hargapangan" target="_blank" rel="noopener noreferrer">PIHPS Bank Indonesia</a>';
+      const statusText=marketDataStatus==='live'
+        ?'Harga 6 komoditas mengikuti data observasi '+marketObservedDate+' ('+marketDataScope+'), diambil otomatis saat halaman dibuka dan diperiksa ulang tiap 30 menit.'
+        :marketDataStatus==='loading'
+          ?'Sedang mengambil data harga pasar dari PIHPS Bank Indonesia. Harga simulasi ditandai sampai data berhasil dimuat.'
+          :'Data pasar nyata belum berhasil dimuat. Harga yang terlihat adalah harga simulasi game, bukan harga live.';
+      note.innerHTML='Stok pasar game berubah setiap 20 detik. '+statusText+' Komoditas lainnya memakai harga simulasi. Sumber: '+sourceLink+' via <a href="https://refnusa.dev/" target="_blank" rel="noopener noreferrer">Refnusa API</a>.';
+    }
     grid.querySelectorAll('[data-add-cart]').forEach(btn=>btn.addEventListener('click',()=>addToCart(btn.dataset.addCart)));
     renderCart();
   }
@@ -454,5 +518,5 @@
   $('claim-mission-btn').addEventListener('click',()=>{if(state.missionClaimed||state.todayServed<3||state.todayRevenue<30000){toast('Selesaikan target misi hari ini dulu.');return;}state.missionClaimed=true;state.cash+=15000;state.rep=Math.min(5,state.rep+.2);toast('Misi selesai! Hadiah Rp 15.000 dan reputasi +0,2.');persist();updateStats();});
   $('sound-btn').addEventListener('click',()=>{state.sound=!state.sound;$('sound-btn').textContent=state.sound?'♫':'♪';toast('Efek suara akan ditambahkan pada update berikutnya.');});
   window.addEventListener('resize',drawScene);
-  updateStats();updateOrder();updateProgress();drawScene();renderMarket();setView('home');requestAnimationFrame(frame);
+  updateStats();updateOrder();updateProgress();drawScene();renderMarket();refreshLiveMarketPrices();setInterval(()=>{if(!document.hidden)refreshLiveMarketPrices();},30*60*1000);setView('home');requestAnimationFrame(frame);
 })();
