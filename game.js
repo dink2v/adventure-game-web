@@ -23,12 +23,12 @@
     guests:[{x:.2,y:.53,color:'#e2a875',shirt:'#477a62',emoji:'👨🏻'},{x:.77,y:.55,color:'#d6a17b',shirt:'#bd7652',emoji:'👩🏻'}],
     cashEarned:0, marketInventory:saved.marketInventory ?? {rice:5,egg:5,vegetable:5,seasoning:5,noodle:5,chicken:3,tea:5,ice:5}, marketCycle:saved.marketCycle ?? 0, marketTimer:0, staff:saved.staff ?? false, promoUsed:saved.promoUsed ?? false, promoBonusPending:saved.promoBonusPending ?? false, todayServed:saved.todayServed ?? 0, todayRevenue:saved.todayRevenue ?? 0, missionClaimed:saved.missionClaimed ?? false, totalRevenue:saved.totalRevenue ?? 0,
     onlineOrders:Array.isArray(saved.onlineOrders)?saved.onlineOrders:[], orderSource:saved.orderSource||'walkin', orderAcceptedAt:saved.orderAcceptedAt||0, orderDeadlineAt:saved.orderDeadlineAt||0, suspendedOrder:saved.suspendedOrder&&typeof saved.suspendedOrder==='object'?saved.suspendedOrder:null, nextOnlineAt:saved.nextOnlineAt||Date.now()+4500, onlineSequence:saved.onlineSequence||1,
-    readyStock:Array.isArray(saved.readyStock)?saved.readyStock:[]
+    readyStock:Array.isArray(saved.readyStock)?saved.readyStock:[], currentDishFromStock:saved.currentDishFromStock===true
   };
   let lastTime=0, toastTimer=0, lastUiUpdate=0, lastSaveAt=0, lastReadyStockRenderAt=0;
   function sellingPrice(id){const base=recipes[id]?.price??1000;const custom=Number(state.menuPrices[id]);return Number.isFinite(custom)&&custom>=1?Math.round(custom):base;}
   function compactPrice(id){const value=sellingPrice(id)/1000;return (Number.isInteger(value)?String(value):value.toFixed(1))+'k';}
-  function persist(){try{localStorage.setItem('warung-kita-save',JSON.stringify({menuPrices:state.menuPrices,marketInventory:state.marketInventory,marketCycle:state.marketCycle,marketCart:state.marketCart,marketReceipts:state.marketReceipts,marketSold:state.marketSold,cash:state.cash,rep:state.rep,served:state.served,stock:state.stock,day:state.day,stove:state.stove,tables:state.tables,orderNo:state.orderNo,menu:state.menu,orderMenu:state.orderMenu,step:state.step,patience:state.patience,cookingStarted:state.cookingStarted,cookingElapsed:state.cookingElapsed,actionIndex:state.actionIndex,qualityScore:state.qualityScore,qualityLabel:state.qualityLabel,staff:state.staff,promoUsed:state.promoUsed,promoBonusPending:state.promoBonusPending,todayServed:state.todayServed,todayRevenue:state.todayRevenue,missionClaimed:state.missionClaimed,totalRevenue:state.totalRevenue,onlineOrders:state.onlineOrders,orderSource:state.orderSource,orderAcceptedAt:state.orderAcceptedAt,orderDeadlineAt:state.orderDeadlineAt,suspendedOrder:state.suspendedOrder,nextOnlineAt:state.nextOnlineAt,onlineSequence:state.onlineSequence,readyStock:state.readyStock}));}catch{}}
+  function persist(){try{localStorage.setItem('warung-kita-save',JSON.stringify({menuPrices:state.menuPrices,marketInventory:state.marketInventory,marketCycle:state.marketCycle,marketCart:state.marketCart,marketReceipts:state.marketReceipts,marketSold:state.marketSold,cash:state.cash,rep:state.rep,served:state.served,stock:state.stock,day:state.day,stove:state.stove,tables:state.tables,orderNo:state.orderNo,menu:state.menu,orderMenu:state.orderMenu,step:state.step,patience:state.patience,cookingStarted:state.cookingStarted,cookingElapsed:state.cookingElapsed,actionIndex:state.actionIndex,qualityScore:state.qualityScore,qualityLabel:state.qualityLabel,staff:state.staff,promoUsed:state.promoUsed,promoBonusPending:state.promoBonusPending,todayServed:state.todayServed,todayRevenue:state.todayRevenue,missionClaimed:state.missionClaimed,totalRevenue:state.totalRevenue,onlineOrders:state.onlineOrders,orderSource:state.orderSource,orderAcceptedAt:state.orderAcceptedAt,orderDeadlineAt:state.orderDeadlineAt,suspendedOrder:state.suspendedOrder,nextOnlineAt:state.nextOnlineAt,onlineSequence:state.onlineSequence,readyStock:state.readyStock,currentDishFromStock:state.currentDishFromStock}));}catch{}}
   function queueOnlineOrder(){
     const available=Object.keys(recipes).filter(id=>unlocked(id));
     const menu=available[Math.floor(Math.random()*available.length)];
@@ -341,7 +341,7 @@
     $('menu-select').value=state.menu;
     const win=actionWindow();
     const buttonLabel=state.step===0?'♧ Siapkan bahan':state.step===1?(!state.cookingStarted?'♨ Mulai memasak':(state.actionIndex<(r.actions||1)?'🥄 Lakukan aksi':'⏳ Masakan diproses…')):'✓ Sajikan & terima uang';
-    $('cook-btn').innerHTML=buttonLabel;$('cook-btn').disabled=state.step===1&&state.cookingStarted&&state.cookingElapsed>=r.cookTime;const storeBtn=$('store-cooked-btn');if(storeBtn)storeBtn.hidden=state.step!==2;
+    $('cook-btn').innerHTML=buttonLabel;$('cook-btn').disabled=state.step===1&&state.cookingStarted&&state.cookingElapsed>=r.cookTime;const storeBtn=$('store-cooked-btn');if(storeBtn)storeBtn.hidden=state.step!==2||state.currentDishFromStock;
     $('kitchen-status').textContent=state.step===2?'SIAP SAJI':state.cookingStarted?'MEMASAK':state.step===1?'BAHAN SIAP':'SIAP';
     for(let i=1;i<=3;i++){const el=$('step-'+i);el.classList.toggle('active',state.step===i-1);el.classList.toggle('done',state.step>=i);el.querySelector('.step-check').textContent=state.step>=i?'✓':state.step===i-1?'●':'○';}
     if(state.step===0)$('cook-feedback-text').textContent=state.menu===state.orderMenu?'Siapkan bahan. Stok baru dikurangi saat memasak benar-benar dimulai.':'Pesanan pelanggan: '+r.name+'. Pilih menu yang sama sebelum menyiapkan bahan.';
@@ -417,6 +417,7 @@
   function nextOrder(skipped=false){
     if(skipped&&(state.cookingStarted||state.step===2)){toast('Pesanan sudah dimulai atau siap saji. Selesaikan dulu, bro!');return;}
     if(skipped&&state.orderSource==='online'&&state.suspendedOrder){const pending=state.suspendedOrder;state.suspendedOrder=null;state.orderMenu=pending.orderMenu;state.menu=pending.menu;state.orderSource='walkin';state.orderAcceptedAt=0;state.orderDeadlineAt=0;state.step=0;state.cookingStarted=false;state.cookingElapsed=0;state.actionIndex=0;state.qualityScore=0;state.qualityLabel='Biasa';state.patience=pending.patience??100;$('menu-select').value=state.menu;updateOrder();updateStats();drawScene();persist();toast('Order online dilepas. Pesanan pelanggan sebelumnya kembali, bro.');return;}
+    state.currentDishFromStock=false;
     state.orderNo++;const available=Object.keys(recipes).filter(id=>unlocked(id));state.orderMenu=available[Math.floor(Math.random()*available.length)];state.step=0;state.cookingStarted=false;state.cookingElapsed=0;state.actionIndex=0;state.qualityScore=0;state.qualityLabel='Biasa';state.patience=state.promoBonusPending?125:100;state.promoBonusPending=false;
     state.orderSource='walkin';state.orderAcceptedAt=0;state.orderDeadlineAt=0;state.suspendedOrder=null;
     updateOrder();updateStats();drawScene();persist();if(skipped)toast('Pesanan dibatalkan sebelum memasak. Pelanggan baru datang.');
@@ -453,6 +454,7 @@
     }).join('');
   }
   function storeCurrentDish(){
+    if(state.currentDishFromStock){toast('Stok matang yang sudah dipilih tidak bisa disimpan ulang agar masa simpannya tidak ter-reset.');return;}
     if(state.step!==2){toast('Makanan hanya bisa disimpan setelah matang.');return;}
     if(state.readyStock.length>=READY_STOCK_LIMIT){toast('Penyimpanan penuh. Gunakan atau buang stok matang dulu.');return;}
     const item={id:'FD-'+Date.now().toString(36)+'-'+Math.random().toString(36).slice(2,6),menu:state.orderMenu,quality:state.qualityLabel,cookedAt:Date.now(),day:state.day};
@@ -468,6 +470,7 @@
     if(state.step!==0){toast('Selesaikan pesanan aktif dulu sebelum menggunakan stok matang.');return;}
     const quality=readyStockQuality(item);
     state.readyStock=state.readyStock.filter(entry=>entry.id!==id);
+    state.currentDishFromStock=true;
     state.menu=item.menu;state.qualityLabel=quality;
     state.qualityScore=item.quality==='Istimewa'?2:item.quality==='Enak'?1:0;
     state.step=2;state.cookingStarted=false;state.cookingElapsed=recipes[item.menu].cookTime;state.actionIndex=recipes[item.menu].actions||1;
@@ -523,6 +526,7 @@
         const completedDay=state.day,dayRevenue=state.todayRevenue,dayCustomers=state.todayServed;state.day++;state.todayServed=0;state.todayRevenue=0;state.missionClaimed=false;state.promoUsed=false;state.cash+=10000;
         toast('Ringkasan Hari '+completedDay+': '+dayCustomers+' pelanggan, omzet '+money(dayRevenue)+'. Hari baru dimulai; bonus operasional Rp 10.000. '+expiredAtDayEnd+' stok matang kedaluwarsa dibuang; stok yang masih layak dibawa ke hari berikutnya.'+rolloverMessage);
       } else toast('Pesanan tersaji! '+state.qualityLabel+' · '+(onlineOrder?(onTime?'bonus tepat waktu +Rp 1.500.':'terlambat, penalti Rp 1.500 dan reputasi -0,08. '):'')+'+'+money(reward)+' pendapatan'+(tip?' termasuk tip.':'.'));
+      state.currentDishFromStock=false;
       if(onlineOrder&&state.suspendedOrder){const pending=state.suspendedOrder;state.suspendedOrder=null;state.orderMenu=pending.orderMenu;state.menu=pending.menu;state.step=0;state.cookingStarted=false;state.cookingElapsed=0;state.actionIndex=0;state.qualityScore=0;state.qualityLabel='Biasa';state.patience=pending.patience??100;state.orderSource='walkin';state.orderAcceptedAt=0;state.orderDeadlineAt=0;$('menu-select').value=state.menu;$('scene-status').textContent='Kembali ke pesanan pelanggan';toast('Order online selesai ('+(onTime?'bonus tepat waktu +Rp 1.500':'penalti terlambat Rp 1.500')+'). Pesanan pelanggan sebelumnya menunggu untuk dilanjutkan.');}
       else{state.orderNo++;const available=Object.keys(recipes).filter(id=>unlocked(id));state.orderMenu=available[Math.floor(Math.random()*available.length)];state.step=0;state.cookingStarted=false;state.cookingElapsed=0;state.actionIndex=0;state.qualityScore=0;state.qualityLabel='Biasa';state.patience=state.promoBonusPending?125:100;state.promoBonusPending=false;state.orderSource='walkin';state.orderAcceptedAt=0;state.orderDeadlineAt=0;state.suspendedOrder=null;}
       $('scene-status').textContent='Pelanggan menikmati hidangan';persist();
