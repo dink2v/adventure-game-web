@@ -6,7 +6,7 @@
   <meta name="theme-color" content="#17352d">
   <meta name="description" content="Bangun warung kecil menjadi restoran ramai. Masak pesanan, layani pelanggan, kelola uang, dan upgrade usahamu.">
   <title>Warung Kita — Cooking & Restaurant Sim</title>
-  <link rel="stylesheet" href="style.css?v=online-orders-20261020-31">
+  <link rel="stylesheet" href="style.css?v=ready-stock-20261020-01">
 </head>
 <body>
   <main class="app">
@@ -70,7 +70,9 @@
         </div>
         <div class="cook-feedback" id="cook-feedback"><span id="cook-feedback-text">Pilih menu, lalu siapkan bahan untuk mulai memasak.</span><div class="action-timing" id="action-timing" hidden><div class="action-timing-track"><span class="action-timing-window" id="action-timing-window"></span><span class="action-timing-marker" id="action-timing-marker"></span></div><small id="action-timing-label">Menunggu waktu aksi…</small></div></div>
         <button class="primary-btn" id="cook-btn"><span>♨</span> Siapkan bahan</button>
+        <button class="secondary-btn" id="store-cooked-btn" hidden>📦 Simpan sebagai stok matang</button>
         <button class="secondary-btn" id="new-order-btn">↻ Pesanan berikutnya <small>(lewati)</small></button>
+        <section class="ready-stock-panel" aria-labelledby="ready-stock-title"><div class="ready-stock-heading"><strong id="ready-stock-title">📦 Stok makanan matang</strong><small>Maks. 10 · kualitas turun seiring waktu</small></div><div id="ready-stock-list"><p class="ready-stock-empty">Belum ada makanan matang yang disimpan.</p></div></section>
       </aside>
     </section>
 
@@ -162,6 +164,6 @@
       </section>
     </div>
   </main>
-  <script src="game.js?v=cooking-action-fix-20261020-02"></script>
+  <script src="game.js?v=ready-stock-20261020-01"></script>
 </body>
 </html>
