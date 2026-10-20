@@ -318,7 +318,7 @@
     for(const option of $('menu-select').options){if(recipes[option.value]){const open=unlocked(option.value);option.disabled=!!recipes[option.value].unlock&&!open;option.textContent=(open?'':'🔒 ')+recipes[option.value].name+' · '+money(sellingPrice(option.value))+(open?'':' · buka '+recipes[option.value].unlock+' pelanggan');}}
   }
   function updateStats(){
-    $('cash').textContent=money(state.cash);$('rep').textContent=state.rep.toFixed(1);$('dashboard-revenue').textContent=money(state.todayRevenue);$('dashboard-served').textContent=state.todayServed;$('dashboard-day').textContent='Hari '+state.day;
+    $('cash').textContent=money(state.cash);if($('topbar-cash'))$('topbar-cash').textContent=money(state.cash);$('rep').textContent=state.rep.toFixed(1);$('dashboard-revenue').textContent=money(state.todayRevenue);$('dashboard-served').textContent=state.todayServed;$('dashboard-day').textContent='Hari '+state.day;
     if($('home-cash'))$('home-cash').textContent=money(state.cash);
     if($('home-revenue'))$('home-revenue').textContent=money(state.todayRevenue);
     if($('home-served'))$('home-served').textContent=state.todayServed;
@@ -340,20 +340,24 @@
     $('patience-bar').style.background=state.patience<30?'#c66a54':state.patience<60?'#d7a64e':'#70a879';
     $('menu-select').value=state.menu;
     const win=actionWindow();
-    const buttonLabel=state.step===0?'♧ Siapkan bahan':state.step===1?(!state.cookingStarted?'♨ Mulai memasak':(state.actionIndex<(r.actions||1)?'🥄 Lakukan aksi':'⏳ Masakan diproses…')):'✓ Sajikan & terima uang';
+    const buttonLabel=state.step===0?'♨ Mulai memasak':state.step===1?(!state.cookingStarted?'♨ Mulai memasak':(state.actionIndex<(r.actions||1)?'🥄 Lakukan aksi (kapan saja)':'⏳ Masakan diproses…')):'✓ Sajikan & terima uang';
     $('cook-btn').innerHTML=buttonLabel;$('cook-btn').disabled=state.step===1&&state.cookingStarted&&state.cookingElapsed>=r.cookTime;const storeBtn=$('store-cooked-btn');if(storeBtn)storeBtn.hidden=state.step!==2||state.currentDishFromStock;
     $('kitchen-status').textContent=state.step===2?'SIAP SAJI':state.cookingStarted?'MEMASAK':state.step===1?'BAHAN SIAP':'SIAP';
     for(let i=1;i<=3;i++){const el=$('step-'+i);el.classList.toggle('active',state.step===i-1);el.classList.toggle('done',state.step>=i);el.querySelector('.step-check').textContent=state.step>=i?'✓':state.step===i-1?'●':'○';}
     if(state.step===0)$('cook-feedback-text').textContent=state.menu===state.orderMenu?'Siapkan bahan. Stok baru dikurangi saat memasak benar-benar dimulai.':'Pesanan pelanggan: '+r.name+'. Pilih menu yang sama sebelum menyiapkan bahan.';
     else if(state.step===1&&!state.cookingStarted)$('cook-feedback-text').textContent='Bahan siap. Tekan Mulai memasak untuk memulai timer dan mengurangi stok.';
-    else if(state.step===1)$('cook-feedback-text').textContent=state.actionIndex>=(r.actions||1)?'Masakan sedang diproses… '+Math.max(0,Math.ceil(r.cookTime-state.cookingElapsed))+' detik tersisa.':'Memasak '+r.name+' · '+Math.min(100,Math.round(state.cookingElapsed/r.cookTime*100))+'% · '+Math.max(0,Math.ceil(r.cookTime-state.cookingElapsed))+' detik tersisa. '+(state.cookingElapsed<win.start?'Bersiap untuk aksi berikutnya.':state.cookingElapsed<=win.end?'Sekarang! Tekan tombol aksi.':'Aksi terlewat; tunggu aksi berikutnya.');
+    else if(state.step===1)$('cook-feedback-text').textContent=state.actionIndex>=(r.actions||1)?'Masakan sedang diproses… '+Math.max(0,Math.ceil(r.cookTime-state.cookingElapsed))+' detik tersisa.':'Memasak '+r.name+' · '+Math.min(100,Math.round(state.cookingElapsed/r.cookTime*100))+'% · '+Math.max(0,Math.ceil(r.cookTime-state.cookingElapsed))+' detik tersisa. Tekan “Lakukan aksi (kapan saja)” jika ingin menaikkan kualitas; tidak perlu menunggu indikator.';
     else $('cook-feedback-text').textContent='Hidangan siap disajikan. Kualitas: '+state.qualityLabel+'. Sajikan untuk menyelesaikan pesanan.';
     updateActionTiming();
   }
   function updateActionTiming(){
     const panel=$('action-timing'),trackWindow=$('action-timing-window'),marker=$('action-timing-marker'),label=$('action-timing-label');
     if(!panel||!trackWindow||!marker||!label)return;
-    const r=recipes[state.orderMenu]||recipes.nasi, count=r.actions||1;
+    // Timing indicator dinonaktifkan: aksi memasak boleh dilakukan kapan saja.
+    panel.hidden=true;
+    return;
+    const r=recipes[state.orderMenu]||recipes.nasi;
+    const count=r.actions||1;
     const active=state.step===1&&state.cookingStarted&&state.actionIndex<count;
     panel.hidden=!active;
     if(!active)return;
@@ -484,6 +488,8 @@
   }
   function cookAction(){
     const r=recipes[state.orderMenu]||recipes.nasi;
+    if(!Number.isInteger(state.step)||state.step<0||state.step>2){state.step=0;state.cookingStarted=false;state.cookingElapsed=0;state.actionIndex=0;}
+    if(state.step===1&&state.cookingStarted&&state.cookingElapsed>=r.cookTime){state.step=2;state.cookingStarted=false;state.cookingElapsed=r.cookTime;state.qualityLabel=state.qualityScore>=(r.actions||1)?'Istimewa':state.qualityScore>0?'Enak':'Biasa';}
     if(state.step===0){
       // Otomatis pilih menu yang dipesan agar pemain tidak terjebak karena pilihan menu berbeda.
       if(state.menu!==state.orderMenu){
