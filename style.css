@@ -1721,3 +1721,10 @@ input,select{max-width:100%}
 .ready-stock-actions button:first-child{background:#e4f1e5;border-color:#c8dfcb}
 .ready-stock-actions button:disabled{opacity:.48;cursor:not-allowed}
 #store-cooked-btn[hidden]{display:none}
+
+
+/* Saldo uang selalu terlihat di header, termasuk saat berada di dapur. */
+.topbar-cash{display:flex;flex-direction:column;align-items:flex-end;gap:2px;min-width:112px;margin-left:auto;padding:7px 11px;border:1px solid #dce7d8;border-radius:12px;background:#eaf3e7;white-space:nowrap}
+.topbar-cash small{font-size:8px;font-weight:800;letter-spacing:1px;color:#66806b}
+.topbar-cash strong{font:800 14px 'Manrope',sans-serif;color:#286849}
+@media(max-width:650px){.topbar{gap:6px;flex-wrap:wrap}.topbar-cash{order:3;flex-direction:row;align-items:center;justify-content:space-between;gap:8px;min-width:0;width:100%;margin:2px 0 0;padding:7px 10px}.topbar-cash small{font-size:9px}.topbar-cash strong{font-size:13px}.day-chip{padding:8px 9px;gap:5px;font-size:9px}.icon-btn{width:36px;height:36px}.brand-mark{width:36px;height:36px}.brand>span:last-child{font-size:12px}}
