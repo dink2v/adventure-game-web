@@ -22,12 +22,13 @@
     menu:saved.menu || 'nasi', orderMenu:saved.orderMenu || saved.menu || 'nasi', step:saved.step ?? 0, patience:saved.patience ?? 100, cookingStarted:saved.cookingStarted ?? false, cookingElapsed:saved.cookingElapsed ?? 0, actionIndex:saved.actionIndex ?? 0, qualityScore:saved.qualityScore ?? 0, qualityLabel:saved.qualityLabel || 'Biasa', tick:0, sound:false,
     guests:[{x:.2,y:.53,color:'#e2a875',shirt:'#477a62',emoji:'👨🏻'},{x:.77,y:.55,color:'#d6a17b',shirt:'#bd7652',emoji:'👩🏻'}],
     cashEarned:0, marketInventory:saved.marketInventory ?? {rice:5,egg:5,vegetable:5,seasoning:5,noodle:5,chicken:3,tea:5,ice:5}, marketCycle:saved.marketCycle ?? 0, marketTimer:0, staff:saved.staff ?? false, promoUsed:saved.promoUsed ?? false, promoBonusPending:saved.promoBonusPending ?? false, todayServed:saved.todayServed ?? 0, todayRevenue:saved.todayRevenue ?? 0, missionClaimed:saved.missionClaimed ?? false, totalRevenue:saved.totalRevenue ?? 0,
-    onlineOrders:Array.isArray(saved.onlineOrders)?saved.onlineOrders:[], orderSource:saved.orderSource||'walkin', orderAcceptedAt:saved.orderAcceptedAt||0, orderDeadlineAt:saved.orderDeadlineAt||0, suspendedOrder:saved.suspendedOrder&&typeof saved.suspendedOrder==='object'?saved.suspendedOrder:null, nextOnlineAt:saved.nextOnlineAt||Date.now()+4500, onlineSequence:saved.onlineSequence||1
+    onlineOrders:Array.isArray(saved.onlineOrders)?saved.onlineOrders:[], orderSource:saved.orderSource||'walkin', orderAcceptedAt:saved.orderAcceptedAt||0, orderDeadlineAt:saved.orderDeadlineAt||0, suspendedOrder:saved.suspendedOrder&&typeof saved.suspendedOrder==='object'?saved.suspendedOrder:null, nextOnlineAt:saved.nextOnlineAt||Date.now()+4500, onlineSequence:saved.onlineSequence||1,
+    readyStock:Array.isArray(saved.readyStock)?saved.readyStock:[]
   };
   let lastTime=0, toastTimer=0, lastUiUpdate=0, lastSaveAt=0;
   function sellingPrice(id){const base=recipes[id]?.price??1000;const custom=Number(state.menuPrices[id]);return Number.isFinite(custom)&&custom>=1?Math.round(custom):base;}
   function compactPrice(id){const value=sellingPrice(id)/1000;return (Number.isInteger(value)?String(value):value.toFixed(1))+'k';}
-  function persist(){try{localStorage.setItem('warung-kita-save',JSON.stringify({menuPrices:state.menuPrices,marketInventory:state.marketInventory,marketCycle:state.marketCycle,marketCart:state.marketCart,marketReceipts:state.marketReceipts,marketSold:state.marketSold,cash:state.cash,rep:state.rep,served:state.served,stock:state.stock,day:state.day,stove:state.stove,tables:state.tables,orderNo:state.orderNo,menu:state.menu,orderMenu:state.orderMenu,step:state.step,patience:state.patience,cookingStarted:state.cookingStarted,cookingElapsed:state.cookingElapsed,actionIndex:state.actionIndex,qualityScore:state.qualityScore,qualityLabel:state.qualityLabel,staff:state.staff,promoUsed:state.promoUsed,promoBonusPending:state.promoBonusPending,todayServed:state.todayServed,todayRevenue:state.todayRevenue,missionClaimed:state.missionClaimed,totalRevenue:state.totalRevenue,onlineOrders:state.onlineOrders,orderSource:state.orderSource,orderAcceptedAt:state.orderAcceptedAt,orderDeadlineAt:state.orderDeadlineAt,suspendedOrder:state.suspendedOrder,nextOnlineAt:state.nextOnlineAt,onlineSequence:state.onlineSequence}));}catch{}}
+  function persist(){try{localStorage.setItem('warung-kita-save',JSON.stringify({menuPrices:state.menuPrices,marketInventory:state.marketInventory,marketCycle:state.marketCycle,marketCart:state.marketCart,marketReceipts:state.marketReceipts,marketSold:state.marketSold,cash:state.cash,rep:state.rep,served:state.served,stock:state.stock,day:state.day,stove:state.stove,tables:state.tables,orderNo:state.orderNo,menu:state.menu,orderMenu:state.orderMenu,step:state.step,patience:state.patience,cookingStarted:state.cookingStarted,cookingElapsed:state.cookingElapsed,actionIndex:state.actionIndex,qualityScore:state.qualityScore,qualityLabel:state.qualityLabel,staff:state.staff,promoUsed:state.promoUsed,promoBonusPending:state.promoBonusPending,todayServed:state.todayServed,todayRevenue:state.todayRevenue,missionClaimed:state.missionClaimed,totalRevenue:state.totalRevenue,onlineOrders:state.onlineOrders,orderSource:state.orderSource,orderAcceptedAt:state.orderAcceptedAt,orderDeadlineAt:state.orderDeadlineAt,suspendedOrder:state.suspendedOrder,nextOnlineAt:state.nextOnlineAt,onlineSequence:state.onlineSequence,readyStock:state.readyStock}));}catch{}}
   function queueOnlineOrder(){
     const available=Object.keys(recipes).filter(id=>unlocked(id));
     const menu=available[Math.floor(Math.random()*available.length)];
@@ -340,7 +341,7 @@
     $('menu-select').value=state.menu;
     const win=actionWindow();
     const buttonLabel=state.step===0?'♧ Siapkan bahan':state.step===1?(!state.cookingStarted?'♨ Mulai memasak':(state.actionIndex<(r.actions||1)?'🥄 Lakukan aksi':'⏳ Masakan diproses…')):'✓ Sajikan & terima uang';
-    $('cook-btn').innerHTML=buttonLabel;$('cook-btn').disabled=state.step===1&&state.cookingStarted&&state.cookingElapsed>=r.cookTime;const storeBtn=$('store-cooked-btn');if(storeBtn)storeBtn.hidden=state.step!==2;
+    $('cook-btn').innerHTML=buttonLabel;$('cook-btn').disabled=state.step===1&&state.cookingStarted&&state.cookingElapsed>=r.cookTime;const storeBtn=$('store-cooked-btn');if(storeBtn)storeBtn.hidden=state.step!==2;const storeBtn=$('store-cooked-btn');if(storeBtn)storeBtn.hidden=state.step!==2;
     $('kitchen-status').textContent=state.step===2?'SIAP SAJI':state.cookingStarted?'MEMASAK':state.step===1?'BAHAN SIAP':'SIAP';
     for(let i=1;i<=3;i++){const el=$('step-'+i);el.classList.toggle('active',state.step===i-1);el.classList.toggle('done',state.step>=i);el.querySelector('.step-check').textContent=state.step>=i?'✓':state.step===i-1?'●':'○';}
     if(state.step===0)$('cook-feedback-text').textContent=state.menu===state.orderMenu?'Siapkan bahan. Stok baru dikurangi saat memasak benar-benar dimulai.':'Pesanan pelanggan: '+r.name+'. Pilih menu yang sama sebelum menyiapkan bahan.';
@@ -420,6 +421,64 @@
     state.orderSource='walkin';state.orderAcceptedAt=0;state.orderDeadlineAt=0;state.suspendedOrder=null;
     updateOrder();updateStats();drawScene();persist();if(skipped)toast('Pesanan dibatalkan sebelum memasak. Pelanggan baru datang.');
   }
+  const READY_STOCK_LIMIT=10;
+  const shelfLifeSeconds={es:90,bakso:180,soto:210,nasi:240,mie:240,ayam:240,sate:300};
+  function readyStockQuality(item){
+    const life=shelfLifeSeconds[item.menu]||240;
+    const age=Math.max(0,(Date.now()-(item.cookedAt||Date.now()))/1000);
+    const ratio=Math.max(0,1-age/life);
+    if(ratio>.72)return item.quality||'Enak';
+    if(ratio>.38)return 'Menurun';
+    return 'Hampir kedaluwarsa';
+  }
+  function expireReadyStock(checkDayBoundary=false){
+    const now=Date.now(),before=state.readyStock.length;
+    state.readyStock=state.readyStock.filter(item=>{
+      const life=shelfLifeSeconds[item.menu]||240;
+      return (now-(item.cookedAt||now))/1000<life;
+    });
+    const removed=before-state.readyStock.length;
+    if(removed>0)persist();
+    if(removed>0&&!checkDayBoundary)toast(removed+' stok matang melewati masa simpan dan dibuang.');
+    return removed;
+  }
+  function renderReadyStock(){
+    const host=$('ready-stock-list');
+    if(!host)return;
+    expireReadyStock();
+    if(!state.readyStock.length){host.innerHTML='<p class="ready-stock-empty">Belum ada makanan matang yang disimpan.</p>';return;}
+    host.innerHTML=state.readyStock.map(item=>{
+      const r=recipes[item.menu]||recipes.nasi,quality=readyStockQuality(item),matches=item.menu===state.orderMenu;
+      return '<article class="ready-stock-item"><div class="ready-stock-main"><span>'+r.emoji+'</span><div><strong>'+r.name+'</strong><small>'+quality+' · Hari dibuat '+item.day+'</small></div></div><div class="ready-stock-actions"><button type="button" data-stock-use="'+item.id+'" '+(matches?'':'disabled title="Menu tidak cocok dengan pesanan aktif"')+'>Gunakan untuk order</button><button type="button" data-stock-discard="'+item.id+'">Buang</button></div></article>';
+    }).join('');
+  }
+  function storeCurrentDish(){
+    if(state.step!==2){toast('Makanan hanya bisa disimpan setelah matang.');return;}
+    if(state.readyStock.length>=READY_STOCK_LIMIT){toast('Penyimpanan penuh. Gunakan atau buang stok matang dulu.');return;}
+    const item={id:'FD-'+Date.now().toString(36)+'-'+Math.random().toString(36).slice(2,6),menu:state.orderMenu,quality:state.qualityLabel,cookedAt:Date.now(),day:state.day};
+    state.readyStock.push(item);
+    toast(recipes[item.menu].name+' disimpan sebagai stok matang. Belum ada pembayaran.');
+    nextOrder(false);renderReadyStock();persist();
+  }
+  function useReadyStock(id){
+    expireReadyStock();
+    const item=state.readyStock.find(entry=>entry.id===id);
+    if(!item)return;
+    if(item.menu!==state.orderMenu){toast('Menu stok tidak cocok dengan pesanan pelanggan.');return;}
+    if(state.step!==0){toast('Selesaikan pesanan aktif dulu sebelum menggunakan stok matang.');return;}
+    const quality=readyStockQuality(item);
+    state.readyStock=state.readyStock.filter(entry=>entry.id!==id);
+    state.menu=item.menu;state.qualityLabel=quality;
+    state.qualityScore=item.quality==='Istimewa'?2:item.quality==='Enak'?1:0;
+    state.step=2;state.cookingStarted=false;state.cookingElapsed=recipes[item.menu].cookTime;state.actionIndex=recipes[item.menu].actions||1;
+    $('menu-select').value=state.menu;$('scene-status').textContent='Menyajikan stok matang '+recipes[item.menu].name;
+    renderReadyStock();persist();updateOrder();toast('Stok matang dipilih. Periksa kualitasnya lalu sajikan ke pelanggan.');
+  }
+  function discardReadyStock(id){
+    const item=state.readyStock.find(entry=>entry.id===id);if(!item)return;
+    state.readyStock=state.readyStock.filter(entry=>entry.id!==id);
+    renderReadyStock();persist();toast(recipes[item.menu].name+' dibuang.');
+  }
   function cookAction(){
     const r=recipes[state.orderMenu]||recipes.nasi;
     if(state.step===0){
@@ -459,9 +518,10 @@
       state.rep=Math.min(5,Math.max(.5,state.rep+repChange));
       let rolloverMessage='';
       if(state.todayServed>=8){
+        const expiredAtDayEnd=expireReadyStock(true);
         if(!state.missionClaimed&&state.todayServed>=3&&state.todayRevenue>=30000){state.cash+=15000;state.rep=Math.min(5,state.rep+.2);state.missionClaimed=true;rolloverMessage=' Hadiah misi yang belum diklaim otomatis diberikan.';}
         const completedDay=state.day,dayRevenue=state.todayRevenue,dayCustomers=state.todayServed;state.day++;state.todayServed=0;state.todayRevenue=0;state.missionClaimed=false;state.promoUsed=false;state.cash+=10000;
-        toast('Ringkasan Hari '+completedDay+': '+dayCustomers+' pelanggan, omzet '+money(dayRevenue)+'. Hari baru dimulai; bonus operasional Rp 10.000.'+rolloverMessage);
+        toast('Ringkasan Hari '+completedDay+': '+dayCustomers+' pelanggan, omzet '+money(dayRevenue)+'. Hari baru dimulai; bonus operasional Rp 10.000. '+expiredAtDayEnd+' stok matang kedaluwarsa dibuang; stok yang masih layak dibawa ke hari berikutnya.'+rolloverMessage);
       } else toast('Pesanan tersaji! '+state.qualityLabel+' · '+(onlineOrder?(onTime?'bonus tepat waktu +Rp 1.500.':'terlambat, penalti Rp 1.500 dan reputasi -0,08. '):'')+'+'+money(reward)+' pendapatan'+(tip?' termasuk tip.':'.'));
       if(onlineOrder&&state.suspendedOrder){const pending=state.suspendedOrder;state.suspendedOrder=null;state.orderMenu=pending.orderMenu;state.menu=pending.menu;state.step=0;state.cookingStarted=false;state.cookingElapsed=0;state.actionIndex=0;state.qualityScore=0;state.qualityLabel='Biasa';state.patience=pending.patience??100;state.orderSource='walkin';state.orderAcceptedAt=0;state.orderDeadlineAt=0;$('menu-select').value=state.menu;$('scene-status').textContent='Kembali ke pesanan pelanggan';toast('Order online selesai ('+(onTime?'bonus tepat waktu +Rp 1.500':'penalti terlambat Rp 1.500')+'). Pesanan pelanggan sebelumnya menunggu untuk dilanjutkan.');}
       else{state.orderNo++;const available=Object.keys(recipes).filter(id=>unlocked(id));state.orderMenu=available[Math.floor(Math.random()*available.length)];state.step=0;state.cookingStarted=false;state.cookingElapsed=0;state.actionIndex=0;state.qualityScore=0;state.qualityLabel='Biasa';state.patience=state.promoBonusPending?125:100;state.promoBonusPending=false;state.orderSource='walkin';state.orderAcceptedAt=0;state.orderDeadlineAt=0;state.suspendedOrder=null;}
@@ -480,6 +540,7 @@
     if(now>=state.nextOnlineAt){if(state.onlineOrders.length<5)queueOnlineOrder();else state.nextOnlineAt=now+6500;}
     if(now-(state.lastOnlineRenderAt||0)>500){state.lastOnlineRenderAt=now;renderOnlineOrders();if(state.orderSource==='online')updateOrder();}if(state.marketTimer>=MARKET_RESTOCK_SECONDS){state.marketTimer=0;state.marketCycle++;state.marketSold={};persist();if(!$('market-panel').classList.contains('app-view-hidden'))renderMarket();}
     if(state.step<2&&!state.cookingStarted){state.patience=Math.max(0,state.patience-dt*(state.step===1?(state.staff?0.95:1.4):(state.staff?0.22:.35)));}
+    expireReadyStock();
     if(state.cookingStarted&&state.step===1){const r=recipes[state.orderMenu]||recipes.nasi;state.cookingElapsed=Math.min(r.cookTime,state.cookingElapsed+dt);const win=state.actionIndex<(r.actions||1)?actionWindow():null;if(state.cookingElapsed>=r.cookTime){state.step=2;state.cookingStarted=false;state.qualityLabel=state.qualityScore>=(r.actions||1)?'Istimewa':state.qualityScore>0?'Enak':'Biasa';$('scene-status').textContent='Hidangan '+state.qualityLabel.toLowerCase()+' siap disajikan';toast('Masakan selesai! Kualitas: '+state.qualityLabel+'.');persist();updateOrder();updateStats();}}
     if(state.patience===0&&state.step<2&&!state.cookingStarted&&state.orderSource!=='online'){state.rep=Math.max(.5,state.rep-.08);state.patience=100;state.step=0;state.orderNo++;const available=Object.keys(recipes).filter(id=>unlocked(id));state.orderMenu=available[Math.floor(Math.random()*available.length)];state.actionIndex=0;state.qualityScore=0;state.orderSource='walkin';state.orderAcceptedAt=0;state.orderDeadlineAt=0;state.suspendedOrder=null;toast('Pelanggan kehabisan sabar. Pesanan dilepas dan pelanggan baru datang.');updateOrder();updateStats();persist();}
     $('patience-label').textContent=Math.round(state.patience)+'%';$('patience-bar').style.width=Math.min(100,state.patience)+'%';$('patience-bar').style.background=state.patience<30?'#c66a54':state.patience<60?'#d7a64e':'#70a879';
@@ -509,6 +570,8 @@
   document.addEventListener('keydown',event=>{if(event.key==='Escape')closeReceipt();});
   $('menu-select').addEventListener('change',e=>{if(state.step!==0){toast('Selesaikan atau lewati pesanan dulu sebelum ganti menu.');$('menu-select').value=state.menu;return;}if(!unlocked(e.target.value)){toast('Menu ini belum terbuka. Layani lebih banyak pelanggan dulu.');$('menu-select').value=state.menu;return;}state.menu=e.target.value;updateOrder();persist();});
   $('cook-btn').addEventListener('click',cookAction);
+  const storeCookedBtn=$('store-cooked-btn');if(storeCookedBtn)storeCookedBtn.addEventListener('click',storeCurrentDish);
+  const readyStockList=$('ready-stock-list');if(readyStockList)readyStockList.addEventListener('click',event=>{const use=event.target.closest('[data-stock-use]'),discard=event.target.closest('[data-stock-discard]');if(use)useReadyStock(use.dataset.stockUse);if(discard)discardReadyStock(discard.dataset.stockDiscard);});
   $('new-order-btn').addEventListener('click',()=>nextOrder(true));
   $('stove-btn').addEventListener('click',()=>upgrade('stove'));
   $('table-btn').addEventListener('click',()=>upgrade('table'));
@@ -518,5 +581,5 @@
   $('claim-mission-btn').addEventListener('click',()=>{if(state.missionClaimed||state.todayServed<3||state.todayRevenue<30000){toast('Selesaikan target misi hari ini dulu.');return;}state.missionClaimed=true;state.cash+=15000;state.rep=Math.min(5,state.rep+.2);toast('Misi selesai! Hadiah Rp 15.000 dan reputasi +0,2.');persist();updateStats();});
   $('sound-btn').addEventListener('click',()=>{state.sound=!state.sound;$('sound-btn').textContent=state.sound?'♫':'♪';toast('Efek suara akan ditambahkan pada update berikutnya.');});
   window.addEventListener('resize',drawScene);
-  updateStats();updateOrder();updateProgress();drawScene();renderMarket();refreshLiveMarketPrices();setInterval(()=>{if(!document.hidden)refreshLiveMarketPrices();},30*60*1000);setView('home');requestAnimationFrame(frame);
+  updateStats();updateOrder();updateProgress();drawScene();renderReadyStock();renderMarket();refreshLiveMarketPrices();setInterval(()=>{if(!document.hidden)refreshLiveMarketPrices();},30*60*1000);setView('home');requestAnimationFrame(frame);
 })();
