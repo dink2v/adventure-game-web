@@ -1623,3 +1623,36 @@ input,select{max-width:100%}
 @media(prefers-reduced-motion:reduce){
   *,*::before,*::after{scroll-behavior:auto!important;transition:none!important;animation:none!important}
 }
+
+
+/* Tahap 2: struktur tab yang konsisten dan Beranda sebagai ringkasan */
+.app-view-hidden{display:none!important}
+#dashboard{scroll-margin-top:12px}
+.dashboard-compact{display:flex;flex-direction:column;gap:0}
+.dashboard-metrics .dashboard-metric{min-width:0}
+.dashboard-action-wrap{display:flex;justify-content:flex-start}
+.dashboard-nav{flex-wrap:nowrap}
+.dashboard-nav a{transition:background-color .16s ease,color .16s ease}
+.dashboard-nav a.active{background:#e6f0e4;color:var(--green)}
+.app-bottom-nav button{flex:1;min-width:0}
+.app-bottom-nav button[aria-current="page"]{background:#e6f0e4;color:var(--green)}
+.market-panel,.management,.progression-panel,.ledger-panel{scroll-margin-top:12px}
+.management-heading{flex-wrap:wrap}
+@media(min-width:651px){
+  .dashboard-compact{padding:22px 24px 16px}
+  .dashboard-action-wrap{margin-top:16px}
+  .dashboard-action{min-width:210px}
+}
+@media(max-width:650px){
+  .dashboard-compact{gap:0}
+  .dashboard-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .dashboard-metric{min-width:0}
+  .dashboard-metric strong{max-width:100%}
+  .dashboard-nav{margin-left:-2px;margin-right:-2px;padding-bottom:2px}
+  .dashboard-action-wrap{margin:10px 0 0!important}
+  .dashboard-action{width:100%;min-width:0!important}
+  .app-bottom-nav{display:flex;gap:2px}
+  .app-bottom-nav button{padding:5px 2px}
+  .app-bottom-nav button small{font-size:9px}
+  #business-panel .section-metrics{grid-template-columns:1fr}
+}
