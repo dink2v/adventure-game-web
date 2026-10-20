@@ -74,6 +74,9 @@
   function renderMarket(){
     const grid=$('market-grid');if(!grid)return;
     $('market-cash').textContent=money(state.cash);$('market-stock-total').textContent=state.stock;
+    const sellQty=$('stock-sell-qty'),sellBtn=$('sell-stock-btn');
+    if(sellQty){sellQty.max=state.stock;if(Number(sellQty.value)>state.stock)sellQty.value=Math.max(1,state.stock);}
+    if(sellBtn){sellBtn.disabled=state.stock<1;const qty=Math.max(1,Math.floor(Number(sellQty?.value)||1));sellBtn.textContent='Jual · '+money(qty*1500);}
     $('market-refresh').textContent='Acuan Kota Blitar · data '+marketPriceDate;
     const visibleGoods=filterMarketGoods();
     grid.innerHTML=visibleGoods.length?visibleGoods.map(g=>{
@@ -87,6 +90,16 @@
     if(note)note.innerHTML='Stok pasar maksimal 100 paket per bahan dan diperbarui setiap 20 detik. Harga 6 bahan acuan mengikuti snapshot PIHPS Kota Blitar tanggal '+marketPriceDate+' (bukan harga live). Bahan lainnya menggunakan harga simulasi game. <a href="https://www.panganindonesia.com/harga/kota/blitar/" target="_blank" rel="noopener noreferrer">Lihat sumber acuan</a>.';
     grid.querySelectorAll('[data-add-cart]').forEach(btn=>btn.addEventListener('click',()=>addToCart(btn.dataset.addCart)));
     renderCart();
+  }
+  function sellStock(){
+    const input=$('stock-sell-qty');
+    const qty=Math.floor(Number(input?.value)||0);
+    if(!Number.isFinite(qty)||qty<1){toast('Masukkan jumlah porsi minimal 1.');return;}
+    if(qty>state.stock){toast('Stok dapur tidak cukup untuk jumlah itu.');return;}
+    const revenue=qty*1500;
+    state.stock-=qty;state.cash+=revenue;
+    persist();updateStats();renderMarket();
+    toast(qty+' porsi stok terjual · kas bertambah '+money(revenue)+'.');
   }
   function addToCart(id){
     const g=marketGoods.find(x=>x.id===id);if(!g)return;
@@ -230,10 +243,26 @@
     $('cook-btn').innerHTML=buttonLabel;$('cook-btn').disabled=state.step===1&&state.cookingStarted&&state.cookingElapsed>=r.cookTime;
     $('kitchen-status').textContent=state.step===2?'SIAP SAJI':state.cookingStarted?'MEMASAK':state.step===1?'BAHAN SIAP':'SIAP';
     for(let i=1;i<=3;i++){const el=$('step-'+i);el.classList.toggle('active',state.step===i-1);el.classList.toggle('done',state.step>=i);el.querySelector('.step-check').textContent=state.step>=i?'✓':state.step===i-1?'●':'○';}
-    if(state.step===0)$('cook-feedback').textContent=state.menu===state.orderMenu?'Siapkan bahan. Stok baru dikurangi saat memasak benar-benar dimulai.':'Pesanan pelanggan: '+r.name+'. Pilih menu yang sama sebelum menyiapkan bahan.';
-    else if(state.step===1&&!state.cookingStarted)$('cook-feedback').textContent='Bahan siap. Tekan Mulai memasak untuk memulai timer dan mengurangi stok.';
-    else if(state.step===1)$('cook-feedback').textContent=state.actionIndex>=(r.actions||1)?'Masakan sedang diproses… '+Math.max(0,Math.ceil(r.cookTime-state.cookingElapsed))+' detik tersisa.':'Memasak '+r.name+' · '+Math.min(100,Math.round(state.cookingElapsed/r.cookTime*100))+'% · '+Math.max(0,Math.ceil(r.cookTime-state.cookingElapsed))+' detik tersisa. '+(state.cookingElapsed<win.start?'Bersiap untuk aksi berikutnya.':state.cookingElapsed<=win.end?'Sekarang! Tekan tombol aksi.':'Aksi terlewat; tunggu aksi berikutnya.');
-    else $('cook-feedback').textContent='Hidangan siap disajikan. Kualitas: '+state.qualityLabel+'. Sajikan untuk menyelesaikan pesanan.';
+    if(state.step===0)$('cook-feedback-text').textContent=state.menu===state.orderMenu?'Siapkan bahan. Stok baru dikurangi saat memasak benar-benar dimulai.':'Pesanan pelanggan: '+r.name+'. Pilih menu yang sama sebelum menyiapkan bahan.';
+    else if(state.step===1&&!state.cookingStarted)$('cook-feedback-text').textContent='Bahan siap. Tekan Mulai memasak untuk memulai timer dan mengurangi stok.';
+    else if(state.step===1)$('cook-feedback-text').textContent=state.actionIndex>=(r.actions||1)?'Masakan sedang diproses… '+Math.max(0,Math.ceil(r.cookTime-state.cookingElapsed))+' detik tersisa.':'Memasak '+r.name+' · '+Math.min(100,Math.round(state.cookingElapsed/r.cookTime*100))+'% · '+Math.max(0,Math.ceil(r.cookTime-state.cookingElapsed))+' detik tersisa. '+(state.cookingElapsed<win.start?'Bersiap untuk aksi berikutnya.':state.cookingElapsed<=win.end?'Sekarang! Tekan tombol aksi.':'Aksi terlewat; tunggu aksi berikutnya.');
+    else $('cook-feedback-text').textContent='Hidangan siap disajikan. Kualitas: '+state.qualityLabel+'. Sajikan untuk menyelesaikan pesanan.';
+    updateActionTiming();
+  }
+  function updateActionTiming(){
+    const panel=$('action-timing'),trackWindow=$('action-timing-window'),marker=$('action-timing-marker'),label=$('action-timing-label');
+    if(!panel||!trackWindow||!marker||!label)return;
+    const r=recipes[state.orderMenu]||recipes.nasi, count=r.actions||1;
+    const active=state.step===1&&state.cookingStarted&&state.actionIndex<count;
+    panel.hidden=!active;
+    if(!active)return;
+    const win=actionWindow(), total=Math.max(1,r.cookTime);
+    trackWindow.style.left=(Math.max(0,win.start)/total*100)+'%';
+    trackWindow.style.width=(Math.max(0,Math.min(total,win.end)-Math.max(0,win.start))/total*100)+'%';
+    marker.style.left=(Math.min(100,Math.max(0,state.cookingElapsed/total*100)))+'%';
+    if(state.cookingElapsed<win.start){label.textContent='TUNGGU · aksi '+(state.actionIndex+1)+' dari '+count+' segera';panel.dataset.status='waiting';}
+    else if(state.cookingElapsed<=win.end){label.textContent='SEKARANG! Tekan “Lakukan aksi”';panel.dataset.status='ready';}
+    else {label.textContent='Aksi terlewat · tunggu indikator berikutnya';panel.dataset.status='missed';}
   }
   function rounded(x,y,w,h,r,color){ctx.fillStyle=color;ctx.beginPath();ctx.roundRect(x,y,w,h,r);ctx.fill();}
   function line(x1,y1,x2,y2,color,width=1){ctx.strokeStyle=color;ctx.lineWidth=width;ctx.beginPath();ctx.moveTo(x1,y1);ctx.lineTo(x2,y2);ctx.stroke();}
@@ -340,6 +369,8 @@
   }
   $('enter-kitchen-btn').addEventListener('click',()=>setView('kitchen'));
   $('market-checkout-btn').addEventListener('click',confirmMarketPurchase);
+  $('sell-stock-btn').addEventListener('click',sellStock);
+  $('stock-sell-qty').addEventListener('input',()=>{const input=$('stock-sell-qty');const btn=$('sell-stock-btn');const qty=Math.max(1,Math.floor(Number(input.value)||1));btn.textContent='Jual · '+money(qty*1500);btn.disabled=state.stock<1||qty>state.stock;});
   const marketSearchInput=$('market-search'),marketCategorySelect=$('market-category'),marketSearchClear=$('market-search-clear');
   if(marketSearchInput)marketSearchInput.addEventListener('input',()=>{marketSearch=marketSearchInput.value;renderMarket();marketSearchInput.focus();});
   if(marketCategorySelect)marketCategorySelect.addEventListener('change',()=>{marketCategory=marketCategorySelect.value;renderMarket();});
