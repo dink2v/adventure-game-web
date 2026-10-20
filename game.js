@@ -321,9 +321,13 @@
   function cookAction(){
     const r=recipes[state.orderMenu]||recipes.nasi;
     if(state.step===0){
-      if(state.menu!==state.orderMenu){toast('Pilih menu yang sesuai dengan pesanan pelanggan.');return;}
-      if(state.stock<r.stock){toast('Stok bahan kurang. Belanja bahan baku dulu!');return;}
-      state.step=1;state.cookingStarted=false;state.cookingElapsed=0;state.actionIndex=0;state.qualityScore=0;state.qualityLabel='Biasa';$('scene-status').textContent='Bahan pesanan sudah disiapkan';toast('Bahan siap! Mulai memasak saat kamu siap. Stok belum dikurangi.');
+      // Otomatis pilih menu yang dipesan agar pemain tidak terjebak karena pilihan menu berbeda.
+      if(state.menu!==state.orderMenu){
+        state.menu=state.orderMenu;
+        $('menu-select').value=state.menu;
+      }
+      if(state.stock<r.stock){toast('Stok bahan kurang. Buka Pasar untuk membeli stok dulu.');return;}
+      state.step=1;state.cookingStarted=false;state.cookingElapsed=0;state.actionIndex=0;state.qualityScore=0;state.qualityLabel='Biasa';$('scene-status').textContent='Bahan pesanan sudah disiapkan';toast('Menu pesanan dipilih. Bahan siap! Tekan Mulai memasak untuk mulai timer.');
     } else if(state.step===1&&!state.cookingStarted){
       if(state.stock<r.stock){toast('Stok bahan tidak cukup untuk memulai memasak.');state.step=0;return;}
       state.stock-=r.stock;state.cookingStarted=true;state.cookingElapsed=0;state.actionIndex=0;state.qualityScore=0;$('scene-status').textContent='Koki sedang memasak '+r.name;toast('Memasak dimulai! Perhatikan waktunya dan tekan tombol saat diminta aksi.');
