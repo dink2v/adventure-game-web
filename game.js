@@ -121,7 +121,7 @@
       const data=await response.json();
       const regional=Array.isArray(data.prices)?data.prices.filter(row=>String(row.province_code)==='35'):[];
       const national=Array.isArray(data.national)?data.national:[];
-      let updated=0,dates=[];
+      let updated=0,dates=[],usedNational=false;
       Object.entries(liveMarketMap).forEach(([id,config])=>{
         const row=findCommodityPrice(regional,config.aliases)||findCommodityPrice(national,config.aliases);
         if(!row)return;
@@ -131,13 +131,13 @@
         const good=marketGoods.find(item=>item.id===id);
         if(good)good.desc='Acuan PIHPS '+(regional.includes(row)?'Jawa Timur':'nasional')+' Rp '+Math.round(perKg).toLocaleString('id-ID')+'/kg · paket '+config.kg+' kg.';
         if(row.observed_on)dates.push(row.observed_on);
-        if(!regional.includes(row))marketDataScope='Nasional (harga provinsi tidak tersedia)';
+        if(!regional.includes(row))usedNational=true;
         updated++;
       });
       if(!updated)throw new Error('Data harga komoditas tidak ditemukan');
       marketObservedDate=dates.sort().pop()||data.observed_on_max||'';
       marketDataStatus='live';
-      marketDataScope=regional.length?'Jawa Timur':'Nasional';
+      marketDataScope=usedNational?'Jawa Timur + nasional untuk komoditas yang tidak tersedia':(regional.length?'Jawa Timur':'Nasional');
     }catch(error){
       marketDataStatus='unavailable';
       console.warn('Harga PIHPS belum bisa dimuat:',error);
