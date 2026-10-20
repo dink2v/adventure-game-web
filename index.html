@@ -6,7 +6,7 @@
   <meta name="theme-color" content="#17352d">
   <meta name="description" content="Bangun warung kecil menjadi restoran ramai. Masak pesanan, layani pelanggan, kelola uang, dan upgrade usahamu.">
   <title>Warung Kita — Cooking & Restaurant Sim</title>
-  <link rel="stylesheet" href="style.css?v=dashboard-layout-20261020-26">
+  <link rel="stylesheet" href="style.css?v=home-view-isolation-20261020-27">
 </head>
 <body>
   <main class="app">
@@ -44,19 +44,19 @@
 
     <section class="main-grid">
       <div class="left-column">
-        <article class="scene-card">
+        <article class="scene-card app-view-hidden">
           <div class="scene-top"><div><span class="eyebrow">SUASANA WARUNG</span><strong>Warung Bu Rasa</strong></div><span class="scene-weather">☀ Cerah · 28°C</span></div>
           <div class="scene-wrap"><canvas id="scene" width="900" height="520" aria-label="Ilustrasi warung, dapur, dan pelanggan"></canvas><div class="scene-caption"><span class="scene-live"></span><span id="scene-status">Dapur siap melayani pesanan</span></div></div>
           <div class="scene-footer"><span>📍 Gang Melati No. 8</span><span id="upgrade-level">Warung Level 1</span></div>
         </article>
 
-        <article class="order-card">
+        <article class="order-card app-view-hidden">
           <div class="card-heading"><div><p class="eyebrow">PESANAN MASUK</p><h2 id="order-title">Nasi goreng spesial</h2></div><span class="order-tag" id="order-tag">PESANAN #001</span></div>
           <div class="order-body"><div class="dish-art" id="dish-art">🍳</div><div class="order-details"><div class="order-customer"><span class="customer-avatar" id="customer-avatar">👨🏻</span><div><strong id="customer-name">Mas Andi</strong><small id="customer-mood">Lapar berat · sabar menunggu</small></div></div><div class="patience"><div class="patience-label"><span>Kesabaran pelanggan</span><strong id="patience-label">100%</strong></div><div class="patience-track"><span id="patience-bar"></span></div></div><div class="order-reward"><span>Bayaran</span><strong id="order-price">Rp 18.000</strong></div></div></div>
         </article>
       </div>
 
-      <aside class="kitchen-card" id="kitchen-panel">
+      <aside class="kitchen-card app-view-hidden" id="kitchen-panel">
         <div class="card-heading"><div><p class="eyebrow">DAPUR AKTIF</p><h2>Area memasak</h2></div><div class="kitchen-badges"><span class="kitchen-status" id="kitchen-status">SIAP</span><span class="stock-chip">📦 <strong id="stock">12</strong> stok</span></div></div>
         <div class="dish-selector" id="menu-panel"><label for="menu-select">Pilih menu yang sesuai dengan pesanan pelanggan</label><select id="menu-select"><option value="nasi">Nasi goreng spesial · Rp18.000</option><option value="mie">Mi goreng Jawa · Rp15.000</option><option value="bakso">Bakso kuah · Rp17.000</option><option value="es">Es teh manis · Rp5.000</option><option value="ayam" disabled>🔒 Ayam geprek · buka setelah 8 pelanggan</option><option value="soto" disabled>🔒 Soto ayam · buka setelah 15 pelanggan</option><option value="sate" disabled>🔒 Sate ayam · buka setelah 25 pelanggan</option></select></div>
         <div class="recipe-box"><div class="recipe-title"><span>BAHAN YANG DIBUTUHKAN</span><span id="recipe-cost">Modal Rp 7.000</span></div><div class="ingredients" id="ingredients"><span>🍚 Nasi</span><span>🥚 Telur</span><span>🥬 Sayur</span><span>🌶️ Bumbu</span></div></div>
@@ -74,7 +74,7 @@
     </section>
 
 
-    <section class="market-panel" id="market-panel" aria-label="Pasar bahan baku">
+    <section class="market-panel app-view-hidden" id="market-panel" aria-label="Pasar bahan baku">
       <div class="management-heading market-heading"><div><p class="eyebrow">PASAR BAHAN BAKU</p><h2>Belanja untuk dapur</h2><p class="market-intro">Harga paket mengikuti acuan pangan Kota Blitar; ketersediaan stok game tetap berubah berkala. Pilih bahan sebelum stok pasar habis.</p></div><div class="market-heading-actions"><span class="market-refresh" id="market-refresh">Acuan Kota Blitar</span><button type="button" class="market-cart-trigger" id="market-cart-trigger" aria-controls="market-cart-panel" aria-expanded="false"><span class="market-cart-trigger-icon" aria-hidden="true">🛒</span><span>Keranjang</span><b id="market-cart-badge">0</b></button></div></div>
       <div class="market-wallet"><span>Uang kas</span><strong id="market-cash">Rp 150.000</strong><span class="market-stock-total">Stok dapur: <b id="market-stock-total">12</b> porsi</span></div>
       <div class="market-tools" aria-label="Cari dan filter bahan"><label class="market-search-wrap"><span aria-hidden="true">⌕</span><input type="search" id="market-search" placeholder="Cari bahan, misalnya ayam atau cabai…" autocomplete="off" aria-label="Cari bahan di pasar"><button type="button" id="market-search-clear" aria-label="Hapus pencarian" hidden>×</button></label><label class="market-category-wrap"><span>Kategori</span><select id="market-category" aria-label="Filter kategori bahan"><option value="all">Semua bahan</option><option value="pokok">Bahan pokok</option><option value="protein">Daging & protein</option><option value="sayur">Sayur & bumbu</option><option value="minuman">Minuman & es</option><option value="lainnya">Lainnya</option></select></label><p class="market-result-count" id="market-result-count" aria-live="polite">Menampilkan semua bahan</p></div>
@@ -90,7 +90,7 @@
       <div class="market-bulk-stock"><article class="upgrade-card"><div class="upgrade-icon stock-icon">▦</div><div class="upgrade-copy"><strong>Belanja bahan baku</strong><p>Isi ulang stok dapur agar tetap siap.</p><span class="upgrade-meta">+12 PORSI BAHAN</span></div><button class="upgrade-btn" id="stock-btn">Rp 25.000 <span>+</span></button></article></div>
     </section>
 
-    <section class="management" id="business-panel">
+    <section class="management app-view-hidden" id="business-panel">
       <div class="management-heading"><div><p class="eyebrow">KEMBANGKAN USAHAMU</p><h2>Kelola warung</h2></div><span class="muted small-text">Investasikan keuntungan dengan bijak</span></div>
       <div class="dashboard-metrics section-metrics">
         <div class="dashboard-metric"><span class="dashboard-metric-icon">Rp</span><div><small>UANG KAS</small><strong id="cash">Rp 150.000</strong></div></div>
@@ -106,7 +106,7 @@
       </section>
     </section>
 
-    <section class="progression-panel" id="more-panel">
+    <section class="progression-panel app-view-hidden" id="more-panel">
       <div class="management-heading"><div><p class="eyebrow">TARGET & PERKEMBANGAN</p><h2>Perjalanan usahamu</h2></div><span class="muted small-text" id="rank-label">Pemilik Warung Pemula</span></div>
       <div class="progression-grid">
         <article class="progress-card">
@@ -125,14 +125,14 @@
       </div>
     </section>
 
-    <section class="management extra-management">
+    <section class="management extra-management app-view-hidden">
       <div class="management-heading"><div><p class="eyebrow">TIM & PROMOSI</p><h2>Buat warung makin ramai</h2></div><span class="muted small-text">Keputusan bisnis punya dampak</span></div>
       <div class="upgrade-grid extra-grid">
         <article class="upgrade-card"><div class="upgrade-icon staff-icon">🧑‍🍳</div><div class="upgrade-copy"><strong>Rekrut asisten dapur</strong><p>Asisten membantu pelayanan dan menjaga pelanggan lebih sabar.</p><span class="upgrade-meta" id="staff-status">BELUM DIREKRUT</span></div><button class="upgrade-btn" id="staff-btn">Rp 90.000 <span>+</span></button></article>
         <article class="upgrade-card"><div class="upgrade-icon promo-icon">📣</div><div class="upgrade-copy"><strong>Promosi lingkungan</strong><p>Promosi sekali pakai menaikkan reputasi dan kesabaran pelanggan berikutnya.</p><span class="upgrade-meta" id="promo-status">BELUM AKTIF HARI INI</span></div><button class="upgrade-btn" id="promo-btn">Rp 12.000 <span>↗</span></button></article>
       </div>
     </section>
-    <section class="ledger-panel" id="report-panel">
+    <section class="ledger-panel app-view-hidden" id="report-panel">
       <div class="management-heading"><div><p class="eyebrow">CATATAN USAHA</p><h2>Ringkasan operasional</h2></div></div>
       <div class="dashboard-metrics section-metrics">
         <div class="dashboard-metric"><span class="dashboard-metric-icon">↗</span><div><small>OMZET HARI INI</small><strong id="dashboard-revenue">Rp 0</strong></div></div>
@@ -142,7 +142,7 @@
       <div class="ledger-grid"><div><small>HARI BERJALAN</small><strong id="ledger-day">1</strong></div><div><small>ASISTEN</small><strong id="ledger-staff">Belum ada</strong></div></div>
       <p class="ledger-note" id="business-tip">Tips bisnis: layani pesanan sebelum kesabaran pelanggan habis untuk memperoleh tip lebih besar.</p>
     </section>
-    <footer><span><b>WARUNG KITA</b> <span class="muted">· SINGLE-PLAYER</span></span><span>Masak dengan hati, layani sepenuh hati <span class="footer-star">✦</span></span></footer>
+    <footer class="app-view-hidden"><span><b>WARUNG KITA</b> <span class="muted">· SINGLE-PLAYER</span></span><span>Masak dengan hati, layani sepenuh hati <span class="footer-star">✦</span></span></footer>
     <nav class="app-bottom-nav" id="app-bottom-nav" aria-label="Navigasi utama">
       <button type="button" data-view="home" class="active" aria-label="Beranda"><span aria-hidden="true">⌂</span><small>Beranda</small></button>
       <button type="button" data-view="kitchen" aria-label="Dapur"><span aria-hidden="true">♨</span><small>Dapur</small></button>
@@ -160,6 +160,6 @@
       </section>
     </div>
   </main>
-  <script src="game.js?v=dashboard-layout-20261020-26"></script>
+  <script src="game.js?v=home-view-isolation-20261020-27"></script>
 </body>
 </html>
