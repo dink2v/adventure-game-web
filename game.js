@@ -32,7 +32,7 @@
     const available=Object.keys(recipes).filter(id=>unlocked(id));
     const menu=available[Math.floor(Math.random()*available.length)];
     const now=Date.now(),id='ONL-'+String(state.onlineSequence++).padStart(4,'0');
-    state.onlineOrders.push({id,menu,createdAt:now,expiresAt:now+45000});
+    state.onlineOrders.push({id,menu,createdAt:now});
     if(state.onlineOrders.length>5)state.onlineOrders.shift();
     state.nextOnlineAt=now+9000+Math.random()*6500;
     persist();renderOnlineOrders();
@@ -43,8 +43,8 @@
     if(!list||!count)return;
     const now=Date.now();count.textContent=String(state.onlineOrders.length);
     list.innerHTML=state.onlineOrders.length?state.onlineOrders.map(order=>{
-      const recipe=recipes[order.menu]||recipes.nasi,remaining=Math.max(0,Math.ceil((order.expiresAt-now)/1000));
-      return '<article class="online-order-item"><div class="online-order-main"><span class="online-order-emoji">'+recipe.emoji+'</span><div><strong>'+recipe.name+'</strong><small>'+order.id+' · '+money(sellingPrice(order.menu))+'</small></div></div><div class="online-order-meta"><span>⏳ '+remaining+' dtk untuk mengambil</span><button type="button" data-accept-online="'+order.id+'">Ambil order</button></div></article>';
+      const recipe=recipes[order.menu]||recipes.nasi;
+      return '<article class="online-order-item"><div class="online-order-main"><span class="online-order-emoji">'+recipe.emoji+'</span><div><strong>'+recipe.name+'</strong><small>'+order.id+' · '+money(sellingPrice(order.menu))+'</small></div></div><div class="online-order-meta"><span>Antrean · ambil saat siap</span><button type="button" data-accept-online="'+order.id+'">Ambil order</button></div></article>';
     }).join(''):'<div class="online-orders-empty">Belum ada order online. Pesanan baru akan muncul otomatis — ambil saat kamu siap.</div>';
   }
   function acceptOnlineOrder(id){
@@ -52,7 +52,6 @@
     if(!order)return;
     if(state.step!==0||state.cookingStarted){toast('Selesaikan pesanan aktif dulu sebelum mengambil order online.');return;}
     if(state.orderSource==='online'){toast('Selesaikan atau lewati order online aktif dulu, bro.');return;}
-    if(order.expiresAt<=Date.now()){state.onlineOrders=state.onlineOrders.filter(item=>item.id!==id);persist();renderOnlineOrders();toast('Order ini sudah kedaluwarsa.');return;}
     if(state.orderSource==='walkin'&&!state.suspendedOrder){state.suspendedOrder={orderMenu:state.orderMenu,menu:state.menu,patience:state.patience};}
     state.onlineOrders=state.onlineOrders.filter(item=>item.id!==id);
     state.orderMenu=order.menu;state.menu=order.menu;state.orderNo++;state.orderSource='online';
@@ -392,7 +391,7 @@
         const completedDay=state.day,dayRevenue=state.todayRevenue,dayCustomers=state.todayServed;state.day++;state.todayServed=0;state.todayRevenue=0;state.missionClaimed=false;state.promoUsed=false;state.cash+=10000;
         toast('Ringkasan Hari '+completedDay+': '+dayCustomers+' pelanggan, omzet '+money(dayRevenue)+'. Hari baru dimulai; bonus operasional Rp 10.000.'+rolloverMessage);
       } else toast('Pesanan tersaji! '+state.qualityLabel+' · '+(onlineOrder?(onTime?'bonus tepat waktu +Rp 1.500.':'terlambat, penalti Rp 1.500 dan reputasi -0,08. '):'')+'+'+money(reward)+' pendapatan'+(tip?' termasuk tip.':'.'));
-      if(onlineOrder&&state.suspendedOrder){const pending=state.suspendedOrder;state.suspendedOrder=null;state.orderMenu=pending.orderMenu;state.menu=pending.menu;state.step=0;state.cookingStarted=false;state.cookingElapsed=0;state.actionIndex=0;state.qualityScore=0;state.qualityLabel='Biasa';state.patience=pending.patience??100;state.orderSource='walkin';state.orderAcceptedAt=0;state.orderDeadlineAt=0;$('menu-select').value=state.menu;$('scene-status').textContent='Kembali ke pesanan pelanggan';toast('Order online selesai. Pesanan pelanggan sebelumnya menunggu untuk dilanjutkan.');}
+      if(onlineOrder&&state.suspendedOrder){const pending=state.suspendedOrder;state.suspendedOrder=null;state.orderMenu=pending.orderMenu;state.menu=pending.menu;state.step=0;state.cookingStarted=false;state.cookingElapsed=0;state.actionIndex=0;state.qualityScore=0;state.qualityLabel='Biasa';state.patience=pending.patience??100;state.orderSource='walkin';state.orderAcceptedAt=0;state.orderDeadlineAt=0;$('menu-select').value=state.menu;$('scene-status').textContent='Kembali ke pesanan pelanggan';toast('Order online selesai ('+(onTime?'bonus tepat waktu +Rp 1.500':'penalti terlambat Rp 1.500')+'). Pesanan pelanggan sebelumnya menunggu untuk dilanjutkan.');}
       else{state.orderNo++;const available=Object.keys(recipes).filter(id=>unlocked(id));state.orderMenu=available[Math.floor(Math.random()*available.length)];state.step=0;state.cookingStarted=false;state.cookingElapsed=0;state.actionIndex=0;state.qualityScore=0;state.qualityLabel='Biasa';state.patience=state.promoBonusPending?125:100;state.promoBonusPending=false;state.orderSource='walkin';state.orderAcceptedAt=0;state.orderDeadlineAt=0;state.suspendedOrder=null;}
       $('scene-status').textContent='Pelanggan menikmati hidangan';persist();
     }
@@ -405,7 +404,7 @@
     persist();updateStats();drawScene();
   }
   function frame(t){const dt=Math.min((t-lastTime)/1000||0,.1);lastTime=t;state.tick+=dt;state.marketTimer+=dt;
-    const now=Date.now();const beforeCount=state.onlineOrders.length;state.onlineOrders=state.onlineOrders.filter(order=>order.expiresAt>now);if(beforeCount!==state.onlineOrders.length){persist();renderOnlineOrders();}
+    const now=Date.now();
     if(now>=state.nextOnlineAt){if(state.onlineOrders.length<5)queueOnlineOrder();else state.nextOnlineAt=now+6500;}
     if(now-(state.lastOnlineRenderAt||0)>500){state.lastOnlineRenderAt=now;renderOnlineOrders();if(state.orderSource==='online')updateOrder();}if(state.marketTimer>=MARKET_RESTOCK_SECONDS){state.marketTimer=0;state.marketCycle++;state.marketSold={};persist();if(!$('market-panel').classList.contains('app-view-hidden'))renderMarket();}
     if(state.step<2&&!state.cookingStarted){state.patience=Math.max(0,state.patience-dt*(state.step===1?(state.staff?0.95:1.4):(state.staff?0.22:.35)));}
