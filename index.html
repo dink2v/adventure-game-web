@@ -6,7 +6,7 @@
   <meta name="theme-color" content="#17352d">
   <meta name="description" content="Bangun warung kecil menjadi restoran ramai. Masak pesanan, layani pelanggan, kelola uang, dan upgrade usahamu.">
   <title>Warung Kita — Cooking & Restaurant Sim</title>
-  <link rel="stylesheet" href="style.css?v=home-view-isolation-20261020-27">
+  <link rel="stylesheet" href="style.css?v=sell-stock-action-indicator-20261020-28">
 </head>
 <body>
   <main class="app">
@@ -67,7 +67,7 @@
           <div class="step-line"></div>
           <div class="cook-step" id="step-3"><span class="step-num">3</span><div><strong>Sajikan ke pelanggan</strong><small>Terima pembayaran</small></div><span class="step-check">○</span></div>
         </div>
-        <div class="cook-feedback" id="cook-feedback">Pilih menu, lalu siapkan bahan untuk mulai memasak.</div>
+        <div class="cook-feedback" id="cook-feedback"><span id="cook-feedback-text">Pilih menu, lalu siapkan bahan untuk mulai memasak.</span><div class="action-timing" id="action-timing" hidden><div class="action-timing-track"><span class="action-timing-window" id="action-timing-window"></span><span class="action-timing-marker" id="action-timing-marker"></span></div><small id="action-timing-label">Menunggu waktu aksi…</small></div></div>
         <button class="primary-btn" id="cook-btn"><span>♨</span> Siapkan bahan</button>
         <button class="secondary-btn" id="new-order-btn">↻ Pesanan berikutnya <small>(lewati)</small></button>
       </aside>
@@ -77,6 +77,7 @@
     <section class="market-panel app-view-hidden" id="market-panel" aria-label="Pasar bahan baku">
       <div class="management-heading market-heading"><div><p class="eyebrow">PASAR BAHAN BAKU</p><h2>Belanja untuk dapur</h2><p class="market-intro">Harga paket mengikuti acuan pangan Kota Blitar; ketersediaan stok game tetap berubah berkala. Pilih bahan sebelum stok pasar habis.</p></div><div class="market-heading-actions"><span class="market-refresh" id="market-refresh">Acuan Kota Blitar</span><button type="button" class="market-cart-trigger" id="market-cart-trigger" aria-controls="market-cart-panel" aria-expanded="false"><span class="market-cart-trigger-icon" aria-hidden="true">🛒</span><span>Keranjang</span><b id="market-cart-badge">0</b></button></div></div>
       <div class="market-wallet"><span>Uang kas</span><strong id="market-cash">Rp 150.000</strong><span class="market-stock-total">Stok dapur: <b id="market-stock-total">12</b> porsi</span></div>
+      <section class="stock-sale-panel" aria-labelledby="stock-sale-title"><div><p class="eyebrow">JUAL STOK BERLEBIH</p><h3 id="stock-sale-title">Jual porsi bahan ke pengepul</h3><p>Jual stok dapur yang tidak terpakai. Harga simulasi <strong>Rp 1.500 per porsi</strong>; stok berkurang dan uang kas langsung bertambah.</p></div><div class="stock-sale-controls"><label for="stock-sell-qty">Jumlah porsi</label><input type="number" id="stock-sell-qty" min="1" max="12" step="1" value="1" inputmode="numeric"><button type="button" id="sell-stock-btn">Jual · Rp 1.500</button></div></section>
       <div class="market-tools" aria-label="Cari dan filter bahan"><label class="market-search-wrap"><span aria-hidden="true">⌕</span><input type="search" id="market-search" placeholder="Cari bahan, misalnya ayam atau cabai…" autocomplete="off" aria-label="Cari bahan di pasar"><button type="button" id="market-search-clear" aria-label="Hapus pencarian" hidden>×</button></label><label class="market-category-wrap"><span>Kategori</span><select id="market-category" aria-label="Filter kategori bahan"><option value="all">Semua bahan</option><option value="pokok">Bahan pokok</option><option value="protein">Daging & protein</option><option value="sayur">Sayur & bumbu</option><option value="minuman">Minuman & es</option><option value="lainnya">Lainnya</option></select></label><p class="market-result-count" id="market-result-count" aria-live="polite">Menampilkan semua bahan</p></div>
       <div class="market-grid" id="market-grid" aria-live="polite"></div>
       <p class="market-note" id="market-note">Harga paket dihitung dari harga acuan per kg. Data yang ditampilkan memiliki tanggal sumber.</p>
@@ -160,6 +161,6 @@
       </section>
     </div>
   </main>
-  <script src="game.js?v=home-view-isolation-20261020-27"></script>
+  <script src="game.js?v=sell-stock-action-indicator-20261020-28"></script>
 </body>
 </html>
