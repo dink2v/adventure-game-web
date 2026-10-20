@@ -1703,3 +1703,21 @@ input,select{max-width:100%}
 .online-orders-empty{padding:13px;border:1px dashed #d7dfd2;border-radius:11px;color:var(--muted);font-size:11px;line-height:1.5}
 @media(min-width:651px){.online-order-list{grid-template-columns:repeat(2,minmax(0,1fr))}.online-orders-heading h2{font-size:18px}}
 @media(max-width:650px){.online-orders-card{margin-bottom:9px;padding:12px;border-radius:14px}.online-orders-heading{margin-bottom:9px}.online-orders-heading h2{font-size:16px}.online-orders-heading p{font-size:10px}.online-order-item{padding:9px;gap:8px}.online-order-meta button{min-height:40px}.online-orders-empty{padding:11px;font-size:10px}}
+
+
+/* Ready-to-sell cooked food inventory */
+.ready-stock-panel{margin-top:14px;padding:13px;border:1px solid var(--line,#d9e3d7);border-radius:14px;background:var(--surface,#fffdf7)}
+.ready-stock-heading{display:flex;flex-direction:column;gap:4px;margin-bottom:10px}
+.ready-stock-heading strong{font-size:.92rem;color:var(--ink,#24372d)}
+.ready-stock-heading small,.ready-stock-empty,.ready-stock-main small{font-size:.76rem;color:var(--muted,#718075)}
+.ready-stock-empty{margin:0;padding:8px 0}
+.ready-stock-item{display:flex;flex-direction:column;gap:9px;padding:10px 0;border-top:1px solid var(--line,#e3e9e1)}
+.ready-stock-main{display:flex;align-items:center;gap:10px}
+.ready-stock-main>span{font-size:1.5rem}
+.ready-stock-main>div{display:flex;flex-direction:column;gap:3px;min-width:0}
+.ready-stock-main strong{font-size:.86rem}
+.ready-stock-actions{display:flex;flex-wrap:wrap;gap:7px}
+.ready-stock-actions button{border:1px solid var(--line,#d9e3d7);border-radius:9px;padding:7px 9px;background:#f4f7f1;color:var(--ink,#24372d);font:inherit;font-size:.75rem;font-weight:650;cursor:pointer}
+.ready-stock-actions button:first-child{background:#e4f1e5;border-color:#c8dfcb}
+.ready-stock-actions button:disabled{opacity:.48;cursor:not-allowed}
+#store-cooked-btn[hidden]{display:none}
