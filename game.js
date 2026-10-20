@@ -140,18 +140,27 @@
     const all=['home','kitchen','market','business','report','more'];
     if(!all.includes(view))view='home';
     document.body.classList.toggle('home-view',view==='home');
-    const topbar=document.querySelector('.topbar');if(topbar)topbar.style.display=view==='home'?'none':'';
-    document.querySelectorAll('.app-bottom-nav [data-view]').forEach(b=>b.classList.toggle('active',b.dataset.view===view));
-    const scene=document.querySelector('.scene-card'), order=document.querySelector('.order-card'), kitchen=$('kitchen-panel');
-    const dashboard=$('dashboard'), market=$('market-panel'), business=$('business-panel'), extras=document.querySelector('.extra-management'), more=$('more-panel'), report=$('report-panel'), footer=document.querySelector('footer');
-    [dashboard,scene,order,kitchen,market,business,extras,more,report,footer].forEach(el=>el&&el.classList.add('app-view-hidden'));
-    if(view==='home'){dashboard.classList.remove('app-view-hidden');}
-    if(view==='kitchen'){scene.classList.remove('app-view-hidden');order.classList.remove('app-view-hidden');kitchen.classList.remove('app-view-hidden');}
-    if(view==='market'){market.classList.remove('app-view-hidden');renderMarket();}
-    if(view==='business'){business.classList.remove('app-view-hidden');extras.classList.remove('app-view-hidden');}
-    if(view==='report'){report.classList.remove('app-view-hidden');}
-    if(view==='more'){more.classList.remove('app-view-hidden');footer.classList.remove('app-view-hidden');}
-    if(view==='home')window.scrollTo({top:0,behavior:'smooth'});else window.scrollTo({top:0,behavior:'smooth'});
+    const topbar=document.querySelector('.topbar');
+    if(topbar)topbar.style.display=view==='home'?'none':'';
+    document.querySelectorAll('.app-bottom-nav [data-view]').forEach(button=>{
+      const active=button.dataset.view===view;
+      button.classList.toggle('active',active);
+      if(active)button.setAttribute('aria-current','page');else button.removeAttribute('aria-current');
+    });
+    document.querySelectorAll('.dashboard-nav [data-view-link]').forEach(link=>link.classList.toggle('active',link.dataset.viewLink===view));
+    const scene=document.querySelector('.scene-card'),order=document.querySelector('.order-card'),kitchen=$('kitchen-panel');
+    const dashboard=$('dashboard'),market=$('market-panel'),business=$('business-panel');
+    const extras=document.querySelector('.extra-management'),more=$('more-panel'),report=$('report-panel'),footer=document.querySelector('footer');
+    const panels=[dashboard,scene,order,kitchen,market,business,extras,more,report,footer];
+    panels.forEach(panel=>panel?.classList.add('app-view-hidden'));
+    const reveal=(...elements)=>elements.forEach(element=>element?.classList.remove('app-view-hidden'));
+    if(view==='home')reveal(dashboard);
+    if(view==='kitchen')reveal(scene,order,kitchen);
+    if(view==='market'){reveal(market);renderMarket();}
+    if(view==='business')reveal(business,extras);
+    if(view==='report')reveal(report);
+    if(view==='more')reveal(more,footer);
+    window.scrollTo({top:0,behavior:'smooth'});
   }
   document.querySelectorAll('.app-bottom-nav [data-view]').forEach(btn=>btn.addEventListener('click',()=>setView(btn.dataset.view)));
   document.querySelectorAll('.dashboard-nav [data-view-link]').forEach(link=>link.addEventListener('click',e=>{e.preventDefault();setView(link.dataset.viewLink);document.querySelectorAll('.dashboard-nav a').forEach(a=>a.classList.toggle('active',a===link));}));
@@ -197,6 +206,10 @@
   }
   function updateStats(){
     $('cash').textContent=money(state.cash);$('rep').textContent=state.rep.toFixed(1);$('dashboard-revenue').textContent=money(state.todayRevenue);$('dashboard-served').textContent=state.todayServed;$('dashboard-day').textContent='Hari '+state.day;
+    if($('home-cash'))$('home-cash').textContent=money(state.cash);
+    if($('home-revenue'))$('home-revenue').textContent=money(state.todayRevenue);
+    if($('home-served'))$('home-served').textContent=state.todayServed;
+    if($('home-rep'))$('home-rep').textContent=state.rep.toFixed(1)+' / 5';
     $('stock').textContent=state.stock;$('day-label').textContent='HARI '+state.day;$('time-label').textContent=formatClock();
     $('stove-level').textContent=state.stove;$('table-level').textContent=state.tables;$('upgrade-level').textContent='Warung Level '+Math.max(1,Math.floor((state.stove+state.tables)/3));
     $('stove-btn').innerHTML=money(80000*state.stove)+' <span>↗</span>';$('table-btn').innerHTML=money(60000*state.tables)+' <span>↗</span>';
