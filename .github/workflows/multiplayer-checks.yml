@@ -2,7 +2,7 @@ name: Multiplayer static checks
 
 on:
   push:
-    branches: [main, feat/add-team-teman]
+    branches: [main, feat/add-team-teman, feat/multiplayer-team-management]
   pull_request:
     branches: [main]
 
