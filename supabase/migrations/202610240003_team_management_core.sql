@@ -301,7 +301,7 @@ begin
   if p_related_user is not null and not exists(select 1 from public.wk_team_members where team_id=v_team and user_id=p_related_user) then raise exception 'Anggota terkait tidak ditemukan.'; end if;
   if p_entry_type in ('salary','bonus','profit_distribution') and p_related_user is null then raise exception 'Pilih anggota penerima untuk gaji, bonus, atau bagi hasil.'; end if;
   select coalesce(sum(case when entry_type in ('income','owner_contribution') then amount else -amount end),0) into v_balance from public.wk_team_financial_entries where team_id=v_team;
-  if p_entry_type not in ('income','owner_contribution') and p_amount > v_balance then raise exception 'Kas game tidak cukup untuk transaksi ini. Saldo tercatat: Rp ' || round(v_balance)::text; end if;
+  if p_entry_type not in ('income','owner_contribution') and p_amount > v_balance then raise exception using message = 'Kas game tidak cukup untuk transaksi ini. Saldo tercatat: Rp ' || round(v_balance)::text; end if;
   if p_entry_type='profit_distribution' then
     select coalesce(s.profit_share_enabled,false) into v_share_enabled from public.wk_team_financial_settings s where s.team_id=v_team;
     if not coalesce(v_share_enabled,false) then raise exception 'Bagi hasil belum diaktifkan dalam aturan warung.'; end if;
