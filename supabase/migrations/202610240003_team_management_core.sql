@@ -205,7 +205,7 @@ $$;
 
 create or replace function public.wk_close_vacancy(p_vacancy_id uuid)
 returns void language plpgsql security definer set search_path = ''
-as $
+as $$
 declare v_user uuid := (select auth.uid()); v_vacancy public.wk_team_vacancies%rowtype;
 begin
   select * into v_vacancy from public.wk_team_vacancies where id=p_vacancy_id for update;
@@ -213,11 +213,11 @@ begin
   update public.wk_team_vacancies set status='closed',closed_at=now() where id=p_vacancy_id;
   insert into public.wk_team_audit_logs(team_id,actor_id,action,details) values(v_vacancy.team_id,v_user,'vacancy_closed',jsonb_build_object('vacancy_id',p_vacancy_id));
 end;
-$;
+$$;
 
 create or replace function public.wk_transfer_team_ownership(p_target_user uuid)
 returns void language plpgsql security definer set search_path = ''
-as $
+as $$
 declare v_user uuid := (select auth.uid()); v_team uuid;
 begin
   select t.id into v_team from public.wk_teams t where t.owner_id=v_user and t.status='open' for update;
@@ -228,11 +228,11 @@ begin
   update public.wk_teams set owner_id=p_target_user where id=v_team;
   insert into public.wk_team_audit_logs(team_id,actor_id,action,details) values(v_team,v_user,'ownership_transferred',jsonb_build_object('new_owner_id',p_target_user));
 end;
-$;
+$$;
 
 create or replace function public.wk_set_job_role(p_target_user uuid, p_job_role text)
 returns void language plpgsql security definer set search_path = ''
-as $
+as $$
 declare v_user uuid := (select auth.uid()); v_team uuid;
 begin
   select t.id into v_team from public.wk_teams t where t.owner_id=v_user and t.status='open';
@@ -242,7 +242,7 @@ begin
   update public.wk_team_members set job_role=p_job_role where team_id=v_team and user_id=p_target_user;
   insert into public.wk_team_audit_logs(team_id,actor_id,action,details) values(v_team,v_user,'member_job_role_changed',jsonb_build_object('target_user_id',p_target_user,'job_role',p_job_role));
 end;
-$;
+$$;
 
 create or replace function public.wk_set_member_role(p_target_user uuid, p_role text)
 returns void language plpgsql security definer set search_path = ''
