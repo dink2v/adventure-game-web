@@ -1,0 +1,27 @@
+name: Multiplayer static checks
+
+on:
+  push:
+    branches: [main, feat/add-team-teman]
+  pull_request:
+    branches: [main]
+
+jobs:
+  syntax:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Check JavaScript syntax
+        run: |
+          node --check game.js
+          node --check team.js
+          node --check team-config.js
+      - name: Check multiplayer migration invariants
+        run: |
+          grep -q "create table if not exists public.wk_team_game_state" supabase/migrations/202610240002_multiplayer_game_state.sql
+          grep -q "wk_save_game_state" supabase/migrations/202610240002_multiplayer_game_state.sql
+          grep -q "enable row level security" supabase/migrations/202610240002_multiplayer_game_state.sql
+          grep -q "revision=gs.revision+1" supabase/migrations/202610240002_multiplayer_game_state.sql

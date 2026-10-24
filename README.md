@@ -19,6 +19,26 @@ Game simulasi memasak dan manajemen warung berbasis HTML, CSS, dan JavaScript. D
 - Progres disimpan di browser dengan LocalStorage.
 - UI responsif dan ilustrasi warung digambar dengan Canvas.
 
+## Add Team / Teman — fondasi tahap awal
+
+Panel **Teman** menyiapkan alur akun, buat/gabung tim dengan kode undangan, roster dan peran, catatan aktivitas append-only, pembaruan realtime untuk roster/feed, serta laporan privat untuk perlindungan reputasi. Batas awal tim adalah 8 pemain dan satu akun hanya dapat menjadi anggota satu tim pada satu waktu. Riwayat lokal single-player tidak diubah atau otomatis dibagikan ke tim.
+
+### Mengaktifkan backend Supabase
+
+1. Buat proyek Supabase sendiri dan aktifkan provider Email di Authentication. Atur konfirmasi email sesuai kebutuhan.
+2. Buka **SQL Editor** pada proyek tersebut dan jalankan berurutan isi `supabase/migrations/202610240001_add_team.sql`, lalu `supabase/migrations/202610240002_multiplayer_game_state.sql`. Jalankan pada proyek pengujian dahulu dan tinjau kebijakan RLS sebelum produksi.
+3. Branch ini sudah dikonfigurasi dengan Project URL dan **publishable key** proyek `warung-kita-multiplayer`. Publishable key memang boleh digunakan di frontend; jangan pernah memasukkan `service_role` atau secret key ke file frontend. Jika mengganti proyek, perbarui `team-config.js`.
+4. Atur **Authentication → URL Configuration** pada Supabase: Site URL ke URL GitHub Pages produksi dan tambahkan URL GitHub Pages yang sama pada Redirect URLs. Setelah PR digabung/deploy, uji buat akun, masuk, buat tim, bergabung memakai kode di browser/perangkat lain, pembaruan realtime, simpan progres tim, muat progres tim, dan laporan privat.
+5. Periksa Supabase Database → Replication jika tabel roster/feed/progres belum dikirim melalui Realtime. Migrasi mencoba menambahkan tabel ke publikasi `supabase_realtime`; jika publikasi tidak tersedia, atur dari dashboard dan ulangi pengujian.
+
+### Batasan Add Team saat ini
+
+- Proyek Supabase Free `warung-kita-multiplayer` sudah dibuat di Singapura dan kedua migrasi telah diterapkan; tabel dan RLS terverifikasi aktif serta tiga tabel multiplayer terdaftar pada publikasi Realtime. Masih perlu mengatur URL Authentication, deploy branch, dan menguji dengan dua akun nyata sebelum multiplayer dinyatakan aktif.
+- Sinkronisasi progres saat ini berupa **snapshot manual**: anggota memilih “Simpan progres ke tim” atau “Muat progres tim”. Ini bukan sinkronisasi aksi langsung per detik dan tidak menggabungkan perubahan otomatis. Revisi mencegah snapshot lama menimpa snapshot baru; jika ada konflik, muat progres terbaru sebelum menyimpan.
+- Pemilik tim belum dapat keluar atau mentransfer kepemilikan lewat UI; fitur transfer/penutupan tim perlu tahap berikutnya.
+- Laporan reputasi bersifat privat dan tidak mengubah reputasi game secara otomatis. Alur peninjauan lanjutan, bukti/attachment, banding, rate limiting dan moderasi belum diselesaikan.
+- Realtime dan kebijakan akses perlu diuji pada proyek Supabase yang benar-benar dikonfigurasi sebelum digunakan pemain sungguhan.
+
 ## Menjalankan
 Buka `index.html` lewat browser atau kunjungi GitHub Pages:
 https://dink2v.github.io/adventure-game-web/
@@ -37,4 +57,4 @@ Pengaturan publikasi tetap: Settings → Pages → Deploy from a branch → `mai
 - Animasi memasak dan indikator waktu/progres yang lebih interaktif.
 - Sistem pelanggan/antrean yang lebih hidup serta laporan keuangan terperinci.
 - Efek suara dan musik.
-- Akun, cloud save, dan multiplayer realtime setelah fondasi single-player stabil.
+- Sinkronisasi aksi gameplay realtime dengan aturan kepemilikan/konflik yang lebih rinci; saat ini yang tersedia adalah snapshot manual bersama.
