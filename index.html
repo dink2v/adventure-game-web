@@ -191,7 +191,7 @@
         <section class="team-subcard team-activity-card"><h4>🕘 Riwayat aktivitas tim</h4><p>Riwayat bersifat append-only untuk anggota; identitas dan waktu dicatat backend.</p><ul id="team-activity-list" class="team-activity-list"><li>Belum ada aktivitas tim.</li></ul></section>
         <section class="team-subcard team-report-card"><h4>🛡️ Perlindungan reputasi & privasi</h4><p>Laporan hanya untuk kejadian nyata. Laporan tidak otomatis mengubah reputasi publik dan rincian hanya terlihat oleh pelapor serta pengelola tim.</p><div class="team-form-grid"><label for="team-report-target">Anggota yang dilaporkan<select id="team-report-target" disabled><option value="">Belum ada anggota lain</option></select></label><label for="team-report-category">Kategori<select id="team-report-category"><option value="harassment">Perundungan/pelecehan</option><option value="retaliation">Tindakan balasan</option><option value="false_claim">Klaim tidak benar</option><option value="access_abuse">Penyalahgunaan akses</option><option value="other">Lainnya</option></select></label></div><label for="team-report-details">Keterangan faktual (10–1.200 karakter)<textarea id="team-report-details" maxlength="1200" rows="4" placeholder="Jelaskan waktu, kejadian, dan bukti yang relevan. Hindari membagikan informasi pribadi yang tidak diperlukan."></textarea></label><button type="button" id="team-report-submit">Kirim laporan privat</button></section>
       </section>
-      <p class="team-footer-note">Fondasi ini tidak mengubah saldo, stok, atau progres single-player secara otomatis. Sinkronisasi gameplay lintas pemain memerlukan tahap berikutnya dengan model data bersama dan aturan konflik.</p>
+      <p class="team-footer-note">Snapshot progres bersama tersedia melalui tombol simpan/muat manual. Aksi gameplay tidak disinkronkan langsung; konflik snapshot ditangani dengan nomor revisi agar progres teman tidak tertimpa diam-diam.</p>
     </section>
     <nav class="app-bottom-nav" id="app-bottom-nav" aria-label="Navigasi utama">
       <button type="button" data-view="home" class="active" aria-label="Beranda"><span aria-hidden="true">⌂</span><small>Beranda</small></button>
@@ -213,7 +213,7 @@
   </main>
   <script src="game.js?v=add-team-20261024-01"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0/dist/umd/supabase.js" defer></script>
-  <script src="team-config.js?v=add-team-20261024-01" defer></script>
-  <script src="team.js?v=add-team-20261024-01" defer></script>
+  <script src="team-config.js?v=multiplayer-sync-20261024-02" defer></script>
+  <script src="team.js?v=multiplayer-sync-20261024-02" defer></script>
 </body>
 </html>
