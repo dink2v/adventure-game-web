@@ -140,7 +140,7 @@
     showSignedIn();setHidden('team-setup',true);setHidden('team-workspace',false);injectGameSync();
     $('team-name-title').textContent=team.name;$('team-role-label').textContent=({owner:'Pemilik tim',manager:'Pengelola',member:'Anggota'})[membership.role]||'Anggota';
     $('team-invite-code').textContent=team.invite_code;$('team-invite-code').title='Bagikan kode ini hanya kepada pemain yang kamu percaya.';
-    setHidden('team-leave-btn',membership.role==='owner');
+    setHidden('team-leave-btn',true); // Use the reviewed exit-request flow in team-management.js.
     const [membersResult,activityResult]=await Promise.all([
       client.from('wk_team_members').select('user_id,display_name,role,joined_at').eq('team_id',team.id).order('joined_at',{ascending:true}),
       client.from('wk_team_activity').select('id,actor_id,event_type,message,created_at').eq('team_id',team.id).order('created_at',{ascending:false}).limit(30)
