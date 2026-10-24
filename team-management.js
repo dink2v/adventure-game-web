@@ -88,10 +88,10 @@
           <label>Deskripsi<input id="tm-entry-description" maxlength="240" placeholder="Contoh: gaji periode Oktober"></label>
           <label>Anggota terkait (opsional)<select id="tm-entry-member"><option value="">Tidak ada</option></select></label><button id="tm-record-entry">Catat transaksi</button>
           <div id="tm-finance-summary" class="tm-card"><strong>Ringkasan</strong><p>Memuat buku kas…</p></div>
-          <h3>Aturan cadangan & bagi hasil</h3><div class="tm-grid"><label>Persentase keuntungan ditahan (%)<input id="tm-reserve-percent" type="number" min="0" max="80" value="20"></label><label class="tm-row"><input id="tm-profit-share-enabled" type="checkbox"> Bagi hasil diaktifkan sesuai kesepakatan</label></div><button id="tm-save-finance-settings" class="secondary">Simpan aturan keuntungan</button>
+          <div id="tm-owner-finance-controls"><h3>Aturan cadangan & bagi hasil</h3><div class="tm-grid"><label>Persentase keuntungan ditahan (%)<input id="tm-reserve-percent" type="number" min="0" max="80" value="20"></label><label class="tm-row"><input id="tm-profit-share-enabled" type="checkbox"> Bagi hasil diaktifkan sesuai kesepakatan</label></div><button id="tm-save-finance-settings" class="secondary">Simpan aturan keuntungan</button>
           <h3 style="margin-top:14px">Kompensasi anggota</h3><label>Anggota<select id="tm-comp-member"></select></label>
           <div class="tm-grid"><label>Nama jabatan<input id="tm-comp-title" maxlength="60" value="Anggota"></label><label>Gaji dasar per periode (Rp)<input id="tm-comp-salary" type="number" min="0" value="0"></label><label>Batas bonus kinerja (Rp)<input id="tm-comp-bonus" type="number" min="0" value="0"></label><label>Bagi hasil (%)<input id="tm-comp-share" type="number" min="0" max="100" step="0.01" value="0"></label></div>
-          <button id="tm-save-compensation">Simpan kompensasi</button>
+          <button id="tm-save-compensation">Simpan kompensasi</button></div>
         </section>
         <section class="tm-grid">
           <section class="tm-card"><h3>🤝 Ajukan penyelesaian konflik</h3><label>Anggota terkait<select id="tm-dispute-target"></select></label><div class="tm-grid"><label>Jenis<select id="tm-dispute-category"><option value="pay">Gaji/bonus</option><option value="workload">Beban kerja</option><option value="conduct">Perilaku</option><option value="authority">Kewenangan</option><option value="finance">Keuangan</option><option value="other">Lainnya</option></select></label><label>Tingkat<select id="tm-dispute-severity"><option value="light">Ringan</option><option value="medium">Sedang</option><option value="serious">Berat</option></select></label></div><label>Penjelasan faktual<textarea id="tm-dispute-details" maxlength="1200" rows="3" placeholder="Jelaskan kejadian, dampak, dan waktu jika diketahui"></textarea></label><button id="tm-open-dispute">Ajukan konflik</button></section>
@@ -109,6 +109,7 @@
     $('tm-record-entry').addEventListener('click', () => run(recordEntry));
     $('tm-save-finance-settings').addEventListener('click', () => run(saveFinanceSettings));
     $('tm-save-compensation').addEventListener('click', () => run(saveCompensation));
+    $('tm-comp-member').addEventListener('change', () => loadCompensationForSelected().catch(e=>note(e?.message||'Gagal memuat kompensasi.','error')));
     $('tm-open-dispute').addEventListener('click', () => run(openDispute));
     $('tm-request-exit').addEventListener('click', () => run(requestExit));
     section.addEventListener('click', event => {
@@ -198,6 +199,7 @@
     ['tm-role-member','tm-transfer-member','tm-entry-member','tm-comp-member','tm-dispute-target'].forEach(id=>{
       const select=$(id); if(!select)return;
       const old=select.value; select.replaceChildren();
+      if(id==='tm-entry-member'){const none=document.createElement('option');none.value='';none.textContent='Tidak ada';select.append(none);}
       members.filter(m=>m.user_id!==user?.id || id==='tm-entry-member').forEach(m=>{
         const opt=document.createElement('option'); opt.value=m.user_id; opt.textContent=m.display_name+' — '+(roles[m.job_role]||roles.server); select.append(opt);
       });
@@ -261,6 +263,12 @@
     summary.append(list);
     $('tm-reserve-percent').value=settings?.reserve_percent??20;
     $('tm-profit-share-enabled').checked=Boolean(settings?.profit_share_enabled);
+  }
+  async function loadCompensationForSelected() {
+    if(!client||!team||!isOwner()||!$('tm-comp-member')?.value)return;
+    const {data,error}=await client.from('wk_team_compensation').select('role_title,base_salary,bonus_cap,profit_share_percent').eq('team_id',team.id).eq('user_id',$('tm-comp-member').value).maybeSingle();
+    if(error)throw error;
+    $('tm-comp-title').value=data?.role_title||'Anggota';$('tm-comp-salary').value=data?.base_salary??0;$('tm-comp-bonus').value=data?.bonus_cap??0;$('tm-comp-share').value=data?.profit_share_percent??0;
   }
   async function createVacancy() {
     await rpc('wk_create_vacancy',{p_role_key:$('tm-vacancy-role').value,p_title:$('tm-vacancy-title').value.trim(),p_description:$('tm-vacancy-description').value.trim()});
@@ -327,6 +335,7 @@
     show('tm-applications-card',canManage());
     show('tm-role-card',isOwner());
     show('tm-finance-card',canManage());
+    show('tm-owner-finance-controls',isOwner());
     show('tm-exit-review-card',canManage());
     show('tm-audit-card',canManage());
     if(membership){
@@ -350,9 +359,8 @@
       renderDisputes((disputesRes.data||[]).filter(d=>canManage()||d.opened_by===user.id||d.target_user_id===user.id));
       renderExitRequests(exitsRes.data||[]);renderAudit(auditRes.data||[]);renderFinance(entriesRes.data||[],settingsRes.data);
       if(isOwner()){
-        const {data:comp,error:compError}=await client.from('wk_team_compensation').select('user_id,role_title,base_salary,bonus_cap,profit_share_percent').eq('team_id',team.id).maybeSingle();
-        if(compError)throw compError;
-        if(comp){$('tm-comp-member').value=comp.user_id;$('tm-comp-title').value=comp.role_title;$('tm-comp-salary').value=comp.base_salary;$('tm-comp-bonus').value=comp.bonus_cap;$('tm-comp-share').value=comp.profit_share_percent;}
+        if($('tm-comp-member').options.length && !$('tm-comp-member').value) $('tm-comp-member').selectedIndex=0;
+        await loadCompensationForSelected();
       }
       if(!presenceChannel)startPresence();
       setText('tm-status','Tim: '+team.name+' · akses '+(authRoles[membership.role]||membership.role)+'.');
