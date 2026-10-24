@@ -163,7 +163,7 @@
     if(!email||!password){status('Isi email dan kata sandi terlebih dahulu.','error');return;}
     if(password.length<8){status('Kata sandi minimal 8 karakter.','error');return;}
     status(mode==='signup'?'Membuat akun…':'Memeriksa akun…');
-    const result=mode==='signup'?await client.auth.signUp({email,password}):await client.auth.signInWithPassword({email,password});
+    const result=mode==='signup'?await client.auth.signUp({email,password,options:{emailRedirectTo:'https://dink2v.github.io/adventure-game-web/'}}):await client.auth.signInWithPassword({email,password});
     if(result.error){status(result.error.message,'error');return;}
     if(mode==='signup'&&!result.data.session){status('Akun dibuat. Periksa email untuk konfirmasi, lalu masuk.','success');return;}
     currentUser=result.data.user||result.data.session?.user||null;await refreshSession();
