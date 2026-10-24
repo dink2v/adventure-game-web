@@ -1728,3 +1728,40 @@ input,select{max-width:100%}
 .topbar-cash small{font-size:8px;font-weight:800;letter-spacing:1px;color:#66806b}
 .topbar-cash strong{font:800 14px 'Manrope',sans-serif;color:#286849}
 @media(max-width:650px){.topbar{gap:6px;flex-wrap:wrap}.topbar-cash{order:3;flex-direction:row;align-items:center;justify-content:space-between;gap:8px;min-width:0;width:100%;margin:2px 0 0;padding:7px 10px}.topbar-cash small{font-size:9px}.topbar-cash strong{font-size:13px}.day-chip{padding:8px 9px;gap:5px;font-size:9px}.icon-btn{width:36px;height:36px}.brand-mark{width:36px;height:36px}.brand>span:last-child{font-size:12px}}
+
+
+/* Employee management */
+.employee-management-panel{margin-top:24px;padding:clamp(18px,3vw,28px);border:1px solid #dfe7df;border-radius:22px;background:#fff}
+.employee-status-pill{display:inline-flex;align-items:center;align-self:flex-start;border-radius:999px;padding:8px 12px;background:#eef4ee;color:#315c45;font-size:.78rem;font-weight:800;white-space:nowrap}
+.employee-overview{margin:18px 0}
+.employee-empty{display:grid;justify-items:center;text-align:center;padding:26px 16px;border:1px dashed #cad8cb;border-radius:16px;background:#f8faf7}
+.employee-empty>span{font-size:2rem;margin-bottom:8px}.employee-empty strong{color:#234333}.employee-empty p{max-width:480px;margin:6px 0 0;color:#64746a;font-size:.9rem}
+.employee-profile{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px}
+.employee-profile-card{padding:14px;border:1px solid #e3e9e2;border-radius:14px;background:#f8faf7;min-width:0}
+.employee-profile-card .employee-stat-label{display:block;color:#69776d;font-size:.75rem;margin-bottom:8px}
+.employee-profile-card strong{display:block;font-size:1.25rem;color:#203d2d}
+.employee-stat-track{height:6px;background:#e1e9e1;border-radius:99px;overflow:hidden;margin-top:9px}
+.employee-stat-track span{display:block;height:100%;background:#5e9870;border-radius:99px;transition:width .2s}
+.employee-actions{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin:16px 0}
+.employee-action-card{display:flex;flex-direction:column;align-items:flex-start;justify-content:space-between;gap:16px;padding:16px;border:1px solid #e0e8df;border-radius:16px}
+.employee-action-card strong{color:#284634}.employee-action-card p,.employee-review p,.employee-promotion p{font-size:.88rem;line-height:1.5;color:#66746a;margin:7px 0 0}
+.employee-action-card button,.employee-record-form button,.employee-promotion button{border:0;border-radius:10px;background:#244c38;color:#fff;font-weight:750;padding:10px 13px;cursor:pointer}
+.employee-action-card button:disabled,.employee-promotion button:disabled{opacity:.45;cursor:not-allowed}
+.employee-review{margin:16px 0;padding:16px 18px;background:#f3f7f2;border-left:4px solid #6d9b78;border-radius:8px}
+.employee-review strong{color:#254733}
+.employee-promotion{display:flex;align-items:center;justify-content:space-between;gap:18px;margin:16px 0;padding:16px;border:1px solid #e1d4a9;border-radius:14px;background:#fffaf0}
+.employee-promotion strong{color:#78591c}
+.employee-records{border-top:1px solid #e4e9e3;margin-top:22px;padding-top:20px}
+.employee-record-form{display:grid;gap:9px;margin:12px 0 16px}
+.employee-record-form label{font-size:.85rem;font-weight:750;color:#394e3f}
+.employee-record-form textarea{width:100%;resize:vertical;min-height:70px;border:1px solid #d4ded4;border-radius:10px;padding:11px;font:inherit}
+.employee-record-form button{justify-self:start}
+.employee-record-item{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:12px;padding:13px 0;border-bottom:1px solid #e8ede7}
+.employee-record-item strong{display:block;color:#304938;font-size:.9rem}
+.employee-record-item p{margin:5px 0;color:#59685d;font-size:.88rem;overflow-wrap:anywhere}
+.employee-record-item small{color:#78847a}
+.employee-record-response{display:grid;gap:7px;margin-top:9px}
+.employee-record-response textarea{width:100%;min-height:54px;resize:vertical;border:1px solid #d4ded4;border-radius:9px;padding:9px;font:inherit;font-size:.85rem}
+.employee-record-response button{justify-self:start;border:1px solid #cbd9cb;border-radius:9px;background:#fff;padding:7px 10px;color:#31583f;font-weight:700;cursor:pointer}
+.employee-record-empty{color:#758177;font-size:.88rem;padding:10px 0}
+@media(max-width:760px){.employee-profile{grid-template-columns:repeat(2,minmax(0,1fr))}.employee-actions{grid-template-columns:1fr}.employee-action-card{flex-direction:row;align-items:center}.employee-action-card button{flex-shrink:0;max-width:46%}.employee-promotion{align-items:flex-start;flex-direction:column}.employee-record-item{grid-template-columns:1fr}.employee-status-pill{white-space:normal}}
