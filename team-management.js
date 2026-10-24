@@ -333,7 +333,7 @@
   function startPresence() {
     if(!client||!team||!user)return;
     stopPresence();
-    presenceChannel=client.channel('wk-team-presence-'+team.id,{config:{presence:{key:user.id}}});
+    presenceChannel=client.channel('wk-team-presence-'+team.id,{config:{private:true,presence:{key:user.id}}});
     presenceChannel.on('presence',{event:'sync'},()=>{
       const state=presenceChannel.presenceState();onlineIds=new Set(Object.keys(state));
       renderMembers();
