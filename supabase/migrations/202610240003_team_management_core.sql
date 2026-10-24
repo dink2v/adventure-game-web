@@ -422,3 +422,9 @@ grant execute on function public.wk_review_team_exit(uuid,text) to authenticated
 do $$ begin alter publication supabase_realtime add table public.wk_team_vacancies; exception when duplicate_object then null; when undefined_object then null; end $$;
 do $$ begin alter publication supabase_realtime add table public.wk_team_applications; exception when duplicate_object then null; when undefined_object then null; end $$;
 do $$ begin alter publication supabase_realtime add table public.wk_team_disputes; exception when duplicate_object then null; when undefined_object then null; end $$;
+
+do $$ begin alter publication supabase_realtime add table public.wk_team_compensation; exception when duplicate_object then null; when undefined_object then null; end $$;
+do $$ begin alter publication supabase_realtime add table public.wk_team_financial_settings; exception when duplicate_object then null; when undefined_object then null; end $$;
+do $$ begin alter publication supabase_realtime add table public.wk_team_financial_entries; exception when duplicate_object then null; when undefined_object then null; end $$;
+do $$ begin alter publication supabase_realtime add table public.wk_team_exit_requests; exception when duplicate_object then null; when undefined_object then null; end $$;
+do $$ begin alter publication supabase_realtime add table public.wk_team_audit_logs; exception when duplicate_object then null; when undefined_object then null; end $$;
