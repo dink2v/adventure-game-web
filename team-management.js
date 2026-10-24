@@ -8,7 +8,7 @@
   };
   const authRoles = { owner: 'Pemilik', manager: 'Pengelola', member: 'Anggota' };
   let client = null, user = null, team = null, membership = null, members = [];
-  let presenceChannel = null, onlineIds = new Set(), busy = false;
+  let presenceChannel = null, dataChannel = null, subscribedTeamId = null, refreshTimer = null, onlineIds = new Set(), busy = false;
   const esc = value => String(value ?? '');
   const setText = (id, value) => { const el = $(id); if (el) el.textContent = value; };
   const show = (id, visible) => { const el = $(id); if (el) el.hidden = !visible; };
@@ -313,6 +313,23 @@
     await rpc('wk_request_team_exit',{p_reason:reason});$('tm-exit-reason').value='';note('Permintaan keluar dikirim.','success');
   }
   function stopPresence() { if(presenceChannel&&client)client.removeChannel(presenceChannel);presenceChannel=null;onlineIds=new Set(); }
+  function stopManagementFeed() { if(dataChannel&&client)client.removeChannel(dataChannel);dataChannel=null;subscribedTeamId=null;if(refreshTimer)window.clearTimeout(refreshTimer);refreshTimer=null; }
+  function subscribeManagementFeed() {
+    if(!client||!team||subscribedTeamId===team.id)return;
+    stopManagementFeed();subscribedTeamId=team.id;
+    const refresh=()=>{if(refreshTimer)window.clearTimeout(refreshTimer);refreshTimer=window.setTimeout(()=>loadData().catch(e=>note(e?.message||'Gagal menyegarkan data tim.','error')),250);};
+    dataChannel=client.channel('wk-management-feed-'+team.id)
+      .on('postgres_changes',{event:'*',schema:'public',table:'wk_team_members',filter:'team_id=eq.'+team.id},refresh)
+      .on('postgres_changes',{event:'*',schema:'public',table:'wk_team_vacancies',filter:'team_id=eq.'+team.id},refresh)
+      .on('postgres_changes',{event:'*',schema:'public',table:'wk_team_applications',filter:'team_id=eq.'+team.id},refresh)
+      .on('postgres_changes',{event:'*',schema:'public',table:'wk_team_compensation',filter:'team_id=eq.'+team.id},refresh)
+      .on('postgres_changes',{event:'*',schema:'public',table:'wk_team_financial_settings',filter:'team_id=eq.'+team.id},refresh)
+      .on('postgres_changes',{event:'INSERT',schema:'public',table:'wk_team_financial_entries',filter:'team_id=eq.'+team.id},refresh)
+      .on('postgres_changes',{event:'*',schema:'public',table:'wk_team_disputes',filter:'team_id=eq.'+team.id},refresh)
+      .on('postgres_changes',{event:'*',schema:'public',table:'wk_team_exit_requests',filter:'team_id=eq.'+team.id},refresh)
+      .on('postgres_changes',{event:'INSERT',schema:'public',table:'wk_team_audit_logs',filter:'team_id=eq.'+team.id},refresh)
+      .subscribe();
+  }
   function startPresence() {
     if(!client||!team||!user)return;
     stopPresence();
@@ -363,9 +380,10 @@
         await loadCompensationForSelected();
       }
       if(!presenceChannel)startPresence();
+      subscribeManagementFeed();
       setText('tm-status','Tim: '+team.name+' · akses '+(authRoles[membership.role]||membership.role)+'.');
     } else {
-      stopPresence();
+      stopPresence();stopManagementFeed();
       const {data:vacancies,error}=await client.from('wk_team_vacancies').select('id,team_id,role_key,title,description,status,created_at').eq('status','open').order('created_at',{ascending:false}).limit(50);
       if(error)throw error;
       renderVacancies(vacancies||[]);
@@ -382,7 +400,7 @@
     client.auth.onAuthStateChange((_event,session)=>{
       user=session?.user||null;
       window.setTimeout(()=>{
-        if(!user){stopPresence();membership=null;team=null;members=[];show('tm-team-area',false);renderVacancies([]);note('Keluar dari akun. Masuk lewat panel Teman untuk menggunakan manajemen lanjutan.');return;}
+        if(!user){stopPresence();stopManagementFeed();membership=null;team=null;members=[];show('tm-team-area',false);renderVacancies([]);note('Keluar dari akun. Masuk lewat panel Teman untuk menggunakan manajemen lanjutan.');return;}
         loadData().catch(e=>note(e?.message||'Gagal memuat data tim. Pastikan migrasi tahap 3 telah diterapkan.','error'));
       },0);
     });
