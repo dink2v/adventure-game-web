@@ -313,7 +313,7 @@
     $('claim-mission-btn').disabled=!ready;$('claim-mission-btn').textContent=state.missionClaimed?'✓ Hadiah sudah diklaim':ready?'🎁 Klaim hadiah misi':'🎁 Selesaikan target untuk klaim';
     $('mission-summary').textContent=state.missionClaimed?'Misi selesai! Besok ada target baru.':ready?'Target selesai — klaim hadiahmu!':'Selesaikan dua target untuk hadiah';
     $('unlock-note').textContent=state.served<8?'Menu Ayam geprek terbuka setelah '+(8-state.served)+' pelanggan lagi.':state.served<15?'Menu Soto ayam terbuka setelah '+(15-state.served)+' pelanggan lagi.':state.served<25?'Menu Sate ayam terbuka setelah '+(25-state.served)+' pelanggan lagi.':'Semua menu demo sudah terbuka!';
-    $('today-revenue').textContent=money(state.todayRevenue);$('today-served').textContent=state.todayServed;$('ledger-day').textContent=state.day;$('ledger-staff').textContent=state.staff?'Direkrut':'Belum ada';
+    if($('today-revenue'))$('today-revenue').textContent=money(state.todayRevenue);if($('today-served'))$('today-served').textContent=state.todayServed;$('ledger-day').textContent=state.day;$('ledger-staff').textContent=state.staff?'Direkrut':'Belum ada';
     $('staff-status').textContent=state.staff?'SUDAH DIREKRUT · AKTIF':'BELUM DIREKRUT';$('staff-btn').textContent=state.staff?'Asisten aktif':'Rp 90.000 +';$('staff-btn').disabled=state.staff||state.cash<90000;
     renderMenuPrices();
     $('promo-status').textContent=state.promoUsed?'PROMOSI SUDAH DIPAKAI':'BELUM AKTIF HARI INI';$('promo-btn').disabled=state.promoUsed||state.cash<12000;
