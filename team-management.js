@@ -381,7 +381,10 @@
     if(user)await loadData();else note('Masuk lewat panel Teman untuk menggunakan manajemen lanjutan.');
     client.auth.onAuthStateChange((_event,session)=>{
       user=session?.user||null;
-      window.setTimeout(()=>{loadData().catch(e=>note(e?.message||'Gagal memuat data tim. Pastikan migrasi tahap 3 telah diterapkan.','error'));},0);
+      window.setTimeout(()=>{
+        if(!user){stopPresence();membership=null;team=null;members=[];show('tm-team-area',false);renderVacancies([]);note('Keluar dari akun. Masuk lewat panel Teman untuk menggunakan manajemen lanjutan.');return;}
+        loadData().catch(e=>note(e?.message||'Gagal memuat data tim. Pastikan migrasi tahap 3 telah diterapkan.','error'));
+      },0);
     });
   }
   function boot(){init().catch(error=>note(error?.message||'Fitur lanjutan belum siap. Pastikan migrasi tahap 3 diterapkan.','error'));}
