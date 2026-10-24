@@ -328,7 +328,7 @@
     $('stock').textContent=state.stock;$('day-label').textContent='HARI '+state.day;$('time-label').textContent=formatClock();
     $('stove-level').textContent=state.stove;$('table-level').textContent=state.tables;$('upgrade-level').textContent='Warung Level '+Math.max(1,Math.floor((state.stove+state.tables)/3));
     $('stove-btn').innerHTML=money(80000*state.stove)+' <span>↗</span>';$('table-btn').innerHTML=money(60000*state.tables)+' <span>↗</span>';
-    $('stove-btn').disabled=state.cash<80000*state.stove;$('table-btn').disabled=state.cash<60000*state.tables;$('stock-btn').disabled=state.cash<25000;updateProgress();
+    $('stove-btn').disabled=state.cash<80000*state.stove;$('table-btn').disabled=state.cash<60000*state.tables;$('stock-btn').disabled=state.cash<25000;updateProgress();renderEmployeeManagement();
   }
   function actionWindow(){const r=recipes[state.orderMenu]||recipes.nasi;const count=r.actions||1;const center=r.cookTime*(state.actionIndex+1)/(count+1);return {start:center-1.1,end:center+1.1};}
   function updateOrder(){
