@@ -38,10 +38,10 @@ begin
     returning wk_team_game_state.revision, wk_team_game_state.updated_at into v_revision,v_updated;
     if v_revision is null then raise exception 'Progres tim sudah ada. Muat progres terbaru sebelum menyimpan.'; end if;
   else
-    update public.wk_team_game_state
-      set state=p_state, revision=revision+1, updated_by=v_user, updated_at=now()
-      where team_id=v_team and revision=p_expected_revision
-      returning wk_team_game_state.revision, wk_team_game_state.updated_at into v_revision,v_updated;
+    update public.wk_team_game_state as gs
+      set state=p_state, revision=gs.revision+1, updated_by=v_user, updated_at=now()
+      where gs.team_id=v_team and gs.revision=p_expected_revision
+      returning gs.revision, gs.updated_at into v_revision,v_updated;
     if v_revision is null then raise exception 'Progres tim berubah sejak terakhir dimuat. Muat ulang sebelum menyimpan agar perubahan teman tidak tertimpa.'; end if;
   end if;
   return query select v_revision,v_updated;
