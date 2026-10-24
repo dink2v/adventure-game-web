@@ -292,13 +292,20 @@ $$;
 create or replace function public.wk_record_financial_entry(p_entry_type text, p_amount numeric, p_description text, p_related_user uuid default null)
 returns bigint language plpgsql security definer set search_path = ''
 as $$
-declare v_user uuid := (select auth.uid()); v_team uuid; v_id bigint;
+declare v_user uuid := (select auth.uid()); v_team uuid; v_id bigint; v_balance numeric; v_share_enabled boolean;
 begin
   select m.team_id into v_team from public.wk_team_members m where m.user_id=v_user;
   if v_user is null or v_team is null or not team_private.is_manager(v_team) then raise exception 'Hanya pemilik atau pengelola yang dapat mencatat transaksi.'; end if;
   if p_entry_type not in ('income','expense','owner_contribution','salary','bonus','reserve','profit_distribution') or p_amount is null or p_amount <= 0 then raise exception 'Jenis atau nominal transaksi tidak valid.'; end if;
   if char_length(trim(coalesce(p_description,''))) not between 2 and 240 then raise exception 'Deskripsi harus 2–240 karakter.'; end if;
   if p_related_user is not null and not exists(select 1 from public.wk_team_members where team_id=v_team and user_id=p_related_user) then raise exception 'Anggota terkait tidak ditemukan.'; end if;
+  if p_entry_type in ('salary','bonus','profit_distribution') and p_related_user is null then raise exception 'Pilih anggota penerima untuk gaji, bonus, atau bagi hasil.'; end if;
+  select coalesce(sum(case when entry_type in ('income','owner_contribution') then amount else -amount end),0) into v_balance from public.wk_team_financial_entries where team_id=v_team;
+  if p_entry_type not in ('income','owner_contribution') and p_amount > v_balance then raise exception 'Kas game tidak cukup untuk transaksi ini. Saldo tercatat: Rp ' || round(v_balance)::text; end if;
+  if p_entry_type='profit_distribution' then
+    select coalesce(s.profit_share_enabled,false) into v_share_enabled from public.wk_team_financial_settings s where s.team_id=v_team;
+    if not coalesce(v_share_enabled,false) then raise exception 'Bagi hasil belum diaktifkan dalam aturan warung.'; end if;
+  end if;
   insert into public.wk_team_financial_entries(team_id,entry_type,amount,description,related_user_id,actor_id)
   values(v_team,p_entry_type,p_amount,trim(p_description),p_related_user,v_user) returning id into v_id;
   insert into public.wk_team_audit_logs(team_id,actor_id,action,details) values(v_team,v_user,'financial_entry_created',jsonb_build_object('entry_id',v_id,'entry_type',p_entry_type,'amount',p_amount,'related_user_id',p_related_user));
