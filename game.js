@@ -14,7 +14,7 @@
   };
   const saved = (() => { try { return JSON.parse(localStorage.getItem('warung-kita-save') || '{}'); } catch { return {}; } })();
   const state = {
-    cash:saved.cash ?? 150000, rep:saved.rep ?? 1, served:saved.served ?? 0,
+    cash:saved.cash ?? 1000000, rep:saved.rep ?? 1, served:saved.served ?? 0,
     marketCart:saved.marketCart && typeof saved.marketCart==='object' ? saved.marketCart : {}, marketReceipts:Array.isArray(saved.marketReceipts) ? saved.marketReceipts : [], marketSold:saved.marketSold && typeof saved.marketSold==='object' ? saved.marketSold : {},
     menuPrices:saved.menuPrices && typeof saved.menuPrices==='object' ? saved.menuPrices : {},
     stock:saved.stock ?? 12, day:saved.day ?? 1, stove:saved.stove ?? 1,
