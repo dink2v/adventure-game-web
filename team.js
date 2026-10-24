@@ -7,6 +7,7 @@
   };
   let client=null,currentUser=null,currentTeam=null,channel=null,gameChannel=null,roster=[];
   let gameRevision=null,gameSnapshotStale=false;
+  const revisionKey=teamId=>'warung-kita-team-game-revision:'+teamId;
   const setHidden=(id,hidden)=>{const el=$(id);if(el)el.hidden=hidden;};
   const showSignedOut=()=>{setHidden('team-auth',false);setHidden('team-workspace',true);setHidden('team-setup',true);};
   const showSignedIn=()=>{setHidden('team-auth',true);setHidden('team-workspace',true);setHidden('team-setup',false);};
@@ -73,10 +74,10 @@
     gameSyncStatus('Memuat progres tim…');
     const {data,error}=await client.from('wk_team_game_state').select('state,revision,updated_at,updated_by').eq('team_id',currentTeam.id).maybeSingle();
     if(error)throw new Error('Tidak dapat memuat progres. Pastikan migrasi multiplayer tahap 2 sudah diterapkan.');
-    if(!data){gameRevision=null;gameSnapshotStale=false;gameSyncStatus('Belum ada snapshot tim. Kamu bisa menyimpan progres lokal sebagai snapshot pertama.');return;}
+    if(!data){gameRevision=null;gameSnapshotStale=false;localStorage.removeItem(revisionKey(currentTeam.id));gameSyncStatus('Belum ada snapshot tim. Kamu bisa menyimpan progres lokal sebagai snapshot pertama.');return;}
     if(!data.state||typeof data.state!=='object'||Array.isArray(data.state))throw new Error('Snapshot progres tim tidak valid.');
     localStorage.setItem('warung-kita-save',JSON.stringify(data.state));
-    gameRevision=data.revision;gameSnapshotStale=false;
+    gameRevision=data.revision;localStorage.setItem(revisionKey(currentTeam.id),String(gameRevision));gameSnapshotStale=false;
     gameSyncStatus('Snapshot revisi '+data.revision+' dimuat ('+new Date(data.updated_at).toLocaleString('id-ID')+'). Memuat ulang game…');
     window.location.reload();
   }
@@ -86,7 +87,6 @@
     if(!raw)throw new Error('Belum ada progres lokal untuk disimpan.');
     let snapshot;try{snapshot=JSON.parse(raw);}catch{throw new Error('Progres lokal rusak dan tidak bisa dibaca.');}
     if(!snapshot||typeof snapshot!=='object'||Array.isArray(snapshot))throw new Error('Format progres lokal tidak valid.');
-    delete snapshot.devCashGrant20261024;
     if(gameSnapshotStale)throw new Error('Progres tim berubah. Klik “Muat progres tim” terlebih dahulu agar perubahan teman tidak tertimpa.');
     if(gameRevision===null){
       const {data,error}=await client.from('wk_team_game_state').select('revision').eq('team_id',currentTeam.id).maybeSingle();
@@ -97,7 +97,7 @@
     const {data,error}=await client.rpc('wk_save_game_state',{p_state:snapshot,p_expected_revision:gameRevision});
     if(error)throw new Error(error.message||'Gagal menyimpan progres.');
     const result=Array.isArray(data)?data[0]:data;
-    gameRevision=result?.revision??null;gameSnapshotStale=false;
+    gameRevision=result?.revision??null;if(gameRevision!==null)localStorage.setItem(revisionKey(currentTeam.id),String(gameRevision));gameSnapshotStale=false;
     gameSyncStatus('Progres tersimpan untuk anggota tim (revisi '+gameRevision+') pada '+new Date(result.updated_at).toLocaleString('id-ID')+'.');
     status('Progres permainan berhasil disimpan ke tim.','success');
   }
@@ -134,7 +134,10 @@
     if(teamError){status('Tim belum dapat dimuat: '+safeError(teamError,'periksa kebijakan RLS dan migrasi.'),'error');return;}
     const changedTeam=currentTeam?.id!==team.id;
     if(changedTeam){stopSubscriptions();gameRevision=null;gameSnapshotStale=false;}
-    currentTeam=team;showSignedIn();setHidden('team-setup',true);setHidden('team-workspace',false);injectGameSync();
+    currentTeam=team;
+    const storedRevision=localStorage.getItem(revisionKey(team.id));
+    gameRevision=storedRevision!==null&&/^\\d+$/.test(storedRevision)?Number(storedRevision):null;
+    showSignedIn();setHidden('team-setup',true);setHidden('team-workspace',false);injectGameSync();
     $('team-name-title').textContent=team.name;$('team-role-label').textContent=({owner:'Pemilik tim',manager:'Pengelola',member:'Anggota'})[membership.role]||'Anggota';
     $('team-invite-code').textContent=team.invite_code;$('team-invite-code').title='Bagikan kode ini hanya kepada pemain yang kamu percaya.';
     setHidden('team-leave-btn',membership.role==='owner');
