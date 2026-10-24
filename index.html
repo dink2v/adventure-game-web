@@ -163,12 +163,43 @@
       <p class="ledger-note" id="business-tip">Tips bisnis: layani pesanan sebelum kesabaran pelanggan habis untuk memperoleh tip lebih besar.</p>
     </section>
     <footer class="app-view-hidden"><span><b>WARUNG KITA</b> <span class="muted">· SINGLE-PLAYER</span></span><span>Masak dengan hati, layani sepenuh hati <span class="footer-star">✦</span></span></footer>
+    <section class="team-panel app-view-hidden" id="team-panel" aria-labelledby="team-panel-title">
+      <div class="management-heading"><div><p class="eyebrow">ADD TEAM / TEMAN</p><h2 id="team-panel-title">Kerja sama warung</h2><p class="team-intro">Bangun tim bersama, bagi aktivitas, dan lindungi reputasi lewat catatan yang transparan.</p></div><span class="team-status-pill">Fondasi multiplayer</span></div>
+      <p class="team-status" id="team-status" role="status" aria-live="polite">Memeriksa konfigurasi backend…</p>
+      <section class="team-auth-card" id="team-auth" aria-labelledby="team-auth-title">
+        <h3 id="team-auth-title">Masuk atau buat akun</h3>
+        <p>Akun diperlukan untuk menyimpan keanggotaan tim dengan aman. Gunakan email milikmu dan kata sandi unik.</p>
+        <div class="team-form-grid"><label for="team-email">Email<input id="team-email" type="email" autocomplete="email" maxlength="254" placeholder="nama@email.com"></label><label for="team-password">Kata sandi<input id="team-password" type="password" autocomplete="current-password" minlength="8" maxlength="128" placeholder="Minimal 8 karakter"></label></div>
+        <div class="team-actions"><button type="button" id="team-signin-btn">Masuk</button><button type="button" id="team-signup-btn" class="team-secondary-btn">Buat akun</button></div>
+      </section>
+      <section class="team-setup-card" id="team-setup" hidden aria-labelledby="team-setup-title">
+        <h3 id="team-setup-title">Buat tim atau gabung dengan kode</h3>
+        <label for="team-display-name">Nama pemain (terlihat anggota tim)<input id="team-display-name" maxlength="40" autocomplete="nickname" placeholder="Nama panggilan"></label>
+        <div class="team-setup-grid">
+          <article><h4>🏡 Buat tim baru</h4><label for="team-create-name">Nama tim<input id="team-create-name" maxlength="60" placeholder="Contoh: Sahabat Warung"></label><button type="button" id="team-create-btn">Buat tim & kode undangan</button></article>
+          <article><h4>🤝 Gabung ke tim</h4><label for="team-join-code">Kode undangan 8 karakter<input id="team-join-code" maxlength="8" autocapitalize="characters" spellcheck="false" placeholder="AB12CD34"></label><button type="button" id="team-join-btn">Gabung ke tim</button></article>
+        </div>
+        <p class="team-privacy-note">Batas tim: 8 pemain. Bagikan kode hanya kepada teman tepercaya. Akun dapat menjadi anggota satu tim pada satu waktu.</p>
+      </section>
+      <section class="team-workspace" id="team-workspace" hidden aria-labelledby="team-name-title">
+        <div class="team-summary"><div><p class="eyebrow">TIM AKTIF</p><h3 id="team-name-title">Nama tim</h3><span id="team-role-label" class="team-role-label">Anggota</span></div><button type="button" id="team-signout-btn" class="team-secondary-btn">Keluar akun</button></div>
+        <div class="team-invite-card"><div><span>KODE UNDANGAN</span><strong id="team-invite-code">—</strong><small>Jangan bagikan di ruang publik.</small></div><button type="button" id="team-copy-code-btn">Salin kode</button></div>
+        <div class="team-content-grid">
+          <section class="team-subcard"><h4>👥 Anggota tim</h4><ul id="team-roster" class="team-roster"><li>Memuat anggota…</li></ul><button type="button" id="team-leave-btn" class="team-secondary-btn" hidden>Keluar dari tim</button></section>
+          <section class="team-subcard"><h4>🧾 Catatan kerja sama</h4><label for="team-activity-type">Jenis aktivitas<select id="team-activity-type"><option value="task_update">Pembaruan tugas</option><option value="shared_action">Aksi bersama</option><option value="reputation_review">Peninjauan reputasi</option></select></label><label for="team-activity-message">Ringkasan faktual<textarea id="team-activity-message" maxlength="240" rows="3" placeholder="Contoh: bahan sudah dibeli untuk pesanan makan siang."></textarea></label><button type="button" id="team-activity-submit">Catat aktivitas</button></section>
+        </div>
+        <section class="team-subcard team-activity-card"><h4>🕘 Riwayat aktivitas tim</h4><p>Riwayat bersifat append-only untuk anggota; identitas dan waktu dicatat backend.</p><ul id="team-activity-list" class="team-activity-list"><li>Belum ada aktivitas tim.</li></ul></section>
+        <section class="team-subcard team-report-card"><h4>🛡️ Perlindungan reputasi & privasi</h4><p>Laporan hanya untuk kejadian nyata. Laporan tidak otomatis mengubah reputasi publik dan rincian hanya terlihat oleh pelapor serta pengelola tim.</p><div class="team-form-grid"><label for="team-report-target">Anggota yang dilaporkan<select id="team-report-target" disabled><option value="">Belum ada anggota lain</option></select></label><label for="team-report-category">Kategori<select id="team-report-category"><option value="harassment">Perundungan/pelecehan</option><option value="retaliation">Tindakan balasan</option><option value="false_claim">Klaim tidak benar</option><option value="access_abuse">Penyalahgunaan akses</option><option value="other">Lainnya</option></select></label></div><label for="team-report-details">Keterangan faktual (10–1.200 karakter)<textarea id="team-report-details" maxlength="1200" rows="4" placeholder="Jelaskan waktu, kejadian, dan bukti yang relevan. Hindari membagikan informasi pribadi yang tidak diperlukan."></textarea></label><button type="button" id="team-report-submit">Kirim laporan privat</button></section>
+      </section>
+      <p class="team-footer-note">Fondasi ini tidak mengubah saldo, stok, atau progres single-player secara otomatis. Sinkronisasi gameplay lintas pemain memerlukan tahap berikutnya dengan model data bersama dan aturan konflik.</p>
+    </section>
     <nav class="app-bottom-nav" id="app-bottom-nav" aria-label="Navigasi utama">
       <button type="button" data-view="home" class="active" aria-label="Beranda"><span aria-hidden="true">⌂</span><small>Beranda</small></button>
       <button type="button" data-view="kitchen" aria-label="Dapur"><span aria-hidden="true">♨</span><small>Dapur</small></button>
       <button type="button" data-view="market" aria-label="Pasar"><span aria-hidden="true">🧺</span><small>Pasar</small></button>
       <button type="button" data-view="business" aria-label="Usaha"><span aria-hidden="true">▣</span><small>Usaha</small></button>
       <button type="button" data-view="report" aria-label="Laporan"><span aria-hidden="true">▤</span><small>Laporan</small></button>
+      <button type="button" data-view="team" aria-label="Teman"><span aria-hidden="true">👥</span><small>Teman</small></button>
       <button type="button" data-view="more" aria-label="Lainnya"><span aria-hidden="true">•••</span><small>Lainnya</small></button>
     </nav>
     <div class="toast" id="toast" role="status"></div>
@@ -181,5 +212,8 @@
     </div>
   </main>
   <script src="game.js?v=market-confirm-fix-20261024-01"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0/dist/umd/supabase.js" defer></script>
+  <script src="team-config.js?v=add-team-20261024-01" defer></script>
+  <script src="team.js?v=add-team-20261024-01" defer></script>
 </body>
 </html>
