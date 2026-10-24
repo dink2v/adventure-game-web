@@ -40,11 +40,11 @@ Panel **Teman** menyiapkan alur akun, buat/gabung tim dengan kode undangan, rost
 - Alur perselisihan mendukung tanggapan kedua pihak, mediasi/evaluasi formal, dan penyelesaian oleh pengelola yang tidak terlibat langsung.
 - Anggota dapat meminta keluar; pemilik/pengelola meninjau permintaan. Catatan audit mencatat tindakan manajemen.
 - Status online menggunakan Supabase Realtime Presence saat sesi terhubung; status ini bukan jaminan bahwa pemain sedang aktif bermain.
-- Fitur tahap 3 memerlukan migrasi `202610240003_team_management_core.sql`; jangan menganggap fitur aktif hanya karena file frontend sudah ter-deploy.
+- Migrasi tahap 3 sudah diterapkan pada proyek Free `warung-kita-multiplayer`. UI tahap 3 baru aktif setelah PR ini digabung/deploy; jika memakai proyek Supabase lain, jalankan migrasi `202610240003_team_management_core.sql` setelah dua migrasi sebelumnya.
 
 ### Batasan Add Team saat ini
 
-- Proyek Supabase Free `warung-kita-multiplayer` sudah dibuat di Singapura dan kedua migrasi telah diterapkan; tabel dan RLS terverifikasi aktif serta tiga tabel multiplayer terdaftar pada publikasi Realtime. Masih perlu mengatur URL Authentication, deploy branch, dan menguji dengan dua akun nyata sebelum multiplayer dinyatakan aktif.
+- Proyek Supabase Free `warung-kita-multiplayer` di Singapura sudah memiliki ketiga migrasi; tabel dan RLS terverifikasi aktif serta tabel multiplayer/manajemen terdaftar pada publikasi Realtime. Masih perlu mengatur URL Authentication, menggabungkan/deploy UI, dan menguji dengan dua akun nyata sebelum multiplayer dinyatakan aktif.
 - Sinkronisasi progres saat ini berupa **snapshot manual**: anggota memilih “Simpan progres ke tim” atau “Muat progres tim”. Ini bukan sinkronisasi aksi langsung per detik dan tidak menggabungkan perubahan otomatis. Revisi mencegah snapshot lama menimpa snapshot baru; jika ada konflik, muat progres terbaru sebelum menyimpan.
 - Pemilik tim belum dapat keluar atau mentransfer kepemilikan lewat UI; fitur transfer/penutupan tim perlu tahap berikutnya.
 - Laporan reputasi bersifat privat dan tidak mengubah reputasi game secara otomatis. Alur peninjauan lanjutan, bukti/attachment, banding, rate limiting dan moderasi belum diselesaikan.
