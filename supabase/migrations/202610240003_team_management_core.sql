@@ -192,6 +192,7 @@ begin
   if v_app.status <> 'pending' then raise exception 'Lamaran ini sudah diproses.'; end if;
   if p_decision='accepted' then
     perform 1 from public.wk_teams where id=v_app.team_id and status='open' for update;
+    if not found then raise exception 'Warung sudah ditutup atau tidak menerima anggota.'; end if;
     if (select count(*) from public.wk_team_members where team_id=v_app.team_id) >= 8 then raise exception 'Tim sudah mencapai batas 8 pemain.'; end if;
     if exists(select 1 from public.wk_team_members where user_id=v_app.applicant_id) then raise exception 'Pelamar sudah menjadi anggota tim lain.'; end if;
     insert into public.wk_team_members(team_id,user_id,display_name,role,job_role) values(v_app.team_id,v_app.applicant_id,v_app.display_name,'member',(select role_key from public.wk_team_vacancies where id=v_app.vacancy_id));
@@ -344,6 +345,7 @@ declare v_user uuid := (select auth.uid()); v_dispute public.wk_team_disputes%ro
 begin
   select * into v_dispute from public.wk_team_disputes where id=p_dispute_id for update;
   if not found or not team_private.is_manager(v_dispute.team_id) then raise exception 'Perselisihan tidak ditemukan atau kamu tidak berwenang.'; end if;
+  if v_user in (v_dispute.opened_by,v_dispute.target_user_id) then raise exception 'Pihak yang terlibat tidak boleh meninjau perselisihan itu sendiri.'; end if;
   if p_status not in ('mediation','formal_review','resolved','dismissed') then raise exception 'Status penanganan tidak valid.'; end if;
   if p_status in ('resolved','dismissed') and char_length(trim(coalesce(p_resolution,''))) < 5 then raise exception 'Catatan penyelesaian minimal 5 karakter.'; end if;
   update public.wk_team_disputes set status=p_status,resolution=case when p_resolution is null then resolution else trim(p_resolution) end,reviewed_by=v_user,updated_at=now() where id=p_dispute_id;
