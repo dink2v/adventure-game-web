@@ -80,7 +80,7 @@ begin
   if char_length(trim(coalesce(p_name,''))) not between 2 and 60 then raise exception 'Nama tim harus 2–60 karakter.'; end if;
   if char_length(trim(coalesce(p_display_name,''))) not between 1 and 40 then raise exception 'Nama pemain harus 1–40 karakter.'; end if;
   insert into public.wk_teams(name,invite_code,owner_id)
-  values (trim(p_name), upper(substr(encode(gen_random_bytes(8),'hex'),1,8)), v_user)
+  values (trim(p_name), upper(substr(md5(random()::text || clock_timestamp()::text),1,8)), v_user)
   returning * into v_team;
   insert into public.wk_team_members(team_id,user_id,display_name,role)
   values (v_team.id,v_user,trim(p_display_name),'owner');
