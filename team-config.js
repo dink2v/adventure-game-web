@@ -1,7 +1,7 @@
 // Warung Kita Add Team/Teman configuration.
-// Paste the Supabase Project URL and publishable key from Project Settings > API.
-// Publishable keys are intended for browser clients. NEVER put a service_role/secret key here.
+// Supabase publishable keys are intended for browser clients.
+// NEVER put a service_role/secret key in this file.
 window.WARUNG_TEAM_CONFIG = {
-  supabaseUrl: '',
-  publishableKey: ''
+  supabaseUrl: 'https://anpwnkceyzpabkvwojic.supabase.co',
+  publishableKey: 'sb_publishable_1NjOiTUJZ8uGcqL2BLh5zA_YoWt9Kqp'
 };
