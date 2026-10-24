@@ -23,12 +23,14 @@
     guests:[{x:.2,y:.53,color:'#e2a875',shirt:'#477a62',emoji:'👨🏻'},{x:.77,y:.55,color:'#d6a17b',shirt:'#bd7652',emoji:'👩🏻'}],
     cashEarned:0, marketInventory:saved.marketInventory ?? {rice:5,egg:5,vegetable:5,seasoning:5,noodle:5,chicken:3,tea:5,ice:5}, marketCycle:saved.marketCycle ?? 0, marketTimer:0, staff:saved.staff ?? false, promoUsed:saved.promoUsed ?? false, promoBonusPending:saved.promoBonusPending ?? false, todayServed:saved.todayServed ?? 0, todayRevenue:saved.todayRevenue ?? 0, missionClaimed:saved.missionClaimed ?? false, totalRevenue:saved.totalRevenue ?? 0,
     onlineOrders:Array.isArray(saved.onlineOrders)?saved.onlineOrders:[], orderSource:saved.orderSource||'walkin', orderAcceptedAt:saved.orderAcceptedAt||0, orderDeadlineAt:saved.orderDeadlineAt||0, suspendedOrder:saved.suspendedOrder&&typeof saved.suspendedOrder==='object'?saved.suspendedOrder:null, nextOnlineAt:saved.nextOnlineAt||Date.now()+4500, onlineSequence:saved.onlineSequence||1,
-    readyStock:Array.isArray(saved.readyStock)?saved.readyStock:[], currentDishFromStock:saved.currentDishFromStock===true
+    readyStock:Array.isArray(saved.readyStock)?saved.readyStock:[], currentDishFromStock:saved.currentDishFromStock===true,
+    employee:saved.employee&&typeof saved.employee==='object'?saved.employee:{name:'Dina',role:'Asisten Dapur',performance:50,skill:45,loyalty:50,teamwork:50,morale:55,tenure:0,promotionLevel:0},
+    employeeRecords:Array.isArray(saved.employeeRecords)?saved.employeeRecords:[]
   };
   let lastTime=0, toastTimer=0, lastUiUpdate=0, lastSaveAt=0, lastReadyStockRenderAt=0;
   function sellingPrice(id){const base=recipes[id]?.price??1000;const custom=Number(state.menuPrices[id]);return Number.isFinite(custom)&&custom>=1?Math.round(custom):base;}
   function compactPrice(id){const value=sellingPrice(id)/1000;return (Number.isInteger(value)?String(value):value.toFixed(1))+'k';}
-  function persist(){try{localStorage.setItem('warung-kita-save',JSON.stringify({menuPrices:state.menuPrices,marketInventory:state.marketInventory,marketCycle:state.marketCycle,marketCart:state.marketCart,marketReceipts:state.marketReceipts,marketSold:state.marketSold,cash:state.cash,rep:state.rep,served:state.served,stock:state.stock,day:state.day,stove:state.stove,tables:state.tables,orderNo:state.orderNo,menu:state.menu,orderMenu:state.orderMenu,step:state.step,patience:state.patience,cookingStarted:state.cookingStarted,cookingElapsed:state.cookingElapsed,actionIndex:state.actionIndex,qualityScore:state.qualityScore,qualityLabel:state.qualityLabel,staff:state.staff,promoUsed:state.promoUsed,promoBonusPending:state.promoBonusPending,todayServed:state.todayServed,todayRevenue:state.todayRevenue,missionClaimed:state.missionClaimed,totalRevenue:state.totalRevenue,onlineOrders:state.onlineOrders,orderSource:state.orderSource,orderAcceptedAt:state.orderAcceptedAt,orderDeadlineAt:state.orderDeadlineAt,suspendedOrder:state.suspendedOrder,nextOnlineAt:state.nextOnlineAt,onlineSequence:state.onlineSequence,readyStock:state.readyStock,currentDishFromStock:state.currentDishFromStock}));}catch{}}
+  function persist(){try{localStorage.setItem('warung-kita-save',JSON.stringify({menuPrices:state.menuPrices,marketInventory:state.marketInventory,marketCycle:state.marketCycle,marketCart:state.marketCart,marketReceipts:state.marketReceipts,marketSold:state.marketSold,cash:state.cash,rep:state.rep,served:state.served,stock:state.stock,day:state.day,stove:state.stove,tables:state.tables,orderNo:state.orderNo,menu:state.menu,orderMenu:state.orderMenu,step:state.step,patience:state.patience,cookingStarted:state.cookingStarted,cookingElapsed:state.cookingElapsed,actionIndex:state.actionIndex,qualityScore:state.qualityScore,qualityLabel:state.qualityLabel,staff:state.staff,promoUsed:state.promoUsed,promoBonusPending:state.promoBonusPending,todayServed:state.todayServed,todayRevenue:state.todayRevenue,missionClaimed:state.missionClaimed,totalRevenue:state.totalRevenue,onlineOrders:state.onlineOrders,orderSource:state.orderSource,orderAcceptedAt:state.orderAcceptedAt,orderDeadlineAt:state.orderDeadlineAt,suspendedOrder:state.suspendedOrder,nextOnlineAt:state.nextOnlineAt,onlineSequence:state.onlineSequence,readyStock:state.readyStock,currentDishFromStock:state.currentDishFromStock,employee:state.employee,employeeRecords:state.employeeRecords}));}catch{}}
   function queueOnlineOrder(){
     const available=Object.keys(recipes).filter(id=>unlocked(id));
     const menu=available[Math.floor(Math.random()*available.length)];
@@ -522,7 +524,7 @@
       const onlineOrder=state.orderSource==='online';
       const onTime=onlineOrder&&Date.now()<=state.orderDeadlineAt;
       const deadlineAdjustment=onlineOrder?(onTime?1500:-1500):0;
-      const reward=Math.max(1000,sellingPrice(state.orderMenu)+tip+qualityBonus+deadlineAdjustment);state.cash+=reward;state.cashEarned+=reward;state.totalRevenue+=reward;state.todayRevenue+=reward;state.served++;state.todayServed++;
+      const reward=Math.max(1000,sellingPrice(state.orderMenu)+tip+qualityBonus+deadlineAdjustment);state.cash+=reward;state.cashEarned+=reward;state.totalRevenue+=reward;state.todayRevenue+=reward;state.served++;state.todayServed++;if(state.staff){state.employee.tenure=(state.employee.tenure||0)+1;state.employee.performance=employeeScore(state.employee.performance+(state.qualityLabel==='Istimewa'?3:state.qualityLabel==='Enak'?2:1));state.employee.skill=employeeScore(state.employee.skill+(state.qualityLabel==='Istimewa'?2:1));state.employee.loyalty=employeeScore(state.employee.loyalty+(state.patience>45?1:0));state.employee.morale=employeeScore(state.employee.morale+(state.patience>45?1:-1));}
       const repChange=(state.qualityLabel==='Istimewa'?.16:state.qualityLabel==='Enak'?.08:(state.patience>45?.03:-.12))+(onlineOrder&&!onTime?-.08:0);
       state.rep=Math.min(5,Math.max(.5,state.rep+repChange));
       let rolloverMessage='';
@@ -539,6 +541,90 @@
     }
     persist();updateStats();updateOrder();drawScene();
   }
+
+  function escapeHtml(value){
+    return String(value??'').replace(/[&<>"']/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
+  }
+  function employeeScore(value){return Math.max(0,Math.min(100,Math.round(Number(value)||0)));}
+  function employeeRecommendation(){
+    const e=state.employee;
+    if(!state.staff)return 'Rekrut asisten terlebih dahulu untuk membuka evaluasi pegawai.';
+    const scores=[['keterampilan',e.skill],['kinerja',e.performance],['loyalitas',e.loyalty],['kerja sama',e.teamwork],['moral',e.morale]].map(([label,value])=>({label,value:employeeScore(value)})).sort((a,b)=>a.value-b.value);
+    if(e.promotionLevel===0&&e.performance>=75&&e.skill>=70&&e.loyalty>=65&&e.teamwork>=65&&state.rep>=2){
+      return 'Kinerja dan keterampilan memenuhi ambang promosi awal. Pertimbangkan promosi menjadi Asisten Senior; sistem merekomendasikan, tetapi kamu yang memutuskan.';
+    }
+    const lowest=scores[0];
+    if(lowest.value<55){
+      const actions={keterampilan:'pembinaan keterampilan',kinerja:'pendampingan kinerja',loyalitas:'dukungan kesejahteraan dan komunikasi', 'kerja sama':'kegiatan kerja sama tim',moral:'dukungan kesejahteraan'};
+      return 'Prioritas saat ini: '+actions[lowest.label]+', karena indikator '+lowest.label+' masih '+lowest.value+'/100. Pertimbangkan kondisi kas dan tren sebelum memilih tindakan.';
+    }
+    if(state.cash<8000)return 'Kondisi kas membatasi program berbiaya. Pertahankan dukungan dasar dan evaluasi kembali setelah kas membaik.';
+    return 'Indikator pegawai relatif seimbang. Lanjutkan evaluasi berkala dan sesuaikan dukungan dengan kinerja, kebutuhan, serta kemampuan keuangan warung.';
+  }
+  function renderEmployeeManagement(){
+    const overview=$('employee-overview'),actions=$('employee-actions'),pill=$('employee-status-pill'),review=$('employee-review'),promotion=$('employee-promotion'),records=$('employee-record-list');
+    if(!overview||!pill||!review||!records)return;
+    if(!state.staff){
+      pill.textContent='Belum ada pegawai';
+      overview.innerHTML='<div class="employee-empty"><span>🧑‍🍳</span><strong>Bangun tim pertamamu</strong><p>Rekrut asisten dapur untuk membuka profil, evaluasi, dan pengembangan pegawai.</p></div>';
+      if(actions)actions.hidden=true;if(promotion)promotion.hidden=true;
+    }else{
+      const e=state.employee,stats=[['Kinerja',e.performance],['Keterampilan',e.skill],['Loyalitas',e.loyalty],['Kerja sama',e.teamwork],['Moral',e.morale]];
+      pill.textContent=e.promotionLevel?'Asisten Senior':'Asisten Dapur';
+      overview.innerHTML='<div class="employee-profile"><div class="employee-profile-card"><span class="employee-stat-label">Pegawai</span><strong>🧑‍🍳 '+escapeHtml(e.name||'Dina')+'</strong><span class="employee-stat-label">'+escapeHtml(e.role||'Asisten Dapur')+' · '+(e.tenure||0)+' pesanan dibantu</span></div>'+stats.map(([label,value])=>'<div class="employee-profile-card"><span class="employee-stat-label">'+label+'</span><strong>'+employeeScore(value)+'/100</strong><div class="employee-stat-track"><span style="width:'+employeeScore(value)+'%"></span></div></div>').join('')+'</div>';
+      if(actions)actions.hidden=false;
+      const promoteBtn=$('employee-promote-btn');
+      const eligible=!e.promotionLevel&&e.performance>=75&&e.skill>=70&&e.loyalty>=65&&e.teamwork>=65&&state.rep>=2;
+      if(promotion)promotion.hidden=!eligible;
+      if(promoteBtn)promoteBtn.disabled=state.cash<15000;
+      const reason=$('employee-promotion-reason');
+      if(reason)reason.textContent='Kinerja '+employeeScore(e.performance)+', keterampilan '+employeeScore(e.skill)+', loyalitas '+employeeScore(e.loyalty)+', kerja sama '+employeeScore(e.teamwork)+', reputasi '+state.rep.toFixed(1)+'/5. Biaya penyesuaian jabatan Rp 15.000; kewenangan tetap mengikuti peran dan kebutuhan warung.';
+    }
+    review.innerHTML='<strong>Rekomendasi sistem</strong><p>'+escapeHtml(employeeRecommendation())+'</p>';
+    if(!state.employeeRecords.length){records.innerHTML='<p class="employee-record-empty">Belum ada catatan pegawai.</p>';return;}
+    records.innerHTML=state.employeeRecords.slice().reverse().map(record=>{
+      const status=record.status==='accepted'?'Tanggapan diterima sebagai lampiran':record.status==='rejected'?'Koreksi ditolak; catatan asli dipertahankan':record.response?'Menunggu keputusan pemain':'Catatan aktif';
+      return '<article class="employee-record-item"><div><strong>'+escapeHtml(record.title||'Catatan pegawai')+' · '+escapeHtml(record.date||'')+'</strong><p>'+escapeHtml(record.text||'')+'</p><small>'+escapeHtml(status)+'</small>'+(record.response?'<p><b>Tanggapan pegawai:</b> '+escapeHtml(record.response)+'</p>':'')+(record.response&&record.status==='pending'?'<div class="employee-record-response"><button type="button" data-record-accept="'+escapeHtml(record.id)+'">Terima sebagai lampiran</button><button type="button" data-record-reject="'+escapeHtml(record.id)+'">Tolak koreksi</button></div>':'')+'</div><span class="muted small-text">'+(record.response?'Ditinjau':'Akses terbatas')+'</span><div class="employee-record-response"><textarea maxlength="400" data-record-response="'+escapeHtml(record.id)+'" placeholder="Ajukan koreksi atau tanggapan…">'+escapeHtml(record.draft||'')+'</textarea><button type="button" data-record-submit="'+escapeHtml(record.id)+'">Ajukan tanggapan</button></div></article>';
+    }).join('');
+  }
+  function employeeAction(kind){
+    if(!state.staff){toast('Rekrut asisten sebelum mengelola pegawai.');return;}
+    const e=state.employee,config={
+      coach:{cost:5000,label:'Pembinaan keterampilan',apply(){e.skill=employeeScore(e.skill+10);e.performance=employeeScore(e.performance+4);}},
+      welfare:{cost:8000,label:'Dukungan kesejahteraan',apply(){e.morale=employeeScore(e.morale+12);e.loyalty=employeeScore(e.loyalty+7);}},
+      team:{cost:6000,label:'Kegiatan kerja sama',apply(){e.teamwork=employeeScore(e.teamwork+10);e.morale=employeeScore(e.morale+5);}}
+    }[kind];
+    if(!config)return;
+    if(state.cash<config.cost){toast('Uang kas belum cukup untuk '+config.label.toLowerCase()+'.');return;}
+    state.cash-=config.cost;config.apply();
+    state.employeeRecords.push({id:'EMP-'+Date.now()+'-'+Math.random().toString(36).slice(2,6),title:config.label,text:config.label+' dilakukan. Perubahan indikator dicatat untuk evaluasi.',date:new Date().toLocaleString('id-ID'),status:'active',response:'',draft:''});
+    if(state.employeeRecords.length>100)state.employeeRecords=state.employeeRecords.slice(-100);
+    persist();updateStats();renderEmployeeManagement();toast(config.label+' selesai. Periksa tren indikator dan rekomendasi terbaru.');
+  }
+  function addEmployeeRecord(){
+    const input=$('employee-record-input'),textValue=input?.value.trim();
+    if(!state.staff){toast('Rekrut asisten sebelum membuat catatan pegawai.');return;}
+    if(!textValue){toast('Tulis catatan faktual terlebih dahulu.');return;}
+    state.employeeRecords.push({id:'EMP-'+Date.now()+'-'+Math.random().toString(36).slice(2,6),title:'Catatan evaluasi',text:textValue,date:new Date().toLocaleString('id-ID'),status:'active',response:'',draft:''});
+    if(state.employeeRecords.length>100)state.employeeRecords=state.employeeRecords.slice(-100);
+    input.value='';persist();renderEmployeeManagement();toast('Catatan disimpan. Pegawai dapat mengajukan tanggapan; catatan asli tetap terlacak.');
+  }
+  function submitEmployeeResponse(id){
+    const record=state.employeeRecords.find(item=>item.id===id),input=document.querySelector('[data-record-response="'+id+'"]');
+    if(!record||!input)return;
+    const value=input.value.trim();if(!value){toast('Isi koreksi atau tanggapan terlebih dahulu.');return;}
+    if(record.response&&record.status==='pending'){toast('Tanggapan ini sudah menunggu keputusan.');return;}
+    record.response=value;record.status='pending';record.draft='';
+    persist();renderEmployeeManagement();toast('Tanggapan tercatat. Tinjau bukti lalu putuskan apakah diterima sebagai lampiran.');
+  }
+  function decideEmployeeResponse(id,accept){
+    const record=state.employeeRecords.find(item=>item.id===id);if(!record||record.status!=='pending')return;
+    record.status=accept?'accepted':'rejected';
+    if(accept)record.text+=' [Catatan audit: tanggapan pegawai diterima pada '+new Date().toLocaleString('id-ID')+'; teks asli dipertahankan.]';
+    else record.text+=' [Catatan audit: koreksi ditolak pada '+new Date().toLocaleString('id-ID')+'; tanggapan pegawai tetap tersimpan.]';
+    persist();renderEmployeeManagement();toast(accept?'Tanggapan diterima sebagai lampiran; jejak asli dipertahankan.':'Koreksi ditolak; tanggapan tetap tersimpan untuk transparansi.');
+  }
+
   function upgrade(kind){
     if(kind==='stove'){const price=80000*state.stove;if(state.cash<price){toast('Uang kas belum cukup. Layani beberapa pelanggan dulu.');return;}state.cash-=price;state.stove++;state.rep=Math.min(5,state.rep+.15);toast('Kompor ditingkatkan! Masak jadi lebih efisien.');}
     if(kind==='table'){const price=60000*state.tables;if(state.cash<price){toast('Uang kas belum cukup. Layani beberapa pelanggan dulu.');return;}state.cash-=price;state.tables++;state.rep=Math.min(5,state.rep+.2);toast('Meja baru siap! Kapasitas pelanggan bertambah.');}
@@ -587,10 +673,16 @@
   $('stove-btn').addEventListener('click',()=>upgrade('stove'));
   $('table-btn').addEventListener('click',()=>upgrade('table'));
   $('stock-btn').addEventListener('click',()=>upgrade('stock'));
-  $('staff-btn').addEventListener('click',()=>{if(state.staff||state.cash<90000){toast(state.staff?'Asistenmu sudah aktif.':'Uang kas belum cukup untuk merekrut asisten.');return;}state.cash-=90000;state.staff=true;toast('Asisten direkrut! Pelanggan lebih sabar menunggu.');persist();updateStats();});
+  $('staff-btn').addEventListener('click',()=>{if(state.staff||state.cash<90000){toast(state.staff?'Asistenmu sudah aktif.':'Uang kas belum cukup untuk merekrut asisten.');return;}state.cash-=90000;state.staff=true;state.employee={...state.employee,name:'Dina',role:'Asisten Dapur',performance:50,skill:45,loyalty:50,teamwork:50,morale:55,tenure:0,promotionLevel:0};toast('Asisten direkrut! Profil pegawai dan evaluasi kini tersedia.');persist();updateStats();renderEmployeeManagement();});
+  $('employee-coach-btn').addEventListener('click',()=>employeeAction('coach'));
+  $('employee-welfare-btn').addEventListener('click',()=>employeeAction('welfare'));
+  $('employee-team-btn').addEventListener('click',()=>employeeAction('team'));
+  $('employee-record-add-btn').addEventListener('click',addEmployeeRecord);
+  $('employee-record-list').addEventListener('click',event=>{const submit=event.target.closest('[data-record-submit]'),accept=event.target.closest('[data-record-accept]'),reject=event.target.closest('[data-record-reject]');if(submit)submitEmployeeResponse(submit.dataset.recordSubmit);if(accept)decideEmployeeResponse(accept.dataset.recordAccept,true);if(reject)decideEmployeeResponse(reject.dataset.recordReject,false);});
+  $('employee-promote-btn').addEventListener('click',()=>{const e=state.employee;if(e.promotionLevel||e.performance<75||e.skill<70||e.loyalty<65||e.teamwork<65||state.rep<2){toast('Syarat promosi belum terpenuhi berdasarkan evaluasi terbaru.');renderEmployeeManagement();return;}if(state.cash<15000){toast('Uang kas belum cukup untuk penyesuaian promosi.');return;}state.cash-=15000;e.promotionLevel=1;e.role='Asisten Senior';e.morale=employeeScore(e.morale+5);state.employeeRecords.push({id:'EMP-'+Date.now(),title:'Promosi jabatan',text:'Pegawai dipromosikan menjadi Asisten Senior berdasarkan kinerja, keterampilan, loyalitas, kerja sama, dan reputasi warung.',date:new Date().toLocaleString('id-ID'),status:'active',response:'',draft:''});persist();updateStats();renderEmployeeManagement();toast('Promosi disetujui. Jabatan diperbarui; keputusan akhir tetap milik pemain.');});
   $('promo-btn').addEventListener('click',()=>{if(state.promoUsed||state.cash<12000){toast(state.promoUsed?'Promosi sudah digunakan hari ini.':'Uang kas belum cukup untuk promosi.');return;}state.cash-=12000;state.promoUsed=true;state.promoBonusPending=true;state.rep=Math.min(5,state.rep+.15);toast('Promosi berhasil! Reputasi naik dan pelanggan berikutnya mendapat tambahan kesabaran.');persist();updateStats();updateOrder();});
   $('claim-mission-btn').addEventListener('click',()=>{if(state.missionClaimed||state.todayServed<3||state.todayRevenue<30000){toast('Selesaikan target misi hari ini dulu.');return;}state.missionClaimed=true;state.cash+=15000;state.rep=Math.min(5,state.rep+.2);toast('Misi selesai! Hadiah Rp 15.000 dan reputasi +0,2.');persist();updateStats();});
   $('sound-btn').addEventListener('click',()=>{state.sound=!state.sound;$('sound-btn').textContent=state.sound?'♫':'♪';toast('Efek suara akan ditambahkan pada update berikutnya.');});
   window.addEventListener('resize',drawScene);
-  updateStats();updateOrder();updateProgress();drawScene();renderReadyStock();renderMarket();refreshLiveMarketPrices();setInterval(()=>{if(!document.hidden)refreshLiveMarketPrices();},30*60*1000);setView('home');requestAnimationFrame(frame);
+  updateStats();updateOrder();updateProgress();drawScene();renderReadyStock();renderEmployeeManagement();renderMarket();refreshLiveMarketPrices();setInterval(()=>{if(!document.hidden)refreshLiveMarketPrices();},30*60*1000);setView('home');requestAnimationFrame(frame);
 })();
