@@ -428,3 +428,25 @@ do $$ begin alter publication supabase_realtime add table public.wk_team_financi
 do $$ begin alter publication supabase_realtime add table public.wk_team_financial_entries; exception when duplicate_object then null; when undefined_object then null; end $$;
 do $$ begin alter publication supabase_realtime add table public.wk_team_exit_requests; exception when duplicate_object then null; when undefined_object then null; end $$;
 do $$ begin alter publication supabase_realtime add table public.wk_team_audit_logs; exception when duplicate_object then null; when undefined_object then null; end $$;
+
+-- Presence is private: only authenticated members of the matching team can join/track.
+create policy "team members can receive team presence"
+on realtime.messages for select to authenticated
+using (
+  extension = 'presence'
+  and exists (
+    select 1 from public.wk_team_members m
+    where m.user_id = (select auth.uid())
+      and ('wk-team-presence-' || m.team_id::text) = (select realtime.topic())
+  )
+);
+create policy "team members can track team presence"
+on realtime.messages for insert to authenticated
+with check (
+  extension = 'presence'
+  and exists (
+    select 1 from public.wk_team_members m
+    where m.user_id = (select auth.uid())
+      and ('wk-team-presence-' || m.team_id::text) = (select realtime.topic())
+  )
+);
