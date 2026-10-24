@@ -27,13 +27,13 @@ Panel **Teman** menyiapkan alur akun, buat/gabung tim dengan kode undangan, rost
 
 1. Buat proyek Supabase sendiri dan aktifkan provider Email di Authentication. Atur konfirmasi email sesuai kebutuhan.
 2. Buka **SQL Editor** pada proyek tersebut dan jalankan berurutan isi `supabase/migrations/202610240001_add_team.sql`, lalu `supabase/migrations/202610240002_multiplayer_game_state.sql`. Jalankan pada proyek pengujian dahulu dan tinjau kebijakan RLS sebelum produksi.
-3. Dari **Project Settings → API**, salin Project URL dan **publishable key** ke `team-config.js` pada properti `supabaseUrl` dan `publishableKey`. Jangan pernah memasukkan `service_role` atau secret key ke file frontend.
-4. Deploy branch/PR ke GitHub Pages setelah konfigurasi, lalu uji buat akun, masuk, buat tim, bergabung memakai kode di browser/perangkat lain, pembaruan realtime, simpan progres tim, muat progres tim, dan laporan privat.
+3. Branch ini sudah dikonfigurasi dengan Project URL dan **publishable key** proyek `warung-kita-multiplayer`. Publishable key memang boleh digunakan di frontend; jangan pernah memasukkan `service_role` atau secret key ke file frontend. Jika mengganti proyek, perbarui `team-config.js`.
+4. Atur **Authentication → URL Configuration** pada Supabase: Site URL ke URL GitHub Pages produksi dan tambahkan URL GitHub Pages yang sama pada Redirect URLs. Setelah PR digabung/deploy, uji buat akun, masuk, buat tim, bergabung memakai kode di browser/perangkat lain, pembaruan realtime, simpan progres tim, muat progres tim, dan laporan privat.
 5. Periksa Supabase Database → Replication jika tabel roster/feed/progres belum dikirim melalui Realtime. Migrasi mencoba menambahkan tabel ke publikasi `supabase_realtime`; jika publikasi tidak tersedia, atur dari dashboard dan ulangi pengujian.
 
 ### Batasan Add Team saat ini
 
-- Saat audit ini dilakukan, akun Supabase yang terhubung ke alat tidak menampilkan proyek apa pun; backend belum dijalankan pada proyek nyata. Multiplayer belum dapat dinyatakan aktif sampai pemilik membuat/menghubungkan proyek, menjalankan kedua migrasi, mengisi `team-config.js`, dan menguji dengan dua akun.
+- Proyek Supabase Free `warung-kita-multiplayer` sudah dibuat di Singapura dan kedua migrasi telah diterapkan; tabel dan RLS terverifikasi aktif serta tiga tabel multiplayer terdaftar pada publikasi Realtime. Masih perlu mengatur URL Authentication, deploy branch, dan menguji dengan dua akun nyata sebelum multiplayer dinyatakan aktif.
 - Sinkronisasi progres saat ini berupa **snapshot manual**: anggota memilih “Simpan progres ke tim” atau “Muat progres tim”. Ini bukan sinkronisasi aksi langsung per detik dan tidak menggabungkan perubahan otomatis. Revisi mencegah snapshot lama menimpa snapshot baru; jika ada konflik, muat progres terbaru sebelum menyimpan.
 - Pemilik tim belum dapat keluar atau mentransfer kepemilikan lewat UI; fitur transfer/penutupan tim perlu tahap berikutnya.
 - Laporan reputasi bersifat privat dan tidak mengubah reputasi game secara otomatis. Alur peninjauan lanjutan, bukti/attachment, banding, rate limiting dan moderasi belum diselesaikan.
