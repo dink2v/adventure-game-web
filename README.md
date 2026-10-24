@@ -19,6 +19,26 @@ Game simulasi memasak dan manajemen warung berbasis HTML, CSS, dan JavaScript. D
 - Progres disimpan di browser dengan LocalStorage.
 - UI responsif dan ilustrasi warung digambar dengan Canvas.
 
+## Add Team / Teman — fondasi tahap awal
+
+Panel **Teman** menyiapkan alur akun, buat/gabung tim dengan kode undangan, roster dan peran, catatan aktivitas append-only, pembaruan realtime untuk roster/feed, serta laporan privat untuk perlindungan reputasi. Batas awal tim adalah 8 pemain dan satu akun hanya dapat menjadi anggota satu tim pada satu waktu. Riwayat lokal single-player tidak diubah atau otomatis dibagikan ke tim.
+
+### Mengaktifkan backend Supabase
+
+1. Buat proyek Supabase sendiri dan aktifkan provider Email di Authentication. Atur konfirmasi email sesuai kebutuhan.
+2. Buka **SQL Editor** pada proyek tersebut dan jalankan isi `supabase/migrations/202610240001_add_team.sql`. Tinjau kebijakan RLS sebelum produksi.
+3. Dari **Project Settings → API**, salin Project URL dan **publishable key** ke `team-config.js` pada properti `supabaseUrl` dan `publishableKey`. Jangan pernah memasukkan `service_role` atau secret key ke file frontend.
+4. Deploy repository ke GitHub Pages, lalu uji buat akun, masuk, buat tim, bergabung memakai kode di browser/perangkat lain, pembaruan realtime, dan laporan privat.
+5. Periksa Supabase Database → Replication jika tabel roster/feed belum dikirim melalui Realtime. Migration mencoba menambahkan tabel ke publikasi `supabase_realtime`; jika publikasi tidak tersedia, atur dari dashboard dan ulangi pengujian.
+
+### Batasan Add Team saat ini
+
+- Tidak ada proyek/kredensial Supabase yang terhubung ke repository saat implementasi; backend belum dijalankan dan fitur tim akan tetap menampilkan status konfigurasi sampai langkah di atas selesai.
+- Kerja sama saat ini mencatat aktivitas dan roster; saldo, stok, pesanan, pegawai, dan progres gameplay belum disinkronkan antarpemain.
+- Pemilik tim belum dapat keluar atau mentransfer kepemilikan lewat UI; fitur transfer/penutupan tim perlu tahap berikutnya.
+- Laporan reputasi bersifat privat dan tidak mengubah reputasi game secara otomatis. Alur peninjauan lanjutan, bukti/attachment, banding, rate limiting dan moderasi belum diselesaikan.
+- Realtime dan kebijakan akses perlu diuji pada proyek Supabase yang benar-benar dikonfigurasi sebelum digunakan pemain sungguhan.
+
 ## Menjalankan
 Buka `index.html` lewat browser atau kunjungi GitHub Pages:
 https://dink2v.github.io/adventure-game-web/
