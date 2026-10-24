@@ -229,6 +229,20 @@ begin
 end;
 $;
 
+create or replace function public.wk_set_job_role(p_target_user uuid, p_job_role text)
+returns void language plpgsql security definer set search_path = ''
+as $
+declare v_user uuid := (select auth.uid()); v_team uuid;
+begin
+  select t.id into v_team from public.wk_teams t where t.owner_id=v_user and t.status='open';
+  if v_team is null then raise exception 'Hanya pemilik warung yang dapat menetapkan pekerjaan.'; end if;
+  if p_job_role not in ('chef','cashier','server','stock_manager','operations_manager') then raise exception 'Pekerjaan tidak valid.'; end if;
+  if p_target_user=v_user or not exists(select 1 from public.wk_team_members where team_id=v_team and user_id=p_target_user) then raise exception 'Anggota tidak ditemukan atau pemilik tidak dapat mengubah pekerjaannya sendiri.'; end if;
+  update public.wk_team_members set job_role=p_job_role where team_id=v_team and user_id=p_target_user;
+  insert into public.wk_team_audit_logs(team_id,actor_id,action,details) values(v_team,v_user,'member_job_role_changed',jsonb_build_object('target_user_id',p_target_user,'job_role',p_job_role));
+end;
+$;
+
 create or replace function public.wk_set_member_role(p_target_user uuid, p_role text)
 returns void language plpgsql security definer set search_path = ''
 as $$
@@ -375,6 +389,7 @@ revoke all on function public.wk_apply_to_vacancy(uuid,text,text) from public, a
 revoke all on function public.wk_review_application(uuid,text) from public, anon;
 revoke all on function public.wk_close_vacancy(uuid) from public, anon;
 revoke all on function public.wk_transfer_team_ownership(uuid) from public, anon;
+revoke all on function public.wk_set_job_role(uuid,text) from public, anon;
 revoke all on function public.wk_set_member_role(uuid,text) from public, anon;
 revoke all on function public.wk_set_compensation(uuid,text,numeric,numeric,numeric) from public, anon;
 revoke all on function public.wk_set_financial_settings(numeric,boolean) from public, anon;
@@ -390,6 +405,7 @@ grant execute on function public.wk_apply_to_vacancy(uuid,text,text) to authenti
 grant execute on function public.wk_review_application(uuid,text) to authenticated;
 grant execute on function public.wk_close_vacancy(uuid) to authenticated;
 grant execute on function public.wk_transfer_team_ownership(uuid) to authenticated;
+grant execute on function public.wk_set_job_role(uuid,text) to authenticated;
 grant execute on function public.wk_set_member_role(uuid,text) to authenticated;
 grant execute on function public.wk_set_compensation(uuid,text,numeric,numeric,numeric) to authenticated;
 grant execute on function public.wk_set_financial_settings(numeric,boolean) to authenticated;
