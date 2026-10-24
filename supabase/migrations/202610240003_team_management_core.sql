@@ -15,6 +15,10 @@ create table if not exists public.wk_team_vacancies (
 );
 create index if not exists wk_team_vacancies_open_idx on public.wk_team_vacancies(status, created_at desc);
 
+-- Separate job function from authorization role (owner/manager/member).
+alter table public.wk_team_members add column if not exists job_role text not null default 'server'
+  check (job_role in ('chef','cashier','server','stock_manager','operations_manager'));
+
 create table if not exists public.wk_team_applications (
   id uuid primary key default gen_random_uuid(),
   vacancy_id uuid not null references public.wk_team_vacancies(id) on delete cascade,
@@ -190,13 +194,40 @@ begin
     perform 1 from public.wk_teams where id=v_app.team_id and status='open' for update;
     if (select count(*) from public.wk_team_members where team_id=v_app.team_id) >= 8 then raise exception 'Tim sudah mencapai batas 8 pemain.'; end if;
     if exists(select 1 from public.wk_team_members where user_id=v_app.applicant_id) then raise exception 'Pelamar sudah menjadi anggota tim lain.'; end if;
-    insert into public.wk_team_members(team_id,user_id,display_name,role) values(v_app.team_id,v_app.applicant_id,v_app.display_name,'member');
+    insert into public.wk_team_members(team_id,user_id,display_name,role,job_role) values(v_app.team_id,v_app.applicant_id,v_app.display_name,'member',(select role_key from public.wk_team_vacancies where id=v_app.vacancy_id));
     insert into public.wk_team_activity(team_id,actor_id,event_type,message) values(v_app.team_id,v_user,'member_joined','Lamaran anggota diterima oleh pengelola.');
   end if;
   update public.wk_team_applications set status=p_decision,reviewed_by=v_user,reviewed_at=now() where id=v_app.id;
   insert into public.wk_team_audit_logs(team_id,actor_id,action,details) values(v_app.team_id,v_user,'application_reviewed',jsonb_build_object('application_id',v_app.id,'decision',p_decision));
 end;
 $$;
+
+create or replace function public.wk_close_vacancy(p_vacancy_id uuid)
+returns void language plpgsql security definer set search_path = ''
+as $
+declare v_user uuid := (select auth.uid()); v_vacancy public.wk_team_vacancies%rowtype;
+begin
+  select * into v_vacancy from public.wk_team_vacancies where id=p_vacancy_id for update;
+  if not found or not team_private.is_manager(v_vacancy.team_id) then raise exception 'Lowongan tidak ditemukan atau kamu tidak berwenang.'; end if;
+  update public.wk_team_vacancies set status='closed',closed_at=now() where id=p_vacancy_id;
+  insert into public.wk_team_audit_logs(team_id,actor_id,action,details) values(v_vacancy.team_id,v_user,'vacancy_closed',jsonb_build_object('vacancy_id',p_vacancy_id));
+end;
+$;
+
+create or replace function public.wk_transfer_team_ownership(p_target_user uuid)
+returns void language plpgsql security definer set search_path = ''
+as $
+declare v_user uuid := (select auth.uid()); v_team uuid;
+begin
+  select t.id into v_team from public.wk_teams t where t.owner_id=v_user and t.status='open' for update;
+  if v_team is null then raise exception 'Hanya pemilik saat ini yang dapat mentransfer kepemilikan.'; end if;
+  if p_target_user=v_user or not exists(select 1 from public.wk_team_members where team_id=v_team and user_id=p_target_user) then raise exception 'Pilih anggota lain dari tim yang sama.'; end if;
+  update public.wk_team_members set role='manager' where team_id=v_team and user_id=v_user;
+  update public.wk_team_members set role='owner' where team_id=v_team and user_id=p_target_user;
+  update public.wk_teams set owner_id=p_target_user where id=v_team;
+  insert into public.wk_team_audit_logs(team_id,actor_id,action,details) values(v_team,v_user,'ownership_transferred',jsonb_build_object('new_owner_id',p_target_user));
+end;
+$;
 
 create or replace function public.wk_set_member_role(p_target_user uuid, p_role text)
 returns void language plpgsql security definer set search_path = ''
@@ -342,6 +373,8 @@ $$;
 revoke all on function public.wk_create_vacancy(text,text,text) from public, anon;
 revoke all on function public.wk_apply_to_vacancy(uuid,text,text) from public, anon;
 revoke all on function public.wk_review_application(uuid,text) from public, anon;
+revoke all on function public.wk_close_vacancy(uuid) from public, anon;
+revoke all on function public.wk_transfer_team_ownership(uuid) from public, anon;
 revoke all on function public.wk_set_member_role(uuid,text) from public, anon;
 revoke all on function public.wk_set_compensation(uuid,text,numeric,numeric,numeric) from public, anon;
 revoke all on function public.wk_set_financial_settings(numeric,boolean) from public, anon;
@@ -355,6 +388,8 @@ revoke all on function public.wk_review_team_exit(uuid,text) from public, anon;
 grant execute on function public.wk_create_vacancy(text,text,text) to authenticated;
 grant execute on function public.wk_apply_to_vacancy(uuid,text,text) to authenticated;
 grant execute on function public.wk_review_application(uuid,text) to authenticated;
+grant execute on function public.wk_close_vacancy(uuid) to authenticated;
+grant execute on function public.wk_transfer_team_ownership(uuid) to authenticated;
 grant execute on function public.wk_set_member_role(uuid,text) to authenticated;
 grant execute on function public.wk_set_compensation(uuid,text,numeric,numeric,numeric) to authenticated;
 grant execute on function public.wk_set_financial_settings(numeric,boolean) to authenticated;
