@@ -136,7 +136,7 @@
     if(changedTeam){stopSubscriptions();gameRevision=null;gameSnapshotStale=false;}
     currentTeam=team;
     const storedRevision=localStorage.getItem(revisionKey(team.id));
-    gameRevision=storedRevision!==null&&/^\\d+$/.test(storedRevision)?Number(storedRevision):null;
+    gameRevision=storedRevision!==null&&/^\d+$/.test(storedRevision)?Number(storedRevision):null;
     showSignedIn();setHidden('team-setup',true);setHidden('team-workspace',false);injectGameSync();
     $('team-name-title').textContent=team.name;$('team-role-label').textContent=({owner:'Pemilik tim',manager:'Pengelola',member:'Anggota'})[membership.role]||'Anggota';
     $('team-invite-code').textContent=team.invite_code;$('team-invite-code').title='Bagikan kode ini hanya kepada pemain yang kamu percaya.';
