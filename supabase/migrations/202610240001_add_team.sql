@@ -1,6 +1,5 @@
 -- Warung Kita: Add Team/Teman foundation
 -- Apply in Supabase SQL Editor or with Supabase CLI after reviewing this migration.
-create extension if not exists pgcrypto;
 create schema if not exists team_private;
 revoke all on schema team_private from public, anon, authenticated;
 
