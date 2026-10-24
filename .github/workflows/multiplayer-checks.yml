@@ -19,9 +19,15 @@ jobs:
           node --check game.js
           node --check team.js
           node --check team-config.js
+          node --check team-management.js
       - name: Check multiplayer migration invariants
         run: |
           grep -q "create table if not exists public.wk_team_game_state" supabase/migrations/202610240002_multiplayer_game_state.sql
           grep -q "wk_save_game_state" supabase/migrations/202610240002_multiplayer_game_state.sql
           grep -q "enable row level security" supabase/migrations/202610240002_multiplayer_game_state.sql
           grep -q "revision=gs.revision+1" supabase/migrations/202610240002_multiplayer_game_state.sql
+          grep -q "create table if not exists public.wk_team_vacancies" supabase/migrations/202610240003_team_management_core.sql
+          grep -q "create table if not exists public.wk_team_financial_entries" supabase/migrations/202610240003_team_management_core.sql
+          grep -q "enable row level security" supabase/migrations/202610240003_team_management_core.sql
+          grep -q "wk_review_application" supabase/migrations/202610240003_team_management_core.sql
+          grep -q "wk_review_team_dispute" supabase/migrations/202610240003_team_management_core.sql
