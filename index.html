@@ -109,6 +109,21 @@
         <div class="management-heading"><div><p class="eyebrow">HARGA JUAL</p><h2 id="menu-pricing-title">Atur harga tiap menu</h2><p class="price-panel-intro">Tentukan harga sendiri. Rekomendasi hanya sebagai panduan; harga jual berlaku pada pesanan berikutnya.</p></div></div>
         <div class="menu-price-list" id="menu-price-list" aria-live="polite"></div>
       </section>
+      <section class="employee-management-panel" aria-labelledby="employee-management-title">
+        <div class="management-heading"><div><p class="eyebrow">TIM & KESEJAHTERAAN</p><h2 id="employee-management-title">Manajemen pegawai</h2><p class="price-panel-intro">Evaluasi kinerja, pengembangan keterampilan, kesejahteraan, dan rekomendasi promosi. Keputusan akhir tetap di tanganmu.</p></div><span class="employee-status-pill" id="employee-status-pill">Belum ada pegawai</span></div>
+        <div class="employee-overview" id="employee-overview"><div class="employee-empty"><span>🧑‍🍳</span><strong>Bangun tim pertamamu</strong><p>Rekrut asisten dapur untuk membuka profil, evaluasi, dan pengembangan pegawai.</p></div></div>
+        <div class="employee-actions" id="employee-actions" hidden>
+          <article class="employee-action-card"><div><strong>📚 Pembinaan keterampilan</strong><p>Biaya Rp 5.000. Meningkatkan keterampilan dan kinerja secara bertahap.</p></div><button type="button" id="employee-coach-btn">Mulai pembinaan</button></article>
+          <article class="employee-action-card"><div><strong>💝 Dukungan kesejahteraan</strong><p>Biaya Rp 8.000. Membantu moral dan loyalitas; efek mengikuti kondisi pegawai.</p></div><button type="button" id="employee-welfare-btn">Berikan dukungan</button></article>
+          <article class="employee-action-card"><div><strong>🤝 Kegiatan kerja sama</strong><p>Biaya Rp 6.000. Membantu kerja sama tim dan suasana kerja.</p></div><button type="button" id="employee-team-btn">Adakan kegiatan</button></article>
+        </div>
+        <div class="employee-review" id="employee-review" aria-live="polite"><strong>Rekomendasi sistem</strong><p>Rekomendasi akan muncul setelah pegawai direkrut dan dievaluasi.</p></div>
+        <div class="employee-promotion" id="employee-promotion" hidden><div><strong>⭐ Rekomendasi promosi</strong><p id="employee-promotion-reason"></p></div><button type="button" id="employee-promote-btn">Setujui promosi</button></div>
+        <section class="employee-records" aria-labelledby="employee-records-title"><div class="management-heading"><div><p class="eyebrow">TRANSPARANSI & AKUNTABILITAS</p><h3 id="employee-records-title">Catatan pegawai</h3><p class="price-panel-intro">Pegawai dapat melihat catatan relevan tentang dirinya dan mengajukan koreksi atau tanggapan. Privasi pihak lain tetap dilindungi.</p></div></div>
+          <div class="employee-record-form"><label for="employee-record-input">Catatan evaluasi atau kejadian</label><textarea id="employee-record-input" rows="2" maxlength="400" placeholder="Tulis catatan faktual, misalnya hasil evaluasi atau tindak lanjut…"></textarea><button type="button" id="employee-record-add-btn">Simpan catatan</button></div>
+          <div id="employee-record-list"><p class="employee-record-empty">Belum ada catatan pegawai.</p></div>
+        </section>
+      </section>
     </section>
 
     <section class="progression-panel app-view-hidden" id="more-panel">
