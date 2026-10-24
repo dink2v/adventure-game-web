@@ -281,7 +281,7 @@ declare v_user uuid := (select auth.uid()); v_team uuid;
 begin
   select t.id into v_team from public.wk_teams t where t.owner_id=v_user and t.status='open';
   if v_team is null then raise exception 'Hanya pemilik warung yang dapat mengubah aturan keuntungan.'; end if;
-  if p_reserve_percent not between 0 and 80 then raise exception 'Cadangan harus antara 0% dan 80%.'; end if;
+  if p_reserve_percent not between 0 and 80 then raise exception 'Cadangan harus antara 0%% dan 80%%.'; end if;
   insert into public.wk_team_financial_settings(team_id,reserve_percent,profit_share_enabled,updated_by,updated_at)
   values(v_team,p_reserve_percent,p_profit_share_enabled,v_user,now())
   on conflict(team_id) do update set reserve_percent=excluded.reserve_percent,profit_share_enabled=excluded.profit_share_enabled,updated_by=v_user,updated_at=now();
