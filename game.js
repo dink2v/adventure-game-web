@@ -252,7 +252,7 @@
   }
   function closeReceipt(){const modal=$('receipt-modal');if(modal)modal.hidden=true;}
   function setView(view){
-    const all=['home','kitchen','market','business','report','more'];
+    const all=['home','kitchen','market','business','report','team','more'];
     if(!all.includes(view))view='home';
     document.body.classList.toggle('home-view',view==='home');
     const topbar=document.querySelector('.topbar');
@@ -265,8 +265,8 @@
     document.querySelectorAll('.dashboard-nav [data-view-link]').forEach(link=>link.classList.toggle('active',link.dataset.viewLink===view));
     const scene=document.querySelector('.scene-card'),order=document.querySelector('.order-card'),kitchen=$('kitchen-panel'),onlineOrders=$('online-orders-card');
     const dashboard=$('dashboard'),market=$('market-panel'),business=$('business-panel');
-    const extras=document.querySelector('.extra-management'),more=$('more-panel'),report=$('report-panel'),footer=document.querySelector('footer');
-    const panels=[dashboard,scene,order,kitchen,onlineOrders,market,business,extras,more,report,footer];
+    const extras=document.querySelector('.extra-management'),more=$('more-panel'),report=$('report-panel'),team=$('team-panel'),footer=document.querySelector('footer');
+    const panels=[dashboard,scene,order,kitchen,onlineOrders,market,business,extras,more,report,team,footer];
     panels.forEach(panel=>panel?.classList.add('app-view-hidden'));
     const reveal=(...elements)=>elements.forEach(element=>element?.classList.remove('app-view-hidden'));
     if(view==='home')reveal(dashboard);
@@ -274,6 +274,7 @@
     if(view==='market'){reveal(market);renderMarket();}
     if(view==='business')reveal(business,extras);
     if(view==='report')reveal(report);
+    if(view==='team')reveal(team);
     if(view==='more')reveal(more,footer);
     window.scrollTo({top:0,behavior:'smooth'});
   }
