@@ -26,15 +26,15 @@ Panel **Teman** menyiapkan alur akun, buat/gabung tim dengan kode undangan, rost
 ### Mengaktifkan backend Supabase
 
 1. Buat proyek Supabase sendiri dan aktifkan provider Email di Authentication. Atur konfirmasi email sesuai kebutuhan.
-2. Buka **SQL Editor** pada proyek tersebut dan jalankan isi `supabase/migrations/202610240001_add_team.sql`. Tinjau kebijakan RLS sebelum produksi.
+2. Buka **SQL Editor** pada proyek tersebut dan jalankan berurutan isi `supabase/migrations/202610240001_add_team.sql`, lalu `supabase/migrations/202610240002_multiplayer_game_state.sql`. Jalankan pada proyek pengujian dahulu dan tinjau kebijakan RLS sebelum produksi.
 3. Dari **Project Settings → API**, salin Project URL dan **publishable key** ke `team-config.js` pada properti `supabaseUrl` dan `publishableKey`. Jangan pernah memasukkan `service_role` atau secret key ke file frontend.
-4. Deploy repository ke GitHub Pages, lalu uji buat akun, masuk, buat tim, bergabung memakai kode di browser/perangkat lain, pembaruan realtime, dan laporan privat.
-5. Periksa Supabase Database → Replication jika tabel roster/feed belum dikirim melalui Realtime. Migration mencoba menambahkan tabel ke publikasi `supabase_realtime`; jika publikasi tidak tersedia, atur dari dashboard dan ulangi pengujian.
+4. Deploy branch/PR ke GitHub Pages setelah konfigurasi, lalu uji buat akun, masuk, buat tim, bergabung memakai kode di browser/perangkat lain, pembaruan realtime, simpan progres tim, muat progres tim, dan laporan privat.
+5. Periksa Supabase Database → Replication jika tabel roster/feed/progres belum dikirim melalui Realtime. Migrasi mencoba menambahkan tabel ke publikasi `supabase_realtime`; jika publikasi tidak tersedia, atur dari dashboard dan ulangi pengujian.
 
 ### Batasan Add Team saat ini
 
-- Tidak ada proyek/kredensial Supabase yang terhubung ke repository saat implementasi; backend belum dijalankan dan fitur tim akan tetap menampilkan status konfigurasi sampai langkah di atas selesai.
-- Kerja sama saat ini mencatat aktivitas dan roster; saldo, stok, pesanan, pegawai, dan progres gameplay belum disinkronkan antarpemain.
+- Saat audit ini dilakukan, akun Supabase yang terhubung ke alat tidak menampilkan proyek apa pun; backend belum dijalankan pada proyek nyata. Multiplayer belum dapat dinyatakan aktif sampai pemilik membuat/menghubungkan proyek, menjalankan kedua migrasi, mengisi `team-config.js`, dan menguji dengan dua akun.
+- Sinkronisasi progres saat ini berupa **snapshot manual**: anggota memilih “Simpan progres ke tim” atau “Muat progres tim”. Ini bukan sinkronisasi aksi langsung per detik dan tidak menggabungkan perubahan otomatis. Revisi mencegah snapshot lama menimpa snapshot baru; jika ada konflik, muat progres terbaru sebelum menyimpan.
 - Pemilik tim belum dapat keluar atau mentransfer kepemilikan lewat UI; fitur transfer/penutupan tim perlu tahap berikutnya.
 - Laporan reputasi bersifat privat dan tidak mengubah reputasi game secara otomatis. Alur peninjauan lanjutan, bukti/attachment, banding, rate limiting dan moderasi belum diselesaikan.
 - Realtime dan kebijakan akses perlu diuji pada proyek Supabase yang benar-benar dikonfigurasi sebelum digunakan pemain sungguhan.
@@ -57,4 +57,4 @@ Pengaturan publikasi tetap: Settings → Pages → Deploy from a branch → `mai
 - Animasi memasak dan indikator waktu/progres yang lebih interaktif.
 - Sistem pelanggan/antrean yang lebih hidup serta laporan keuangan terperinci.
 - Efek suara dan musik.
-- Akun, cloud save, dan multiplayer realtime setelah fondasi single-player stabil.
+- Sinkronisasi aksi gameplay realtime dengan aturan kepemilikan/konflik yang lebih rinci; saat ini yang tersedia adalah snapshot manual bersama.
