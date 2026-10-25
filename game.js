@@ -647,6 +647,28 @@
     if(Math.floor(state.tick*2)%2===0)drawScene();
     requestAnimationFrame(frame);
   }
+  window.WarungGameBridge = {
+    onLocalStateChanged: null,
+    getSnapshot() {
+      try {
+        const value = JSON.parse(localStorage.getItem('warung-kita-save') || 'null');
+        return value && typeof value === 'object' && !Array.isArray(value) ? value : null;
+      } catch { return null; }
+    },
+    applySnapshot(snapshot) {
+      if (!snapshot || typeof snapshot !== 'object' || Array.isArray(snapshot)) return false;
+      const allowed = new Set(['menuPrices','marketInventory','marketCycle','marketCart','marketReceipts','marketSold','cash','rep','served','stock','day','stove','tables','orderNo','menu','orderMenu','step','patience','cookingStarted','cookingElapsed','actionIndex','qualityScore','qualityLabel','staff','promoUsed','promoBonusPending','todayServed','todayRevenue','missionClaimed','totalRevenue','onlineOrders','orderSource','orderAcceptedAt','orderDeadlineAt','suspendedOrder','nextOnlineAt','onlineSequence','readyStock','currentDishFromStock','employee','employeeRecords','devCashGrant20261024']);
+      for (const key of allowed) {
+        if (Object.prototype.hasOwnProperty.call(snapshot, key)) state[key] = snapshot[key];
+      }
+      try { localStorage.setItem('warung-kita-save', JSON.stringify(snapshot)); } catch { return false; }
+      updateStats(); updateOrder(); updateProgress(); drawScene(); renderReadyStock();
+      renderEmployeeManagement(); renderMarket(); renderOnlineOrders();
+      const menuSelect = $('menu-select');
+      if (menuSelect && state.menu) menuSelect.value = state.menu;
+      return true;
+    }
+  };
   $('enter-kitchen-btn').addEventListener('click',()=>setView('kitchen'));
   $('online-order-list').addEventListener('click',event=>{const button=event.target.closest('[data-accept-online]');if(button)acceptOnlineOrder(button.dataset.acceptOnline);});
   $('market-checkout-btn').addEventListener('click',confirmMarketPurchase);
