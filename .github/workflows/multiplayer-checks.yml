@@ -20,6 +20,9 @@ jobs:
           node --check team.js
           node --check team-config.js
           node --check team-management.js
+          grep -q "window.WarungGameBridge" game.js
+          grep -q "onLocalStateChanged" game.js
+          grep -q "autoSaveGameSnapshot" team.js
       - name: Check multiplayer migration invariants
         run: |
           grep -q "create table if not exists public.wk_team_game_state" supabase/migrations/202610240002_multiplayer_game_state.sql
