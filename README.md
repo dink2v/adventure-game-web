@@ -45,7 +45,7 @@ Panel **Teman** menyiapkan alur akun, buat/gabung tim dengan kode undangan, rost
 ### Batasan Add Team saat ini
 
 - Proyek Supabase Free `warung-kita-multiplayer` di Singapura sudah memiliki ketiga migrasi; tabel dan RLS terverifikasi aktif serta tabel multiplayer/manajemen terdaftar pada publikasi Realtime. Masih perlu mengatur URL Authentication, menggabungkan/deploy UI, dan menguji dengan dua akun nyata sebelum multiplayer dinyatakan aktif.
-- Sinkronisasi progres saat ini berupa **snapshot manual**: anggota memilih “Simpan progres ke tim” atau “Muat progres tim”. Ini bukan sinkronisasi aksi langsung per detik dan tidak menggabungkan perubahan otomatis. Revisi mencegah snapshot lama menimpa snapshot baru; jika ada konflik, muat progres terbaru sebelum menyimpan.
+- Sinkronisasi progres kini mencoba menyimpan snapshot otomatis setelah perubahan yang sudah tersimpan secara lokal (debounce 1,4 detik) dan menerapkan pembaruan teman secara realtime ketika perangkat lokal tidak memiliki perubahan tertunda. Ini masih sinkronisasi **snapshot**, bukan simulasi server-otoritatif atau penggabungan aksi simultan. Jika dua pemain mengubah game bersamaan, pemeriksaan revisi menahan snapshot yang konflik agar tidak menimpa versi teman; pemain perlu memilih “Muat progres tim”. Snapshot lokal yang tertimpa saat memilih muat konflik disimpan sebagai cadangan lokal dengan kunci `warung-kita-local-conflict-backup:<team-id>`.
 - Pemilik tim belum dapat keluar atau mentransfer kepemilikan lewat UI; fitur transfer/penutupan tim perlu tahap berikutnya.
 - Laporan reputasi bersifat privat dan tidak mengubah reputasi game secara otomatis. Alur peninjauan lanjutan, bukti/attachment, banding, rate limiting dan moderasi belum diselesaikan.
 - Realtime dan kebijakan akses perlu diuji pada proyek Supabase yang benar-benar dikonfigurasi sebelum digunakan pemain sungguhan.
@@ -58,7 +58,7 @@ https://dink2v.github.io/adventure-game-web/
 Pengaturan publikasi tetap: Settings → Pages → Deploy from a branch → `main` → `/(root)`.
 
 ## Batasan versi saat ini
-- Single-player tetap memakai LocalStorage per browser/perangkat. Snapshot tim masih disimpan/dimuat secara manual; aksi memasak, pesanan, stok, dan kas belum tersinkron langsung sebagai satu simulasi realtime antar pemain.
+- Single-player tetap memakai LocalStorage per browser/perangkat. Snapshot game disinkronkan otomatis secara terbatas; aksi memasak, pesanan, stok, dan kas belum diproses oleh mesin game otoritatif di server dan perubahan simultan belum digabungkan.
 - Belum ada simulasi gameplay otoritatif di server, perhitungan gaji/bonus otomatis dari kinerja, distribusi keuntungan otomatis, lowongan berbasis undangan langsung ke akun tertentu, atau proses banding/moderasi lengkap.
 - Ilustrasi warung masih berbasis Canvas; belum menggunakan aset 3D realistis.
 - Efek suara dan musik belum aktif.
