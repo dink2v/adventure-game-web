@@ -142,9 +142,15 @@
     const {data,error}=await client.from('wk_team_game_state').select('state,revision,updated_at').eq('team_id',currentTeam.id).maybeSingle();
     if(error){gameSyncStatus('Belum bisa memeriksa progres tim. Sinkronisasi otomatis akan mencoba saat ada perubahan.');return;}
     if(!data){gameRevision=null;gameSnapshotStale=false;gameLocalDirty=false;localStorage.removeItem(revisionKey(currentTeam.id));gameSyncStatus('Belum ada progres bersama. Perubahan berikutnya akan membuat snapshot pertama.');return;}
-    if(!gameLocalDirty&&window.WarungGameBridge?.applySnapshot?.(data.state)){
-      gameRevision=data.revision;localStorage.setItem(revisionKey(currentTeam.id),String(gameRevision));gameSnapshotStale=false;
-      gameSyncStatus('Progres bersama revisi '+data.revision+' dimuat otomatis.');
+    if(!gameLocalDirty){
+      const localSnapshot=window.WarungGameBridge?.getSnapshot?.();
+      if(localSnapshot){
+        try{localStorage.setItem('warung-kita-local-conflict-backup:'+currentTeam.id,JSON.stringify(localSnapshot));}catch{}
+      }
+      if(window.WarungGameBridge?.applySnapshot?.(data.state)){
+        gameRevision=data.revision;localStorage.setItem(revisionKey(currentTeam.id),String(gameRevision));gameSnapshotStale=false;
+        gameSyncStatus('Progres bersama revisi '+data.revision+' dimuat otomatis. Salinan progres lokal sebelumnya disimpan sebagai cadangan.');
+      }
     }
   }
   function handleRemoteGameState(row){
