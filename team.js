@@ -112,6 +112,7 @@
     const snapshot=window.WarungGameBridge?.getSnapshot?.();
     if(!snapshot)return;
     const versionAtStart=gameLocalVersion;
+    let resyncAfterSave=false;
     gameSyncInFlight=true;gameSyncStatus('Menyinkronkan progres…');
     try{
       const {data,error}=await client.rpc('wk_save_game_state',{p_state:snapshot,p_expected_revision:gameRevision});
@@ -128,12 +129,12 @@
         gameLocalDirty=false;
         gameSyncStatus('Tersinkron otomatis · revisi '+gameRevision+' · '+new Date(result.updated_at).toLocaleTimeString('id-ID'));
       }else{
-        gameLocalDirty=true;
+        gameLocalDirty=true;resyncAfterSave=true;
         gameSyncStatus('Progres berubah saat sinkronisasi berlangsung; menyinkronkan perubahan terbaru…');
       }
     } finally {
       gameSyncInFlight=false;
-      if(gameLocalDirty&&!gameSnapshotStale)scheduleAutoGameSync();
+      if(resyncAfterSave&&gameLocalDirty&&!gameSnapshotStale)scheduleAutoGameSync();
     }
   }
   async function syncGameStateOnJoin(){
