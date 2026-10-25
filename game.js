@@ -30,7 +30,7 @@
   let lastTime=0, toastTimer=0, lastUiUpdate=0, lastSaveAt=0, lastReadyStockRenderAt=0;
   function sellingPrice(id){const base=recipes[id]?.price??1000;const custom=Number(state.menuPrices[id]);return Number.isFinite(custom)&&custom>=1?Math.round(custom):base;}
   function compactPrice(id){const value=sellingPrice(id)/1000;return (Number.isInteger(value)?String(value):value.toFixed(1))+'k';}
-  function persist(){try{localStorage.setItem('warung-kita-save',JSON.stringify({menuPrices:state.menuPrices,marketInventory:state.marketInventory,marketCycle:state.marketCycle,marketCart:state.marketCart,marketReceipts:state.marketReceipts,marketSold:state.marketSold,cash:state.cash,rep:state.rep,served:state.served,stock:state.stock,day:state.day,stove:state.stove,tables:state.tables,orderNo:state.orderNo,menu:state.menu,orderMenu:state.orderMenu,step:state.step,patience:state.patience,cookingStarted:state.cookingStarted,cookingElapsed:state.cookingElapsed,actionIndex:state.actionIndex,qualityScore:state.qualityScore,qualityLabel:state.qualityLabel,staff:state.staff,promoUsed:state.promoUsed,promoBonusPending:state.promoBonusPending,todayServed:state.todayServed,todayRevenue:state.todayRevenue,missionClaimed:state.missionClaimed,totalRevenue:state.totalRevenue,onlineOrders:state.onlineOrders,orderSource:state.orderSource,orderAcceptedAt:state.orderAcceptedAt,orderDeadlineAt:state.orderDeadlineAt,suspendedOrder:state.suspendedOrder,nextOnlineAt:state.nextOnlineAt,onlineSequence:state.onlineSequence,readyStock:state.readyStock,currentDishFromStock:state.currentDishFromStock,employee:state.employee,employeeRecords:state.employeeRecords,devCashGrant20261024:true}));}catch{}}
+  function persist(){try{const snapshot={menuPrices:state.menuPrices,marketInventory:state.marketInventory,marketCycle:state.marketCycle,marketCart:state.marketCart,marketReceipts:state.marketReceipts,marketSold:state.marketSold,cash:state.cash,rep:state.rep,served:state.served,stock:state.stock,day:state.day,stove:state.stove,tables:state.tables,orderNo:state.orderNo,menu:state.menu,orderMenu:state.orderMenu,step:state.step,patience:state.patience,cookingStarted:state.cookingStarted,cookingElapsed:state.cookingElapsed,actionIndex:state.actionIndex,qualityScore:state.qualityScore,qualityLabel:state.qualityLabel,staff:state.staff,promoUsed:state.promoUsed,promoBonusPending:state.promoBonusPending,todayServed:state.todayServed,todayRevenue:state.todayRevenue,missionClaimed:state.missionClaimed,totalRevenue:state.totalRevenue,onlineOrders:state.onlineOrders,orderSource:state.orderSource,orderAcceptedAt:state.orderAcceptedAt,orderDeadlineAt:state.orderDeadlineAt,suspendedOrder:state.suspendedOrder,nextOnlineAt:state.nextOnlineAt,onlineSequence:state.onlineSequence,readyStock:state.readyStock,currentDishFromStock:state.currentDishFromStock,employee:state.employee,employeeRecords:state.employeeRecords,devCashGrant20261024:true};localStorage.setItem('warung-kita-save',JSON.stringify(snapshot));window.WarungGameBridge?.onLocalStateChanged?.();}catch{}}
   function queueOnlineOrder(){
     const available=Object.keys(recipes).filter(id=>unlocked(id));
     const menu=available[Math.floor(Math.random()*available.length)];
@@ -647,6 +647,28 @@
     if(Math.floor(state.tick*2)%2===0)drawScene();
     requestAnimationFrame(frame);
   }
+  window.WarungGameBridge = {
+    onLocalStateChanged: null,
+    getSnapshot() {
+      try {
+        const value = JSON.parse(localStorage.getItem('warung-kita-save') || 'null');
+        return value && typeof value === 'object' && !Array.isArray(value) ? value : null;
+      } catch { return null; }
+    },
+    applySnapshot(snapshot) {
+      if (!snapshot || typeof snapshot !== 'object' || Array.isArray(snapshot)) return false;
+      const allowed = new Set(['menuPrices','marketInventory','marketCycle','marketCart','marketReceipts','marketSold','cash','rep','served','stock','day','stove','tables','orderNo','menu','orderMenu','step','patience','cookingStarted','cookingElapsed','actionIndex','qualityScore','qualityLabel','staff','promoUsed','promoBonusPending','todayServed','todayRevenue','missionClaimed','totalRevenue','onlineOrders','orderSource','orderAcceptedAt','orderDeadlineAt','suspendedOrder','nextOnlineAt','onlineSequence','readyStock','currentDishFromStock','employee','employeeRecords','devCashGrant20261024']);
+      for (const key of allowed) {
+        if (Object.prototype.hasOwnProperty.call(snapshot, key)) state[key] = snapshot[key];
+      }
+      try { localStorage.setItem('warung-kita-save', JSON.stringify(snapshot)); } catch { return false; }
+      updateStats(); updateOrder(); updateProgress(); drawScene(); renderReadyStock();
+      renderEmployeeManagement(); renderMarket(); renderOnlineOrders();
+      const menuSelect = $('menu-select');
+      if (menuSelect && state.menu) menuSelect.value = state.menu;
+      return true;
+    }
+  };
   $('enter-kitchen-btn').addEventListener('click',()=>setView('kitchen'));
   $('online-order-list').addEventListener('click',event=>{const button=event.target.closest('[data-accept-online]');if(button)acceptOnlineOrder(button.dataset.acceptOnline);});
   $('market-checkout-btn').addEventListener('click',confirmMarketPurchase);

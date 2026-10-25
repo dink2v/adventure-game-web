@@ -6,7 +6,7 @@
     const el=$('team-status'); if(el){el.textContent=message;el.dataset.kind=kind;}
   };
   let client=null,currentUser=null,currentTeam=null,channel=null,gameChannel=null,roster=[];
-  let gameRevision=null,gameSnapshotStale=false;
+  let gameRevision=null,gameSnapshotStale=false,gameSyncTimer=null,gameSyncInFlight=false,gameLocalDirty=false,gameLocalVersion=0;
   const revisionKey=teamId=>'warung-kita-team-game-revision:'+teamId;
   const setHidden=(id,hidden)=>{const el=$(id);if(el)el.hidden=hidden;};
   const showSignedOut=()=>{setHidden('team-auth',false);setHidden('team-workspace',true);setHidden('team-setup',true);};
@@ -59,7 +59,7 @@
     const section=document.createElement('section');
     section.id='team-game-sync';section.className='team-subcard';section.setAttribute('aria-labelledby','team-game-sync-title');
     const title=document.createElement('h4');title.id='team-game-sync-title';title.textContent='🎮 Progres permainan bersama';
-    const note=document.createElement('p');note.textContent='Simpan atau muat snapshot progres warung untuk semua anggota. Sinkronisasi ini manual; perubahan tidak digabung otomatis. Muat progres tim sebelum menyimpan jika teman sudah memperbaruinya.';
+    const note=document.createElement('p');note.textContent='Progres game disinkronkan otomatis setelah perubahan. Jika dua pemain mengubah keadaan bersamaan, sistem menahan penyimpanan yang berkonflik agar progres teman tidak tertimpa; gunakan muat progres tim untuk mengambil versi terbaru.';
     const actions=document.createElement('div');actions.className='team-actions';
     const save=document.createElement('button');save.type='button';save.id='team-game-save';save.textContent='Simpan progres ke tim';
     const load=document.createElement('button');load.type='button';load.id='team-game-load';load.className='team-secondary-btn';load.textContent='Muat progres tim';
@@ -74,16 +74,17 @@
     gameSyncStatus('Memuat progres tim…');
     const {data,error}=await client.from('wk_team_game_state').select('state,revision,updated_at,updated_by').eq('team_id',currentTeam.id).maybeSingle();
     if(error)throw new Error('Tidak dapat memuat progres. Pastikan migrasi multiplayer tahap 2 sudah diterapkan.');
-    if(!data){gameRevision=null;gameSnapshotStale=false;localStorage.removeItem(revisionKey(currentTeam.id));gameSyncStatus('Belum ada snapshot tim. Kamu bisa menyimpan progres lokal sebagai snapshot pertama.');return;}
+    if(!data){gameRevision=null;gameSnapshotStale=false;gameLocalDirty=false;localStorage.removeItem(revisionKey(currentTeam.id));gameSyncStatus('Belum ada progres bersama. Perubahan berikutnya akan membuat snapshot pertama.');return;}
     if(!data.state||typeof data.state!=='object'||Array.isArray(data.state))throw new Error('Snapshot progres tim tidak valid.');
-    localStorage.setItem('warung-kita-save',JSON.stringify(data.state));
-    gameRevision=data.revision;localStorage.setItem(revisionKey(currentTeam.id),String(gameRevision));gameSnapshotStale=false;
-    gameSyncStatus('Snapshot revisi '+data.revision+' dimuat ('+new Date(data.updated_at).toLocaleString('id-ID')+'). Memuat ulang game…');
-    window.location.reload();
+    if(gameLocalDirty){const local=window.WarungGameBridge?.getSnapshot?.();if(local)localStorage.setItem('warung-kita-local-conflict-backup:'+currentTeam.id,JSON.stringify(local));}
+    const applied=window.WarungGameBridge?.applySnapshot?.(data.state);
+    if(!applied)throw new Error('Game belum siap menerima progres bersama. Muat ulang halaman lalu coba lagi.');
+    gameRevision=data.revision;localStorage.setItem(revisionKey(currentTeam.id),String(gameRevision));gameSnapshotStale=false;gameLocalDirty=false;
+    gameSyncStatus('Progres bersama revisi '+data.revision+' diterapkan ('+new Date(data.updated_at).toLocaleString('id-ID')+').');
   }
   async function saveGameSnapshot(){
     if(!client||!currentTeam)throw new Error('Gabung ke tim terlebih dahulu.');
-    const raw=localStorage.getItem('warung-kita-save');
+    const raw=JSON.stringify(window.WarungGameBridge?.getSnapshot?.()||JSON.parse(localStorage.getItem('warung-kita-save')||'null'));
     if(!raw)throw new Error('Belum ada progres lokal untuk disimpan.');
     let snapshot;try{snapshot=JSON.parse(raw);}catch{throw new Error('Progres lokal rusak dan tidak bisa dibaca.');}
     if(!snapshot||typeof snapshot!=='object'||Array.isArray(snapshot))throw new Error('Format progres lokal tidak valid.');
@@ -97,9 +98,67 @@
     const {data,error}=await client.rpc('wk_save_game_state',{p_state:snapshot,p_expected_revision:gameRevision});
     if(error)throw new Error(error.message||'Gagal menyimpan progres.');
     const result=Array.isArray(data)?data[0]:data;
-    gameRevision=result?.revision??null;if(gameRevision!==null)localStorage.setItem(revisionKey(currentTeam.id),String(gameRevision));gameSnapshotStale=false;
+    gameRevision=result?.revision??null;if(gameRevision!==null)localStorage.setItem(revisionKey(currentTeam.id),String(gameRevision));gameSnapshotStale=false;gameLocalDirty=false;
     gameSyncStatus('Progres tersimpan untuk anggota tim (revisi '+gameRevision+') pada '+new Date(result.updated_at).toLocaleString('id-ID')+'.');
     status('Progres permainan berhasil disimpan ke tim.','success');
+  }
+  function scheduleAutoGameSync(){
+    if(gameSyncTimer)window.clearTimeout(gameSyncTimer);
+    gameSyncTimer=window.setTimeout(()=>{gameSyncTimer=null;autoSaveGameSnapshot().catch(error=>gameSyncStatus(safeError(error)));},1400);
+  }
+  async function autoSaveGameSnapshot(){
+    if(!client||!currentTeam||!gameLocalDirty||gameSyncInFlight)return;
+    if(gameSnapshotStale){gameSyncStatus('Ada perubahan teman yang belum dimuat. Muat progres tim sebelum melanjutkan sinkronisasi.');return;}
+    const snapshot=window.WarungGameBridge?.getSnapshot?.();
+    if(!snapshot)return;
+    const versionAtStart=gameLocalVersion;
+    let resyncAfterSave=false;
+    gameSyncInFlight=true;gameSyncStatus('Menyinkronkan progres…');
+    try{
+      const {data,error}=await client.rpc('wk_save_game_state',{p_state:snapshot,p_expected_revision:gameRevision});
+      if(error){
+        if(/berubah sejak terakhir dimuat|sudah ada|tidak tertimpa/i.test(error.message||'')){gameSnapshotStale=true;gameSyncStatus('Konflik progres terdeteksi. Perubahan lokal disimpan sebagai cadangan jika kamu memilih muat progres tim.');}
+        else gameSyncStatus('Sinkronisasi otomatis gagal: '+safeError(error,'periksa koneksi backend.'));
+        return;
+      }
+      const result=Array.isArray(data)?data[0]:data;
+      gameRevision=result?.revision??null;
+      if(gameRevision!==null)localStorage.setItem(revisionKey(currentTeam.id),String(gameRevision));
+      gameSnapshotStale=false;
+      if(gameLocalVersion===versionAtStart){
+        gameLocalDirty=false;
+        gameSyncStatus('Tersinkron otomatis · revisi '+gameRevision+' · '+new Date(result.updated_at).toLocaleTimeString('id-ID'));
+      }else{
+        gameLocalDirty=true;resyncAfterSave=true;
+        gameSyncStatus('Progres berubah saat sinkronisasi berlangsung; menyinkronkan perubahan terbaru…');
+      }
+    } finally {
+      gameSyncInFlight=false;
+      if(resyncAfterSave&&gameLocalDirty&&!gameSnapshotStale)scheduleAutoGameSync();
+    }
+  }
+  async function syncGameStateOnJoin(){
+    if(!client||!currentTeam)return;
+    const {data,error}=await client.from('wk_team_game_state').select('state,revision,updated_at').eq('team_id',currentTeam.id).maybeSingle();
+    if(error){gameSyncStatus('Belum bisa memeriksa progres tim. Sinkronisasi otomatis akan mencoba saat ada perubahan.');return;}
+    if(!data){gameRevision=null;gameSnapshotStale=false;gameLocalDirty=false;localStorage.removeItem(revisionKey(currentTeam.id));gameSyncStatus('Belum ada progres bersama. Perubahan berikutnya akan membuat snapshot pertama.');return;}
+    if(!gameLocalDirty){
+      const localSnapshot=window.WarungGameBridge?.getSnapshot?.();
+      if(localSnapshot){
+        try{localStorage.setItem('warung-kita-local-conflict-backup:'+currentTeam.id,JSON.stringify(localSnapshot));}catch{}
+      }
+      if(window.WarungGameBridge?.applySnapshot?.(data.state)){
+        gameRevision=data.revision;localStorage.setItem(revisionKey(currentTeam.id),String(gameRevision));gameSnapshotStale=false;
+        gameSyncStatus('Progres bersama revisi '+data.revision+' dimuat otomatis. Salinan progres lokal sebelumnya disimpan sebagai cadangan.');
+      }
+    }
+  }
+  function handleRemoteGameState(row){
+    if(!row||!currentTeam)return;
+    if(row.updated_by===currentUser?.id){gameRevision=row.revision;localStorage.setItem(revisionKey(currentTeam.id),String(gameRevision));return;}
+    gameSnapshotStale=true;
+    if(!gameLocalDirty&&!gameSyncInFlight){loadGameSnapshot().catch(error=>gameSyncStatus(safeError(error)));return;}
+    gameSyncStatus('Teman memperbarui progres saat kamu juga punya perubahan. Progres tidak ditimpa; pilih “Muat progres tim” untuk mengambil versi terbaru.');
   }
   function subscribeTeam(){
     if(!client||!currentTeam)return;
@@ -111,15 +170,8 @@
       .on('postgres_changes',{event:'INSERT',schema:'public',table:'wk_team_activity',filter:'team_id=eq.'+teamId},()=>refreshActivity())
       .subscribe();
     gameChannel=client.channel('wk-game-'+teamId)
-      .on('postgres_changes',{event:'UPDATE',schema:'public',table:'wk_team_game_state',filter:'team_id=eq.'+teamId},payload=>{
-        if(payload.new?.updated_by!==currentUser?.id){
-          gameSnapshotStale=true;
-          gameSyncStatus('Teman memperbarui progres tim. Klik “Muat progres tim” untuk memuat revisi terbaru sebelum menyimpan.');
-        }
-      })
-      .on('postgres_changes',{event:'INSERT',schema:'public',table:'wk_team_game_state',filter:'team_id=eq.'+teamId},payload=>{
-        if(payload.new?.updated_by!==currentUser?.id){gameSnapshotStale=true;gameSyncStatus('Progres bersama baru tersedia. Klik “Muat progres tim” untuk menggunakannya.');}
-      }).subscribe();
+      .on('postgres_changes',{event:'UPDATE',schema:'public',table:'wk_team_game_state',filter:'team_id=eq.'+teamId},payload=>handleRemoteGameState(payload.new))
+      .on('postgres_changes',{event:'INSERT',schema:'public',table:'wk_team_game_state',filter:'team_id=eq.'+teamId},payload=>handleRemoteGameState(payload.new)).subscribe();
   }
   async function refreshTeam(){
     if(!client||!currentUser)return;
@@ -133,14 +185,14 @@
     const {data:team,error:teamError}=await client.from('wk_teams').select('id,name,invite_code,status,owner_id').eq('id',membership.team_id).single();
     if(teamError){status('Tim belum dapat dimuat: '+safeError(teamError,'periksa kebijakan RLS dan migrasi.'),'error');return;}
     const changedTeam=currentTeam?.id!==team.id;
-    if(changedTeam){stopSubscriptions();gameRevision=null;gameSnapshotStale=false;}
+    if(changedTeam){stopSubscriptions();gameRevision=null;gameSnapshotStale=false;gameLocalDirty=false;if(gameSyncTimer)window.clearTimeout(gameSyncTimer);gameSyncTimer=null;}
     currentTeam=team;
     const storedRevision=localStorage.getItem(revisionKey(team.id));
-    gameRevision=storedRevision!==null&&/^\\d+$/.test(storedRevision)?Number(storedRevision):null;
+    gameRevision=storedRevision!==null&&/^\d+$/.test(storedRevision)?Number(storedRevision):null;
     showSignedIn();setHidden('team-setup',true);setHidden('team-workspace',false);injectGameSync();
     $('team-name-title').textContent=team.name;$('team-role-label').textContent=({owner:'Pemilik tim',manager:'Pengelola',member:'Anggota'})[membership.role]||'Anggota';
     $('team-invite-code').textContent=team.invite_code;$('team-invite-code').title='Bagikan kode ini hanya kepada pemain yang kamu percaya.';
-    setHidden('team-leave-btn',membership.role==='owner');
+    setHidden('team-leave-btn',true); // Use the reviewed exit-request flow in team-management.js.
     const [membersResult,activityResult]=await Promise.all([
       client.from('wk_team_members').select('user_id,display_name,role,joined_at').eq('team_id',team.id).order('joined_at',{ascending:true}),
       client.from('wk_team_activity').select('id,actor_id,event_type,message,created_at').eq('team_id',team.id).order('created_at',{ascending:false}).limit(30)
@@ -148,14 +200,16 @@
     if(membersResult.error||activityResult.error){status('Tim terbuka, tetapi sebagian data belum dapat dimuat. Periksa migrasi/RLS.','error');return;}
     roster=membersResult.data||[];renderRoster();renderActivity(activityResult.data||[]);
     status('Terhubung ke tim. Riwayat aktivitas dibatasi oleh izin akun.','success');
+    if(window.WarungGameBridge)window.WarungGameBridge.onLocalStateChanged=()=>{if(!client||!currentTeam)return;gameLocalVersion++;gameLocalDirty=true;if(!gameSnapshotStale)scheduleAutoGameSync();};
     if(changedTeam||!channel)subscribeTeam();
+    if(changedTeam)syncGameStateOnJoin().catch(error=>gameSyncStatus(safeError(error)));
   }
   async function refreshSession(){
     if(!client)return;
     const {data,error}=await client.auth.getSession();
     if(error){status(error.message,'error');return;}
     currentUser=data.session?.user||null;
-    if(!currentUser){stopSubscriptions();showSignedOut();status('Masuk untuk membuat tim atau bergabung dengan teman.');return;}
+    if(!currentUser){stopSubscriptions();currentTeam=null;gameLocalDirty=false;gameSnapshotStale=false;if(gameSyncTimer)window.clearTimeout(gameSyncTimer);gameSyncTimer=null;showSignedOut();status('Masuk untuk membuat tim atau bergabung dengan teman.');return;}
     await refreshTeam();
   }
   async function signInOrSignUp(mode){
